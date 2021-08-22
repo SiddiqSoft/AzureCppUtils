@@ -7,7 +7,7 @@ AccessModifierOffset: -4
 
 AlignAfterOpenBracket: Align # ours is Align
 #AlignArrayOfStructures: Left
-AlignConsecutiveDeclarations: AcrossEmptyLines
+AlignConsecutiveDeclarations: Consecutive
 AlignOperands: AlignAfterOperator
 AlignTrailingComments: true
 AlignConsecutiveAssignments: AcrossEmptyLines

@@ -1,35 +1,27 @@
-PROJECTNAME : PROJECTDESCRIPTION
+Azure C++ Utils : Azure REST API Helpers for Modern C++
 -------------------------------------------
 <!-- badges -->
-[![CodeQL](https://github.com/SiddiqSoft/PROJECTNAME/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/SiddiqSoft/PROJECTNAME/actions/workflows/codeql-analysis.yml)
-[![Build Status](https://dev.azure.com/siddiqsoft/siddiqsoft/_apis/build/status/SiddiqSoft.PROJECTNAME?branchName=main)](https://dev.azure.com/siddiqsoft/siddiqsoft/_build/latest?definitionId=DEFINITIONID&branchName=main)
-![](https://img.shields.io/nuget/v/SiddiqSoft.PROJECTNAME)
-![](https://img.shields.io/github/v/tag/SiddiqSoft/PROJECTNAME)
-![](https://img.shields.io/azure-devops/tests/siddiqsoft/siddiqsoft/DEFINITIONID)
-![](https://img.shields.io/azure-devops/coverage/siddiqsoft/siddiqsoft/DEFINITIONID)
+[![CodeQL](https://github.com/SiddiqSoft/azure-cpp-utils/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/SiddiqSoft/azure-cpp-utils/actions/workflows/codeql-analysis.yml)
+[![Build Status](https://dev.azure.com/siddiqsoft/siddiqsoft/_apis/build/status/SiddiqSoft.azure-cpp-utils?branchName=main)](https://dev.azure.com/siddiqsoft/siddiqsoft/_build/latest?definitionId=16&branchName=main)
+![](https://img.shields.io/nuget/v/SiddiqSoft.AzureCppUtils)
+![](https://img.shields.io/github/v/tag/SiddiqSoft/azure-cpp-utils)
+![](https://img.shields.io/azure-devops/tests/siddiqsoft/siddiqsoft/16)
+![](https://img.shields.io/azure-devops/coverage/siddiqsoft/siddiqsoft/16)
 <!-- end badges -->
 
 # Objective
 
+- Collect useful helpers for Azure REST API in a single location.
+- Header-only
+- Use Win32 functions on Windows
 
-# Requirements
+## Requirements
 - The build and tests are for Visual Studio 2019 under x64.
 
-# Usage
-- Use the nuget [SiddiqSoft.PROJECTNAME](https://www.nuget.org/packages/SiddiqSoft.PROJECTNAME/)
+## Usage
+- Use the nuget [SiddiqSoft.AzureCppUtils](https://www.nuget.org/packages/SiddiqSoft.AzureCppUtils/)
 - Copy paste..whatever works.
 
-<hr/>
-
-- [ ] Replace "PROJECTNAME" with your new project name
-- [ ] Replace "PROJECTDESCRIPTION" with your project description
-- [ ] Replace "DEFINITIONID" in the badges to reflect the Azure Pipelines definition id
-- [ ] Renamed the nuget files to replace the PROJECTNAME
-- [ ] Update the nuspec file
-- [ ] Update the README (pay attention to the badge links)
-
-
-<hr/>
 
 
 <p align="right">
