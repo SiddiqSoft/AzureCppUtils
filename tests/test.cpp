@@ -87,11 +87,11 @@ namespace siddiqsoft
 	TEST(EncryptionUtils, MD5HashTest)
 	{
 		std::string myMessage = "My ^&()=+-_[]{};:\'\"<>?`~ N@me is $0.50! A whole 50 off! #discount./|\\";
-		auto        varKey    = EncryptionUtils::hashMD5(myMessage);
+		auto        varKey    = EncryptionUtils::MD5(myMessage);
 		EXPECT_EQ(varKey, "a2cf7440dab41a41487ec62f40d68cee");
 
 		std::string myMessage1 = "happy";
-		auto        varKey1    = EncryptionUtils::hashMD5(myMessage1);
+		auto        varKey1    = EncryptionUtils::MD5(myMessage1);
 		EXPECT_EQ(varKey1, "56ab24c15b72a457069c5ea42fcfc640");
 	}
 
@@ -150,5 +150,39 @@ namespace siddiqsoft
 		catch (const std::exception& e) {
 			EXPECT_TRUE(false) << e.what() << std::endl;
 		}
+	}
+
+
+	TEST(EncryptionUtils, CosmosToken)
+	{
+		auto Key = "dsZQi3KtZmCv1ljt3VNWNm7sQUF1y5rJfC6kv5JiwvW0EndXdDku/dkKBp8/ufDToSxLzR4y+O/0H/t4bQtVNw==";
+
+		EXPECT_EQ(Key, Base64Utils::encode(Base64Utils::decode(Key)));
+
+		auto decodedKey = siddiqsoft::Base64Utils::decode(Key);
+		auto auth       = EncryptionUtils::CosmosToken(decodedKey, "GET", "dbs", "dbs/ToDoList", "Thu, 27 Apr 2017 00:51:12 GMT");
+
+		// https://docs.microsoft.com/en-us/rest/api/cosmos-db/access-control-on-cosmosdb-resources?redirectedfrom=MSDN
+		EXPECT_EQ("type%3dmaster%26ver%3d1.0%26sig%3dc09PEVJrgp2uQRkr934kFbTqhByc7TVr3OHyqlu%2bc%2bc%3d", auth);
+	}
+
+
+	TEST(DateUtils, ISO8601_1)
+	{
+		auto now_ts      = std::chrono::system_clock::now();
+
+		auto now_iso8601 = DateUtils::ISO8601<std::string>(now_ts);
+		std::cout << "now_iso8601   : " << now_iso8601 << std::endl;
+		std::cout << "now_iso8601   : " << DateUtils::ISO8601() << std::endl;
+	}
+
+
+	TEST(DateUtils, RFC7231_1)
+	{
+		auto now_ts      = std::chrono::system_clock::now();
+
+		auto now_rfc7231 = DateUtils::RFC7231<std::string>(now_ts);
+		std::cout << "now_rfc7231   : " << now_rfc7231 << std::endl;
+		std::cout << "now_rfc7231   : " << DateUtils::RFC7231() << std::endl;
 	}
 } // namespace siddiqsoft

@@ -14,7 +14,17 @@ Azure C++ Utils : Azure REST API Helpers for Modern C++
 - Collect useful helpers for Azure REST API in a single location.
 - Header-only
 - Use Win32 functions on Windows
-
+- DateUtils
+  - RFC7231 and RFC1123
+  - ISO8601
+- Bas64Utils
+  - encode
+- EncryptionUtils
+  - MD5
+  - HMAC
+  - JWTSHA256
+  - SASToken
+  - CosmosToken  
 ## Requirements
 - The build and tests are for Visual Studio 2019 under x64.
 

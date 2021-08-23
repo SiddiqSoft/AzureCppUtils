@@ -56,6 +56,75 @@
 
 namespace siddiqsoft
 {
+	struct DateUtils
+	{
+		/// @brief Converts the argument to ISO8601 format
+		/// @tparam T Must be string or wstring
+		/// @param rawTime time_point representing the time. Defaults to "now"
+		/// @return String representing ISO 8601 format with milliseconds empty if fails
+		template <class T = std::string>
+		static T ISO8601(const std::chrono::system_clock::time_point& rawtp = std::chrono::system_clock::now())
+		{
+			auto rawtime = std::chrono::system_clock::to_time_t(rawtp);
+			tm   timeInfo {};
+			// We need to get the fractional milliseconds from the raw time point.
+			auto msTime = std::chrono::duration_cast<std::chrono::milliseconds>(rawtp.time_since_epoch()).count() % 1000;
+			// Get the UTC time packet.
+			auto ec = gmtime_s(&timeInfo, &rawtime);
+
+			if constexpr (std::is_same_v<T, std::string>) {
+				// https://en.wikipedia.org/wiki/ISO_8601
+				// yyyy-mm-ddThh:mm:ss.mmmZ
+				char buff[sizeof "yyyy-mm-ddThh:mm:ss.0000000Z"] {};
+
+				if (ec != EINVAL) strftime(buff, sizeof(buff), "%FT%T", &timeInfo);
+				return std::format("{}.{:03}Z", buff, msTime);
+			}
+			else if constexpr (std::is_same_v<T, std::wstring>) {
+				// https://en.wikipedia.org/wiki/ISO_8601
+				// yyyy-mm-ddThh:mm:ss.mmmZ
+				wchar_t buff[sizeof L"yyyy-mm-ddThh:mm:ss.0000000Z"] {};
+				if (ec != EINVAL) wcsftime(buff, sizeof(buff), L"%FT%T", &timeInfo);
+				return std::format(L"{}.{:03}Z", buff, msTime);
+			}
+
+			return {};
+		}
+
+
+		/// @brief Build a time and date string compliant with the RFC7231
+		/// @tparam T Must be either std::string or std::wstring
+		/// @param rawtp Optional. Uses current time if not provided
+		/// @return Returns a string representation of the form: "Tue, 01 Nov 1994 08:12:31 GMT"
+		template <class T = std::string>
+		static T RFC7231(const std::chrono::system_clock::time_point& rawtp = std::chrono::system_clock::now())
+		{
+			auto rawtime = std::chrono::system_clock::to_time_t(rawtp);
+			tm   timeInfo {};
+
+			// Get the UTC time packet.
+			auto ec = gmtime_s(&timeInfo, &rawtime);
+
+			// HTTP-date as per RFC 7231:  Tue, 01 Nov 1994 08:12:31 GMT
+			// Note that since we are getting the UTC time we should not use the %z or %Z in the strftime format
+			// as it returns the local timezone and not GMT.
+			if constexpr (std::is_same_v<T, std::string>) {
+				char buff[sizeof "Tue, 01 Nov 1994 08:12:31 GMT"] {};
+				if (ec != EINVAL) strftime(buff, sizeof(buff), "%a, %d %h %Y %T GMT", &timeInfo);
+
+				return buff;
+			}
+
+			if constexpr (std::is_same_v<T, std::wstring>) {
+				wchar_t buff[sizeof L"Tue, 01 Nov 1994 08:12:31 GMT"] {};
+				if (ec != EINVAL) wcsftime(buff, sizeof(buff), L"%a, %d %h %Y %T GMT", &timeInfo);
+
+				return buff;
+			}
+		}
+	};
+
+
 	struct Base64Utils
 	{
 		/// @brief Base64 encode a given "binary" string and optionally url escape
@@ -138,6 +207,7 @@ namespace siddiqsoft
 		}
 	};
 
+
 	struct UrlUtils
 	{
 		/// @brief Helper to encode the given string in context of the HTTP url
@@ -180,44 +250,13 @@ namespace siddiqsoft
 		}
 	};
 
+
 	struct EncryptionUtils
 	{
-#if USE_OPENSSL
-		static std::string createMD5Hash(const std::string& source)
-		{
-			unsigned char digest[MD5_DIGEST_LENGTH] {};
-			std::string   output {};
-			MD5((unsigned char*)source.c_str(), source.length(), (unsigned char*)&digest);
-			for (auto i = 0; i < 16; i++) {
-				std::format_to(std::back_inserter(output), "{:02x}", digest[i]);
-			}
-			return output;
-		}
-
-
-		/// @brief Returns binary HMAC using SHA-256
-		/// @param argSource Source text
-		/// @param argKey Source key; MUST NOT be base64 encoded
-		/// @return Binary enclosed in string (narrow); you must base64encode to get useful result.
-		static std::string createHMAC(const std::string& argSource, const std::string& argKey)
-		{
-			if (argSource.empty() || argKey.empty()) throw std::invalid_argument("createHMAC: source and key must not be empty.");
-
-			unsigned int  diglen = 0;
-			unsigned char result[EVP_MAX_MD_SIZE] {}; // output buffer for openssl lib. 64 char max.
-
-			unsigned char* digest = HMAC(EVP_sha256(),
-			                             reinterpret_cast<const unsigned char*>(argKey.c_str()),
-			                             argKey.length(),
-			                             reinterpret_cast<const unsigned char*>(argSource.c_str()),
-			                             argSource.length(),
-			                             result,
-			                             &diglen);
-
-			return std::string(reinterpret_cast<char*>(digest), diglen);
-		}
-#else
-		static std::string hashMD5(const std::string& source)
+		/// @brief Create a MD5 hash for the given source
+		/// @param source
+		/// @return MD5 of the source argument empty if there is a failure
+		static std::string MD5(const std::string& source)
 		{
 			HCRYPTPROV hProv {NULL};
 			HCRYPTHASH hHash {NULL};
@@ -232,7 +271,9 @@ namespace siddiqsoft
 				// Get the hash library, choose MD5..
 				if (TRUE == CryptCreateHash(hProv, CALG_MD5, 0, 0, &hHash)) {
 					// Hash the source..
-					if (TRUE == CryptHashData(hHash, reinterpret_cast<const BYTE*>(source.data()), source.length(), 0)) {
+					if (TRUE ==
+					    CryptHashData(hHash, reinterpret_cast<const BYTE*>(source.data()), static_cast<DWORD>(source.length()), 0))
+					{
 						char  rgbDigits[] {"0123456789abcdef"};
 						BYTE  rgbHash[sizeof(rgbDigits)] {};
 						DWORD rgbHashSize = sizeof(rgbDigits);
@@ -258,7 +299,8 @@ namespace siddiqsoft
 		}
 
 
-		/// @brief Returns binary HMAC using SHA-256
+		/// @brief Returns binary HMAC using SHA-256.
+		/// https://www.liavaag.org/English/SHA-Generator/HMAC/
 		/// @param argSource Source text
 		/// @param argKey Source key; MUST NOT be base64 encoded
 		/// @return Binary enclosed in string (narrow); you must base64encode to get useful result.
@@ -267,33 +309,46 @@ namespace siddiqsoft
 			BCRYPT_ALG_HANDLE  hAlg {NULL};
 			BCRYPT_HASH_HANDLE hHash {NULL};
 			NTSTATUS           status {0};
-			auto               pbHash = std::make_unique<BYTE[]>(256);
-			RunOnEnd           cleanupOnEnd {[&] {
+			RunOnEnd           cleanupOnEnd {[&hAlg, &hHash] {
+                // All handles we allocate are cleaned up when this function returns to caller
                 if (hAlg) BCryptCloseAlgorithmProvider(hAlg, 0);
                 if (hHash) BCryptDestroyHash(hHash);
             }};
+
 
 			if (status = BCryptOpenAlgorithmProvider(&hAlg, BCRYPT_SHA256_ALGORITHM, NULL, BCRYPT_ALG_HANDLE_HMAC_FLAG);
 			    status == 0) {
 				// Set the key for the hash function..
 				// Passing NULL, 0 to the pbHashObject and cbHashObject asks the method to allocate
 				// memory on our behalf.
-				if (status = BCryptCreateHash(
-				            hAlg, &hHash, NULL, 0, reinterpret_cast<UCHAR*>(const_cast<char*>(key.data())), key.length(), 0);
+				if (status = BCryptCreateHash(hAlg,
+				                              &hHash,
+				                              NULL,
+				                              0,
+				                              reinterpret_cast<UCHAR*>(const_cast<char*>(key.data())),
+				                              static_cast<DWORD>(key.length()),
+				                              0);
 				    status == 0)
 				{
 					// Let's hash our message!
-					if (status = BCryptHashData(
-					            hHash, reinterpret_cast<UCHAR*>(const_cast<char*>(message.data())), message.length(), 0);
-					    status == 0) {
+					if (status = BCryptHashData(hHash,
+					                            reinterpret_cast<UCHAR*>(const_cast<char*>(message.data())),
+					                            static_cast<DWORD>(message.length()),
+					                            0);
+					    status == 0)
+					{
+						// Get the size of the hash so we can fetch it..
 						DWORD cbHash {0};
 						ULONG cbData {0};
-						status = BCryptGetProperty(
-						        hAlg, BCRYPT_HASH_LENGTH, reinterpret_cast<UCHAR*>(&cbHash), sizeof(DWORD), &cbData, 0);
-						// Fetch the hash value
-						if (status = BCryptFinishHash(hHash, reinterpret_cast<UCHAR*>(pbHash.get()), cbHash, 0); status == 0) {
-							// https://www.liavaag.org/English/SHA-Generator/HMAC/
-							return std::string {reinterpret_cast<char*>(pbHash.get()), cbHash};
+						if (status = BCryptGetProperty(
+						            hAlg, BCRYPT_HASH_LENGTH, reinterpret_cast<UCHAR*>(&cbHash), sizeof(DWORD), &cbData, 0);
+						    status == 0) {
+							auto pbHash = std::make_unique<BYTE[]>(cbHash);
+							// Fetch the hash value
+							if (status = BCryptFinishHash(hHash, reinterpret_cast<UCHAR*>(pbHash.get()), cbHash, 0); status == 0) {
+								// Return the HMAC as a raw binary..client must choose to encode or leave as-is
+								return std::string {reinterpret_cast<char*>(pbHash.get()), cbHash};
+							}
 						}
 					}
 				}
@@ -302,15 +357,13 @@ namespace siddiqsoft
 			// Fall-through is failure
 			return {};
 		}
-#endif
 
 
-		//
-		// createJWTHMAC256
-		// Create the signature
-		// Caution using nlohman::json to dump()
-		// The JSON specification does not mandate ordering of the key-value pairs. However, if you notice, the JWT base64url
-		// are very sensitive to ordering.
+		/// @brief Create a JsonWebToken authorization with HMAC 256
+		/// @param secret
+		/// @param header
+		/// @param payload The string wiht json tokens
+		/// @return
 		static std::string JWTHMAC256(const std::string& secret, const std::string& header, const std::string& payload)
 		{
 			auto s1        = Base64Utils::encode(header, true);
@@ -353,10 +406,10 @@ namespace siddiqsoft
 		static std::string
 		SASToken(const std::string& url, const std::string& keyName, const std::string& key, const std::string& expiry)
 		{
-			if (url.empty()) throw std::invalid_argument("createSASToken: url may not be empty");
-			if (keyName.empty()) throw std::invalid_argument("createSASToken: keyName may not be empty");
-			if (key.empty()) throw std::invalid_argument("createSASToken: key may not be empty");
-			if (expiry.empty()) throw std::invalid_argument("createSASToken: expiry may not be empty");
+			if (url.empty()) throw std::invalid_argument("SASToken: url may not be empty");
+			if (keyName.empty()) throw std::invalid_argument("SASToken: keyName may not be empty");
+			if (key.empty()) throw std::invalid_argument("SASToken: key may not be empty");
+			if (expiry.empty()) throw std::invalid_argument("SASToken: expiry may not be empty");
 
 			auto s1    = UrlUtils::encode(url, true); // lowercase
 			auto sig   = HMAC(std::format("{}\n{}", s1, expiry), key);
@@ -364,6 +417,50 @@ namespace siddiqsoft
 			esign      = UrlUtils::encode(esign, true); // lowercase
 
 			return std::format("SharedAccessSignature sr={}&sig={}&se={}&skn={}", s1, esign, expiry, keyName);
+		}
+
+
+		/// @brief Create the Cosmos Authorization Token using the Key for this connection.
+		/// @param key Binary. The key must be decoded from the base64 value in the connection string from the Azure portal
+		/// @param verb GET, POST, PUT, DELETE
+		/// @param type One of the following: dbs, docs, colls, attachments or empty
+		/// @param resourceLink The resource link sub-uri
+		/// @param date Date in RFC7231 as string
+		/// @return Cosmos Authorization signature as std::string. It is base64 encoded and urlsafe
+		static std::string CosmosToken(const std::string  key,
+		                               const std::string& verb,
+		                               const std::string& type,
+		                               const std::string& resourceLink,
+		                               const std::string& date)
+		{
+			if (key.empty()) throw std::invalid_argument("CosmosToken: key may not be empty");
+			if (date.empty()) throw std::invalid_argument("CosmosToken: date may not be empty");
+			if (verb.empty()) throw std::invalid_argument("CosmosToken: verb may not be empty");
+			if (type.empty()) throw std::invalid_argument("CosmosToken: type may not be empty");
+			if (resourceLink.empty()) throw std::invalid_argument("CosmosToken: resourceLink may not be empty");
+
+			// The formula is expressed as per
+			// https://docs.microsoft.com/en-us/rest/api/documentdb/access-control-on-documentdb-resources?redirectedfrom=MSDN
+			std::string strToHash {};
+
+			std::ranges::transform(verb, std::back_inserter(strToHash), [](auto& ch) { return std::tolower(ch); });
+			std::format_to(std::back_inserter(strToHash), "\n");
+			std::ranges::transform(type, std::back_inserter(strToHash), [](auto& ch) { return std::tolower(ch); });
+			std::format_to(std::back_inserter(strToHash), "\n{}\n", resourceLink);
+			std::ranges::transform(date, std::back_inserter(strToHash), [](auto& ch) { return std::tolower(ch); });
+			std::format_to(std::back_inserter(strToHash), "\n\n");
+
+			if (!strToHash.empty()) {
+				// Sign using SHA256 using the master key and base64 encode. force lowercase
+				if (auto hmacBase64UrlEscaped = UrlUtils::encode(Base64Utils::encode(EncryptionUtils::HMAC(strToHash, key)), true);
+				    !hmacBase64UrlEscaped.empty())
+				{
+					return std::format("type%3dmaster%26ver%3d1.0%26sig%3d{}", hmacBase64UrlEscaped);
+				}
+			}
+
+			// Fall-through failure
+			return {};
 		}
 	};
 } // namespace siddiqsoft
