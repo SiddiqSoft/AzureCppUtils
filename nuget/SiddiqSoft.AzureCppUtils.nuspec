@@ -11,8 +11,8 @@
 		<id>SiddiqSoft.AzureCppUtils</id>
 		<version>$VERSION$</version>
 		<authors>SiddiqSoft</authors>
-		<description>Azure REST API Helpers for Modern C++</description>
-		<tags>cpp20 base64 SAS JWT HMAC REST HTTP native nativepackage cpp</tags>
+		<description>Azure REST API Helpers for Modern C++. Featuring helper functions for date-time, encryption tokens for Azure REST API as a single header-only package and native Win32 libraries.</description>
+		<tags>cpp20 base64 SAS JWT HMAC REST HTTP header-only native nativepackage cpp</tags>
 		<projectUrl>https://github.com/SiddiqSoft/azure-cpp-utils</projectUrl>
 		<requireLicenseAcceptance>true</requireLicenseAcceptance>
 		<license type="expression">BSD-3-Clause</license>
