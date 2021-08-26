@@ -60,6 +60,7 @@
 
 namespace siddiqsoft
 {
+#if !_NORW
 	/// @brief In support of the macro NORW which allows us to declare/use narrow/wide strings as needed. Plucked from the MS stl
 	/// implementation
 	template <typename _NorWT>
@@ -74,9 +75,9 @@ namespace siddiqsoft
 		}
 	}
 #define _NORW(_NorWT, _Literal) NorW_1<_NorWT>(_Literal, L##_Literal)
+#endif
 
-
-	struct ConversionUtils
+	namespace ConversionUtils
 	{
 		/// @brief Convert given wide string to utf8 encoded string
 		/// @param src std::wstring input
@@ -88,7 +89,8 @@ namespace siddiqsoft
 			if (size_t destSize = WideCharToMultiByte(CP_UTF8, 0, src.c_str(), src.length(), NULL, 0, NULL, NULL); destSize > 0) {
 				// Allocate appropriate buffer +1 for null-char
 				std::vector<char> destBuffer(destSize + 1);
-				destSize = WideCharToMultiByte(CP_UTF8, 0, src.c_str(), src.length(), destBuffer.data(), static_cast<DWORD>(destSize), NULL, NULL);
+				destSize = WideCharToMultiByte(
+				        CP_UTF8, 0, src.c_str(), src.length(), destBuffer.data(), static_cast<DWORD>(destSize), NULL, NULL);
 				return {destBuffer.data(), destSize};
 			}
 
@@ -106,17 +108,18 @@ namespace siddiqsoft
 			if (size_t destSize = MultiByteToWideChar(CP_UTF8, 0, src.c_str(), src.length(), NULL, 0); destSize > 0) {
 				// Allocate appropriate buffer +1 for null-char
 				std::vector<wchar_t> destBuffer(destSize + 1);
-				destSize = MultiByteToWideChar(CP_UTF8, 0, src.c_str(), src.length(), destBuffer.data(), static_cast<DWORD>(destSize));
+				destSize =
+				        MultiByteToWideChar(CP_UTF8, 0, src.c_str(), src.length(), destBuffer.data(), static_cast<DWORD>(destSize));
 				return {destBuffer.data(), destSize};
 			}
 
 			// Fall-through error -> empty string
 			return {};
 		}
-	};
+	}; // namespace ConversionUtils
 
 
-	struct DateUtils
+	namespace DateUtils
 	{
 		/// @brief Converts the argument to ISO8601 format
 		/// @tparam T Must be string or wstring
@@ -184,11 +187,15 @@ namespace siddiqsoft
 				return buff;
 			}
 		}
-	};
+	}; // namespace DateUtils
 
 
-	struct Base64Utils
+	namespace Base64Utils
 	{
+		/// @brief URL escape the base64 encoded string
+		/// @tparam T std::string or std::wstring
+		/// @param src The source MUST be a base64 encoded string
+		/// @return url encoded base64 source string
 		template <typename T = char>
 			requires std::same_as<T, char> || std::same_as<T, wchar_t>
 		static std::basic_string<T> urlEscape(const std::basic_string<T>& src)
@@ -231,7 +238,6 @@ namespace siddiqsoft
 
 		/// @brief Base64 encode a given "binary" string and optionally url escape
 		/// @param argBin The bytes to encode
-		/// @param urlEscape Optional. Url Escape the resulting string
 		/// @return Base64 encoded string
 		template <typename T = char>
 			requires std::same_as<T, char> || std::same_as<T, wchar_t>
@@ -340,10 +346,10 @@ namespace siddiqsoft
 			// Fall-through is failure; return empty string
 			return {};
 		}
-	};
+	}; // namespace Base64Utils
 
 
-	struct UrlUtils
+	namespace UrlUtils
 	{
 		/// @brief Helper to encode the given string in context of the HTTP url
 		/// @param source Source string
@@ -383,16 +389,16 @@ namespace siddiqsoft
 					case 0x60:
 						std::format_to(std::back_inserter(retOutput), lowerCase ? _NORW(T, "%{:02x}") : _NORW(T, "%{:02X}"), ch);
 						break;
-					default: std::format_to(std::back_inserter(retOutput), "{}", ch);
+					default: std::format_to(std::back_inserter(retOutput), _NORW(T, "{}"), ch);
 				};
 			});
 
 			return retOutput;
 		}
-	};
+	}; // namespace UrlUtils
 
 
-	struct EncryptionUtils
+	namespace EncryptionUtils
 	{
 		/* Implementation Note!
 		 * The support for wstring is for completeness and typically the use-case is where we
@@ -529,15 +535,24 @@ namespace siddiqsoft
 		/// @return
 		template <typename T = char>
 			requires std::same_as<T, char> || std::same_as<T, wchar_t>
-		static std::basic_string<T> JWTHMAC256(const std::basic_string<T>& secret, const std::basic_string<T>& header, const std::basic_string<T>& payload)
+		static std::basic_string<T>
+		JWTHMAC256(const std::basic_string<T>& secret, const std::basic_string<T>& header, const std::basic_string<T>& payload)
 		{
-			auto s1        = Base64Utils::urlEscape<T>(Base64Utils::encode<T>(header));
-			auto s2        = Base64Utils::urlEscape<T>(Base64Utils::encode<T>(payload));
-			auto a3        = std::format( _NORW(T, "{}.{}"), s1, s2);
-			auto a4        = HMAC<T>(a3, secret);
-			auto signature = Base64Utils::urlEscape<T>(Base64Utils::encode<T>(a4));
+			if constexpr (std::is_same_v<T, char>) {
+				auto s1        = Base64Utils::urlEscape<char>(Base64Utils::encode<char>(header));
+				auto s2        = Base64Utils::urlEscape<char>(Base64Utils::encode<char>(payload));
+				auto a3        = std::format("{}.{}", s1, s2);
+				auto a4        = HMAC<char>(a3, secret);
+				auto signature = Base64Utils::urlEscape<char>(Base64Utils::encode<char>(a4));
 
-			return std::format( _NORW(T, "{}.{}.{}"), s1, s2, signature);
+				return std::format("{}.{}.{}", s1, s2, signature);
+			}
+			else {
+				// Delegate to the narrow version; conversion at the edge
+				return ConversionUtils::wideFromUtf8(JWTHMAC256<char>(ConversionUtils::utf8FromWide(secret),
+				                                                      ConversionUtils::utf8FromWide(header),
+				                                                      ConversionUtils::utf8FromWide(payload)));
+			}
 		}
 
 
@@ -548,16 +563,22 @@ namespace siddiqsoft
 		/// @param key The key to sign the url with time
 		/// @param timeout Amount of ticks past the "now" (number of seconds since 1970-1-1)
 		/// @return SAS token
-		static std::string
-		SASToken(const std::string& url, const std::string& keyName, const std::string& key, const std::chrono::seconds& timeout)
+		template <typename T = char>
+			requires std::same_as<T, char> || std::same_as<T, wchar_t>
+		static std::basic_string<T> SASToken(const std::basic_string<T>& url,
+		                                     const std::basic_string<T>& keyName,
+		                                     const std::basic_string<T>& key,
+		                                     const std::chrono::seconds& timeout)
 		{
 			time_t epoch {};
 
 			time(&epoch); // number of seconds since 1970-1-1
-			auto delta  = timeout.count();
-			auto expiry = std::to_string(int64_t(epoch) + delta);
 
-			return SASToken(url, keyName, key, expiry);
+			return SASToken<T>(url,
+			                   keyName,
+			                   key,
+			                   std::is_same_v<T, wchar_t> ? std::to_wstring(int64_t(epoch) + timeout.count())
+			                                              : std::to_string(int64_t(epoch) + timeout.count()));
 		}
 
 
@@ -568,20 +589,33 @@ namespace siddiqsoft
 		/// @param key The key to sign the url with time
 		/// @param expiry The expiry is the number of seconds since 1970-1-1 plus timeout
 		/// @return SAS token
-		static std::string
-		SASToken(const std::string& url, const std::string& keyName, const std::string& key, const std::string& expiry)
+		template <typename T = char>
+			requires std::same_as<T, char> || std::same_as<T, wchar_t>
+		static std::basic_string<T> SASToken(const std::basic_string<T>& url,
+		                                     const std::basic_string<T>& keyName,
+		                                     const std::basic_string<T>& key,
+		                                     const std::basic_string<T>& expiry)
 		{
 			if (url.empty()) throw std::invalid_argument("SASToken: url may not be empty");
 			if (keyName.empty()) throw std::invalid_argument("SASToken: keyName may not be empty");
 			if (key.empty()) throw std::invalid_argument("SASToken: key may not be empty");
 			if (expiry.empty()) throw std::invalid_argument("SASToken: expiry may not be empty");
 
-			auto s1    = UrlUtils::encode(url, true); // lowercase
-			auto sig   = HMAC(std::format("{}\n{}", s1, expiry), key);
-			auto esign = Base64Utils::encode(sig);
-			esign      = UrlUtils::encode(esign, true); // lowercase
+			if constexpr (std::is_same_v<T, char>) {
+				auto s1    = UrlUtils::encode<char>(url, true); // lowercase
+				auto sig   = HMAC<char>(std::format("{}\n{}", s1, expiry), key);
+				auto esign = Base64Utils::encode<char>(sig);
+				esign      = UrlUtils::encode<char>(esign, true); // lowercase
 
-			return std::format("SharedAccessSignature sr={}&sig={}&se={}&skn={}", s1, esign, expiry, keyName);
+				return std::format("SharedAccessSignature sr={}&sig={}&se={}&skn={}", s1, esign, expiry, keyName);
+			}
+			else {
+				// Delegate to the narrow version and convert at the edges.
+				return ConversionUtils::wideFromUtf8(SASToken<char>(ConversionUtils::utf8FromWide(url),
+				                                                    ConversionUtils::utf8FromWide(keyName),
+				                                                    ConversionUtils::utf8FromWide(key),
+				                                                    ConversionUtils::utf8FromWide(expiry)));
+			}
 		}
 
 
@@ -592,11 +626,13 @@ namespace siddiqsoft
 		/// @param resourceLink The resource link sub-uri
 		/// @param date Date in RFC7231 as string
 		/// @return Cosmos Authorization signature as std::string. It is base64 encoded and urlsafe
-		static std::string CosmosToken(const std::string  key,
-		                               const std::string& verb,
-		                               const std::string& type,
-		                               const std::string& resourceLink,
-		                               const std::string& date)
+		template <typename T = char>
+			requires std::same_as<T, char> || std::same_as<T, wchar_t>
+		static std::basic_string<T> CosmosToken(const std::basic_string<T>& key,
+		                                        const std::basic_string<T>& verb,
+		                                        const std::basic_string<T>& type,
+		                                        const std::basic_string<T>& resourceLink,
+		                                        const std::basic_string<T>& date)
 		{
 			if (key.empty()) throw std::invalid_argument("CosmosToken: key may not be empty");
 			if (date.empty()) throw std::invalid_argument("CosmosToken: date may not be empty");
@@ -604,30 +640,41 @@ namespace siddiqsoft
 			if (type.empty()) throw std::invalid_argument("CosmosToken: type may not be empty");
 			if (resourceLink.empty()) throw std::invalid_argument("CosmosToken: resourceLink may not be empty");
 
-			// The formula is expressed as per
-			// https://docs.microsoft.com/en-us/rest/api/documentdb/access-control-on-documentdb-resources?redirectedfrom=MSDN
-			std::string strToHash {};
+			if constexpr (std::is_same_v<T, char>) {
+				// The formula is expressed as per
+				// https://docs.microsoft.com/en-us/rest/api/documentdb/access-control-on-documentdb-resources?redirectedfrom=MSDN
+				std::string strToHash {};
 
-			std::ranges::transform(verb, std::back_inserter(strToHash), [](auto& ch) { return std::tolower(ch); });
-			std::format_to(std::back_inserter(strToHash), "\n");
-			std::ranges::transform(type, std::back_inserter(strToHash), [](auto& ch) { return std::tolower(ch); });
-			std::format_to(std::back_inserter(strToHash), "\n{}\n", resourceLink);
-			std::ranges::transform(date, std::back_inserter(strToHash), [](auto& ch) { return std::tolower(ch); });
-			std::format_to(std::back_inserter(strToHash), "\n\n");
+				std::ranges::transform(verb, std::back_inserter(strToHash), [](auto& ch) { return std::tolower(ch); });
+				std::format_to(std::back_inserter(strToHash), "\n");
+				std::ranges::transform(type, std::back_inserter(strToHash), [](auto& ch) { return std::tolower(ch); });
+				std::format_to(std::back_inserter(strToHash), "\n{}\n", resourceLink);
+				std::ranges::transform(date, std::back_inserter(strToHash), [](auto& ch) { return std::tolower(ch); });
+				std::format_to(std::back_inserter(strToHash), "\n\n");
 
-			if (!strToHash.empty()) {
-				// Sign using SHA256 using the master key and base64 encode. force lowercase
-				if (auto hmacBase64UrlEscaped = UrlUtils::encode(Base64Utils::encode(EncryptionUtils::HMAC(strToHash, key)), true);
-				    !hmacBase64UrlEscaped.empty())
-				{
-					return std::format("type%3dmaster%26ver%3d1.0%26sig%3d{}", hmacBase64UrlEscaped);
+				if (!strToHash.empty()) {
+					// Sign using SHA256 using the master key and base64 encode. force lowercase
+					if (auto hmacBase64UrlEscaped = UrlUtils::encode<char>(
+					            Base64Utils::encode<char>(EncryptionUtils::HMAC<char>(strToHash, key)), true);
+					    !hmacBase64UrlEscaped.empty())
+					{
+						return std::format("type%3dmaster%26ver%3d1.0%26sig%3d{}", hmacBase64UrlEscaped);
+					}
 				}
+			}
+			else {
+				// Delegate to the narrow version, conversion at the edges.
+				return ConversionUtils::wideFromUtf8(CosmosToken<char>(ConversionUtils::utf8FromWide(key),
+				                                                       ConversionUtils::utf8FromWide(verb),
+				                                                       ConversionUtils::utf8FromWide(type),
+				                                                       ConversionUtils::utf8FromWide(resourceLink),
+				                                                       ConversionUtils::utf8FromWide(date)));
 			}
 
 			// Fall-through failure
 			return {};
 		}
-	};
+	}; // namespace EncryptionUtils
 } // namespace siddiqsoft
 
 #endif

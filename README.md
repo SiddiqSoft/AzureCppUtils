@@ -14,17 +14,28 @@ Azure C++ Utils : Azure REST API Helpers for Modern C++
 - Collect useful helpers for Azure REST API in a single location.
 - Header-only
 - Use Win32 functions on Windows
+
+# Features 
+
 - DateUtils
   - RFC7231 and RFC1123
   - ISO8601
+- ConversionUtils
+  - utf8fromWide
+  - wideFromUtf8
 - Bas64Utils
   - encode
+  - decode
 - EncryptionUtils
   - MD5
   - HMAC
   - JWTSHA256
   - SASToken
   - CosmosToken  
+
+> All of the functions support std::string and std::wstring.
+> *However*, the EncryptionUtils have disabled the support for std::wstring as it is 
+
 ## Requirements
 - The build and tests are for Visual Studio 2019 under x64.
 

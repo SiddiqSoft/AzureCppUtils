@@ -173,6 +173,7 @@ namespace siddiqsoft
 	}
 
 
+	/* Encryption Tests */
 	TEST(EncryptionUtils, MD5HashTest)
 	{
 		std::string myMessage = "My ^&()=+-_[]{};:\'\"<>?`~ N@me is $0.50! A whole 50 off! #discount./|\\";
@@ -197,7 +198,7 @@ namespace siddiqsoft
 		std::string secret {"myPrimaryKey"};
 
 		auto url = "myNamespace.servicebus.windows.net/myEventHub";
-		auto sas = EncryptionUtils::SASToken(url, keyname, secret, "1629608276");
+		auto sas = EncryptionUtils::SASToken<char>(url, keyname, secret, "1629608276");
 
 		// clang-format off
 		EXPECT_EQ("SharedAccessSignature sr=myNamespace.servicebus.windows.net%2fmyEventHub&sig=%2bl9P4WDuWjGTXrA8PeFKGl0g9Nj5OnynM55TK3huc1M%3d&se=1629608276&skn=RootManageSharedAccessKey",
@@ -249,12 +250,14 @@ namespace siddiqsoft
 		EXPECT_EQ(Key, Base64Utils::encode(Base64Utils::decode(Key)));
 
 		auto decodedKey = siddiqsoft::Base64Utils::decode(Key);
-		auto auth       = EncryptionUtils::CosmosToken(decodedKey, "GET", "dbs", "dbs/ToDoList", "Thu, 27 Apr 2017 00:51:12 GMT");
+		auto auth = EncryptionUtils::CosmosToken<char>(decodedKey, "GET", "dbs", "dbs/ToDoList", "Thu, 27 Apr 2017 00:51:12 GMT");
 
 		// https://docs.microsoft.com/en-us/rest/api/cosmos-db/access-control-on-cosmosdb-resources?redirectedfrom=MSDN
 		EXPECT_EQ("type%3dmaster%26ver%3d1.0%26sig%3dc09PEVJrgp2uQRkr934kFbTqhByc7TVr3OHyqlu%2bc%2bc%3d", auth);
 	}
 
+
+	/* DateUtils tests */
 
 	TEST(DateUtils, ISO8601_1)
 	{
@@ -265,6 +268,14 @@ namespace siddiqsoft
 		std::cout << "now_iso8601   : " << DateUtils::ISO8601() << std::endl;
 	}
 
+	TEST(DateUtils, ISO8601_1_w)
+	{
+		auto now_ts      = std::chrono::system_clock::now();
+
+		auto now_iso8601 = DateUtils::ISO8601<wchar_t>(now_ts);
+		std::wcerr << L"now_iso8601   : " << now_iso8601 << std::endl;
+		std::wcerr << L"now_iso8601   : " << DateUtils::ISO8601<wchar_t>() << std::endl;
+	}
 
 	TEST(DateUtils, RFC7231_1)
 	{
@@ -275,6 +286,17 @@ namespace siddiqsoft
 		std::cout << "now_rfc7231   : " << DateUtils::RFC7231() << std::endl;
 	}
 
+	TEST(DateUtils, RFC7231_1_w)
+	{
+		auto now_ts      = std::chrono::system_clock::now();
+
+		auto now_rfc7231 = DateUtils::RFC7231<wchar_t>(now_ts);
+		std::wcerr << L"now_rfc7231   : " << now_rfc7231 << std::endl;
+		std::wcerr << L"now_rfc7231   : " << DateUtils::RFC7231<wchar_t>() << std::endl;
+	}
+
+
+	/* ConversionUtils tests */
 
 	TEST(ConversionUtils, test1a)
 	{
