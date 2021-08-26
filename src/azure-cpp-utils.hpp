@@ -43,7 +43,11 @@
 #include <string>
 #include <functional>
 #include <memory>
+#include <ranges>
+#include <concepts>
 #include <format>
+
+#if __cpp_lib_format && __cpp_lib_concepts
 
 #include <Windows.h>
 #include <wincrypt.h>
@@ -56,14 +60,31 @@
 
 namespace siddiqsoft
 {
+	/// @brief In support of the macro NORW which allows us to declare/use narrow/wide strings as needed. Plucked from the MS stl
+	/// implementation
+	template <typename _NorWT>
+		requires std::same_as<_NorWT, char> || std::same_as<_NorWT, wchar_t>
+	[[nodiscard]] constexpr const _NorWT* NorW_1(const char* const _Str, const wchar_t* const _WStr) noexcept
+	{
+		if constexpr (std::is_same_v<_NorWT, char>) {
+			return _Str;
+		}
+		else {
+			return _WStr;
+		}
+	}
+#define _NORW(_NorWT, _Literal) (NorW_1<_NorWT>(_Literal, L##_Literal))
+
+
 	struct DateUtils
 	{
 		/// @brief Converts the argument to ISO8601 format
 		/// @tparam T Must be string or wstring
 		/// @param rawTime time_point representing the time. Defaults to "now"
 		/// @return String representing ISO 8601 format with milliseconds empty if fails
-		template <class T = std::string>
-		static T ISO8601(const std::chrono::system_clock::time_point& rawtp = std::chrono::system_clock::now())
+		template <typename T = char>
+			requires std::same_as<T, char> || std::same_as<T, wchar_t>
+		static std::basic_string<T> ISO8601(const std::chrono::system_clock::time_point& rawtp = std::chrono::system_clock::now())
 		{
 			auto rawtime = std::chrono::system_clock::to_time_t(rawtp);
 			tm   timeInfo {};
@@ -72,7 +93,7 @@ namespace siddiqsoft
 			// Get the UTC time packet.
 			auto ec = gmtime_s(&timeInfo, &rawtime);
 
-			if constexpr (std::is_same_v<T, std::string>) {
+			if constexpr (std::is_same_v<T, char>) {
 				// https://en.wikipedia.org/wiki/ISO_8601
 				// yyyy-mm-ddThh:mm:ss.mmmZ
 				char buff[sizeof "yyyy-mm-ddThh:mm:ss.0000000Z"] {};
@@ -80,7 +101,7 @@ namespace siddiqsoft
 				if (ec != EINVAL) strftime(buff, sizeof(buff), "%FT%T", &timeInfo);
 				return std::format("{}.{:03}Z", buff, msTime);
 			}
-			else if constexpr (std::is_same_v<T, std::wstring>) {
+			else if constexpr (std::is_same_v<T, wchar_t>) {
 				// https://en.wikipedia.org/wiki/ISO_8601
 				// yyyy-mm-ddThh:mm:ss.mmmZ
 				wchar_t buff[sizeof L"yyyy-mm-ddThh:mm:ss.0000000Z"] {};
@@ -96,8 +117,9 @@ namespace siddiqsoft
 		/// @tparam T Must be either std::string or std::wstring
 		/// @param rawtp Optional. Uses current time if not provided
 		/// @return Returns a string representation of the form: "Tue, 01 Nov 1994 08:12:31 GMT"
-		template <class T = std::string>
-		static T RFC7231(const std::chrono::system_clock::time_point& rawtp = std::chrono::system_clock::now())
+		template <typename T = char>
+			requires std::same_as<T, char> || std::same_as<T, wchar_t>
+		static std::basic_string<T> RFC7231(const std::chrono::system_clock::time_point& rawtp = std::chrono::system_clock::now())
 		{
 			auto rawtime = std::chrono::system_clock::to_time_t(rawtp);
 			tm   timeInfo {};
@@ -108,14 +130,14 @@ namespace siddiqsoft
 			// HTTP-date as per RFC 7231:  Tue, 01 Nov 1994 08:12:31 GMT
 			// Note that since we are getting the UTC time we should not use the %z or %Z in the strftime format
 			// as it returns the local timezone and not GMT.
-			if constexpr (std::is_same_v<T, std::string>) {
+			if constexpr (std::is_same_v<T, char>) {
 				char buff[sizeof "Tue, 01 Nov 1994 08:12:31 GMT"] {};
 				if (ec != EINVAL) strftime(buff, sizeof(buff), "%a, %d %h %Y %T GMT", &timeInfo);
 
 				return buff;
 			}
 
-			if constexpr (std::is_same_v<T, std::wstring>) {
+			if constexpr (std::is_same_v<T, wchar_t>) {
 				wchar_t buff[sizeof L"Tue, 01 Nov 1994 08:12:31 GMT"] {};
 				if (ec != EINVAL) wcsftime(buff, sizeof(buff), L"%a, %d %h %Y %T GMT", &timeInfo);
 
@@ -131,74 +153,140 @@ namespace siddiqsoft
 		/// @param argBin The bytes to encode
 		/// @param urlEscape Optional. Url Escape the resulting string
 		/// @return Base64 encoded string
-		static std::string encode(const std::string& argBin, bool urlEscape = false)
+		template <typename T = char>
+			requires std::same_as<T, char> || std::same_as<T, wchar_t>
+		static std::basic_string<T> encode(const std::basic_string<T>& argBin, bool urlEscape = false)
 		{
 			DWORD destSize = 0;
 
-
-			if (!argBin.empty() && (TRUE == CryptBinaryToStringA((const BYTE*)(argBin.data()),
-			                                                     static_cast<DWORD>(argBin.length()),
-			                                                     CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF,
-			                                                     NULL,
-			                                                     &destSize)))
-			{
-				auto dest = std::make_unique<std::byte[]>(destSize);
-				if (TRUE == CryptBinaryToStringA((const BYTE*)(argBin.data()),
-				                                 static_cast<DWORD>(argBin.length()),
-				                                 CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF,
-				                                 reinterpret_cast<char*>(dest.get()),
-				                                 &destSize))
+			if constexpr (std::is_same_v<T, char>) {
+				if (!argBin.empty() && (TRUE == CryptBinaryToStringA((const BYTE*)(argBin.data()),
+				                                                     static_cast<DWORD>(argBin.length()),
+				                                                     CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF,
+				                                                     NULL,
+				                                                     &destSize)))
 				{
-					auto encodeVal = std::string(reinterpret_cast<char*>(dest.get()), destSize);
+					auto dest = std::make_unique<std::byte[]>(destSize * sizeof(T));
+					if (TRUE == CryptBinaryToStringA((const BYTE*)(argBin.data()),
+					                                 static_cast<DWORD>(argBin.length()),
+					                                 CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF,
+					                                 reinterpret_cast<T*>(dest.get()),
+					                                 &destSize))
+					{
+						auto encodeVal = std::basic_string<T>(reinterpret_cast<T*>(dest.get()), destSize);
 
-					if (urlEscape) {
-						// Make the value url-safe per https://tools.ietf.org/html/rfc4648#section-5
-						std::for_each(encodeVal.begin(), encodeVal.end(), [](auto& ch) {
-							switch (ch) {
-								case '+': ch = '-'; break;
-								case '/': ch = '_'; break;
-							}
-						});
-						encodeVal.erase(std::remove(encodeVal.begin(), encodeVal.end(), '\r'), encodeVal.end());
-						encodeVal.erase(std::remove(encodeVal.begin(), encodeVal.end(), '\n'), encodeVal.end());
-						encodeVal.erase(std::remove(encodeVal.begin(), encodeVal.end(), '='), encodeVal.end());
+						if (urlEscape) {
+							// Make the value url-safe per https://tools.ietf.org/html/rfc4648#section-5
+							std::for_each(encodeVal.begin(), encodeVal.end(), [](auto& ch) {
+								switch (ch) {
+									case '+': ch = '-'; break;
+									case '/': ch = '_'; break;
+								}
+							});
+							encodeVal.erase(std::remove(encodeVal.begin(), encodeVal.end(), '\r'), encodeVal.end());
+							encodeVal.erase(std::remove(encodeVal.begin(), encodeVal.end(), '\n'), encodeVal.end());
+							encodeVal.erase(std::remove(encodeVal.begin(), encodeVal.end(), '='), encodeVal.end());
+						}
+
+						return encodeVal;
 					}
-
-					return encodeVal;
 				}
 			}
+			else if constexpr (std::is_same_v<T, wchar_t>) {
+				if (!argBin.empty() && (TRUE == CryptBinaryToStringW((const BYTE*)(argBin.data()),
+				                                                     static_cast<DWORD>(argBin.length() * sizeof(T)),
+				                                                     CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF,
+				                                                     NULL,
+				                                                     &destSize)))
+				{
+					auto dest = std::make_unique<T[]>(destSize);
+					if (TRUE == CryptBinaryToStringW((const BYTE*)(argBin.data()),
+					                                 static_cast<DWORD>(argBin.length() * sizeof(T)),
+					                                 CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF,
+					                                 reinterpret_cast<T*>(dest.get()),
+					                                 &destSize))
+					{
+						auto encodeVal = std::basic_string<T>(reinterpret_cast<T*>(dest.get()), destSize);
 
+						if (urlEscape) {
+							// Make the value url-safe per https://tools.ietf.org/html/rfc4648#section-5
+							std::for_each(encodeVal.begin(), encodeVal.end(), [](auto& ch) {
+								switch (ch) {
+									case L'+': ch = L'-'; break;
+									case L'/': ch = L'_'; break;
+								}
+							});
+							encodeVal.erase(std::remove(encodeVal.begin(), encodeVal.end(), L'\r'), encodeVal.end());
+							encodeVal.erase(std::remove(encodeVal.begin(), encodeVal.end(), L'\n'), encodeVal.end());
+							encodeVal.erase(std::remove(encodeVal.begin(), encodeVal.end(), L'='), encodeVal.end());
+						}
+
+						return encodeVal;
+					}
+				}
+			}
 			// Fall-through is failure; return empty string
 			return {};
 		}
 
+
 		/// @brief Base64 decode the given encoded string back to the binary value
 		/// @param argEncoded Previously encoded value
 		/// @return Base64 decoded string
-		static std::string decode(const std::string& argEncoded)
+		template <typename T = char>
+			requires std::same_as<T, char> || std::same_as<T, wchar_t>
+		static std::basic_string<T> decode(const std::basic_string<T>& argEncoded)
 		{
 			DWORD destSize = 0;
 
-			// Find out the destination size
-			if (!argEncoded.empty() && (TRUE == CryptStringToBinaryA(argEncoded.data(),
-			                                                         static_cast<DWORD>(argEncoded.length()),
-			                                                         CRYPT_STRING_BASE64 | CRYPT_STRING_STRICT,
-			                                                         NULL,
-			                                                         &destSize,
-			                                                         NULL,
-			                                                         NULL)))
-			{
-				// This call will size the buffer and put '\0` to ensure we don't overrun the buffer.
-				auto dest = std::make_unique<std::byte[]>(destSize);
-				if (TRUE == CryptStringToBinaryA(argEncoded.data(),
-				                                 static_cast<DWORD>(argEncoded.length()),
-				                                 CRYPT_STRING_BASE64 | CRYPT_STRING_STRICT,
-				                                 reinterpret_cast<BYTE*>(dest.get()),
-				                                 &destSize,
-				                                 NULL,
-				                                 NULL))
+			if constexpr (std::is_same_v<T, char>) {
+				// Find out the destination size
+				if (!argEncoded.empty() && (TRUE == CryptStringToBinaryA(argEncoded.data(),
+				                                                         static_cast<DWORD>(argEncoded.length()),
+				                                                         CRYPT_STRING_BASE64 | CRYPT_STRING_STRICT,
+				                                                         NULL,
+				                                                         &destSize,
+				                                                         NULL,
+				                                                         NULL)))
 				{
-					return std::string(reinterpret_cast<char*>(dest.get()), destSize);
+					// This call will size the buffer and put '\0` to ensure we don't overrun the buffer.
+					auto dest = std::make_unique<std::byte[]>(destSize * sizeof(T));
+					if (TRUE == CryptStringToBinaryA(argEncoded.data(),
+					                                 static_cast<DWORD>(argEncoded.length()),
+					                                 CRYPT_STRING_BASE64 | CRYPT_STRING_STRICT,
+					                                 reinterpret_cast<BYTE*>(dest.get()),
+					                                 &destSize,
+					                                 NULL,
+					                                 NULL))
+					{
+						return std::basic_string<T>(reinterpret_cast<T*>(dest.get()), destSize);
+					}
+				}
+			}
+			else if constexpr (std::is_same_v<T, wchar_t>) {
+				// Find out the destination size
+				if (!argEncoded.empty() && (TRUE == CryptStringToBinaryW(argEncoded.data(),
+				                                                         static_cast<DWORD>(argEncoded.length()),
+				                                                         CRYPT_STRING_BASE64 | CRYPT_STRING_STRICT,
+				                                                         NULL,
+				                                                         &destSize,
+				                                                         NULL,
+				                                                         NULL)))
+				{
+					// This call will size the buffer and put '\0` to ensure we don't overrun the buffer.
+					auto dest = std::make_unique<T[]>(destSize);
+					if (TRUE == CryptStringToBinaryW(argEncoded.data(),
+					                                 static_cast<DWORD>(argEncoded.length()),
+					                                 CRYPT_STRING_BASE64 | CRYPT_STRING_STRICT,
+					                                 reinterpret_cast<BYTE*>(dest.get()),
+					                                 &destSize,
+					                                 NULL,
+					                                 NULL))
+					{
+						// The function returns number of bytes which means we need to divide by the sizeof(T)
+						// in order to get the number of actual T-elements in the final string.
+						return std::basic_string<T>(reinterpret_cast<T*>(dest.get()), destSize/sizeof(T));
+					}
 				}
 			}
 
@@ -214,38 +302,44 @@ namespace siddiqsoft
 		/// @param source Source string
 		/// @param lowerCase Default false --> all conversions to uppercase
 		/// @return Encoded string with uppercase replacement
-		static std::string encode(const std::string& source, bool lowerCase = false)
+		template <typename T = char>
+			requires std::same_as<T, char> || std::same_as<T, wchar_t>
+		static std::basic_string<T> encode(const std::basic_string<T>& source, bool lowerCase = false)
 		{
-			std::string retOutput {};
+			std::basic_string<T> retOutput {};
+
 			std::ranges::for_each(source, [&retOutput, &lowerCase](auto ch) {
 				switch (ch) {
-					case '%': retOutput += "%25"; break;
-					case ' ': retOutput += "%20"; break;
-					case '&': retOutput += "%26"; break;
-					case '<': retOutput += lowerCase ? "%3c" : "%3C"; break;
-					case '>': retOutput += lowerCase ? "%3e" : "%3E"; break;
-					case '{': retOutput += lowerCase ? "%7b" : "%7B"; break;
-					case '}': retOutput += lowerCase ? "%7d" : "%7D"; break;
-					case '\'': retOutput += "%27"; break;
-					case '\"': retOutput += "%22"; break;
-					case '/': retOutput += lowerCase ? "%2f" : "%2F"; break;
-					case '\\': retOutput += lowerCase ? "%5c" : "%5C"; break;
-					case '@': retOutput += "%40"; break;
-					case '~': retOutput += lowerCase ? "%7e" : "%7E"; break;
-					case '|': retOutput += lowerCase ? "%7c" : "%7C"; break;
-					case ',': retOutput += lowerCase ? "%2c" : "%2C"; break;
-					case '+': retOutput += lowerCase ? "%2b" : "%2B"; break;
-					case ':': retOutput += lowerCase ? "%3a" : "%3A"; break;
-					case '`': retOutput += "%60"; break;
-					case '[': retOutput += lowerCase ? "%5b" : "%5B"; break;
-					case ']': retOutput += lowerCase ? "%5d" : "%5D"; break;
-					case '?': retOutput += lowerCase ? "%3f" : "%3F"; break;
-					case '=': retOutput += lowerCase ? "%3d" : "%3D"; break;
-					case '$': retOutput += "%24"; break;
-					case '#': retOutput += "%23"; break;
-					default: retOutput += ch;
+					case 0x20:
+					case 0x22:
+					case 0x23:
+					case 0x24:
+					case 0x25:
+					case 0x26:
+					case 0x27:
+					case 0x3c:
+					case 0x3e:
+					case 0x7b:
+					case 0x7d:
+					case 0x2f:
+					case 0x5c:
+					case 0x40:
+					case 0x7e:
+					case 0x7c:
+					case 0x2c:
+					case 0x2b:
+					case 0x3a:
+					case 0x5b:
+					case 0x5d:
+					case 0x3f:
+					case 0x3d:
+					case 0x60:
+						std::format_to(std::back_inserter(retOutput), lowerCase ? _NORW(T, "%{:02x}") : _NORW(T, "%{:02X}"), ch);
+						break;
+					default: std::format_to(std::back_inserter(retOutput), "{}", ch);
 				};
 			});
+
 			return retOutput;
 		}
 	};
@@ -465,5 +559,6 @@ namespace siddiqsoft
 	};
 } // namespace siddiqsoft
 
+#endif
 
 #endif // !AZURECPPUTILS_HPP

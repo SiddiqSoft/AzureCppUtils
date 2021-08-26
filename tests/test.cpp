@@ -1,4 +1,4 @@
-/*
+﻿/*
     azure-cpp-utils : Azure Utilities for Modern C++
 
     BSD 3-Clause License
@@ -84,6 +84,95 @@ namespace siddiqsoft
 	}
 
 
+	TEST(Base64Utils, test1a_w)
+	{
+		std::wstring sample {L"@#$%67yhgbjko)(*&^%EsdfghjGFR%^Yghji876tY7<>:{}\">+_(*^$#~jgHJ"};
+		std::wstring targetSample {L"QAAjACQAJQA2ADcAeQBoAGcAYgBqAGsAbwApACgAKgAmAF4AJQBFAHMAZABmAGcAaABqAEcARgBSACUAXgBZAGcAaABqAG"
+		                           L"kAOAA3ADYAdABZADcAPAA+ADoAewB9ACIAPgArAF8AKAAqAF4AJAAjAH4AagBnAEgASgA="}; // UTF-16 decode
+
+		try {
+			auto result = Base64Utils::encode(sample);
+			EXPECT_EQ(targetSample, result) << "Not Valid encode";
+
+			auto result2 = Base64Utils::decode(result);
+			EXPECT_EQ(sample, result2) << "Not valid decode";
+
+			auto roundTrip = Base64Utils::decode(Base64Utils::encode(sample));
+			EXPECT_EQ(sample, roundTrip);
+		}
+		catch (const std::exception& ex) {
+			std::cerr << ex.what() << std::endl;
+			EXPECT_FALSE("No match.");
+		}
+	}
+
+
+	TEST(Base64Utils, test1b_w)
+	{
+		std::wstring sample {L"hello.world"};
+		std::wstring targetSample {L"aABlAGwAbABvAC4AdwBvAHIAbABkAA=="};
+
+		try {
+			auto result = Base64Utils::encode(sample);
+
+			EXPECT_EQ(targetSample, result) << "Not Valid encode";
+
+			auto result2 = Base64Utils::decode(result);
+			EXPECT_EQ(sample, result2) << "Not Valid decode";
+
+			auto roundTrip = Base64Utils::decode(Base64Utils::encode(sample));
+			EXPECT_EQ(sample, roundTrip);
+		}
+		catch (const std::exception& ex) {
+			std::cerr << ex.what() << std::endl;
+			EXPECT_FALSE("No match.");
+		}
+	}
+
+	TEST(Base64Utils, test1c_w)
+	{
+		std::wstring sample {L"hello."};
+
+		try {
+			auto roundTrip = Base64Utils::decode(Base64Utils::encode(sample));
+			EXPECT_EQ(sample, roundTrip);
+		}
+		catch (const std::exception& ex) {
+			std::cerr << ex.what() << std::endl;
+			EXPECT_FALSE("No match.");
+		}
+	}
+
+
+	TEST(Base64Utils, test1d)
+	{
+		std::string sample {"صديق"};
+
+		try {
+			auto roundTrip = Base64Utils::decode(Base64Utils::encode(sample));
+			EXPECT_EQ(sample, roundTrip);
+		}
+		catch (const std::exception& ex) {
+			std::cerr << ex.what() << std::endl;
+			EXPECT_FALSE("No match.");
+		}
+	}
+
+	TEST(Base64Utils, test1d_w)
+	{
+		std::wstring sample {L"صديق"};
+
+		try {
+			auto roundTrip = Base64Utils::decode(Base64Utils::encode(sample));
+			EXPECT_EQ(sample, roundTrip);
+		}
+		catch (const std::exception& ex) {
+			std::cerr << ex.what() << std::endl;
+			EXPECT_FALSE("No match.");
+		}
+	}
+
+
 	TEST(EncryptionUtils, MD5HashTest)
 	{
 		std::string myMessage = "My ^&()=+-_[]{};:\'\"<>?`~ N@me is $0.50! A whole 50 off! #discount./|\\";
@@ -155,7 +244,7 @@ namespace siddiqsoft
 
 	TEST(EncryptionUtils, CosmosToken)
 	{
-		auto Key = "dsZQi3KtZmCv1ljt3VNWNm7sQUF1y5rJfC6kv5JiwvW0EndXdDku/dkKBp8/ufDToSxLzR4y+O/0H/t4bQtVNw==";
+		std::string Key = "dsZQi3KtZmCv1ljt3VNWNm7sQUF1y5rJfC6kv5JiwvW0EndXdDku/dkKBp8/ufDToSxLzR4y+O/0H/t4bQtVNw==";
 
 		EXPECT_EQ(Key, Base64Utils::encode(Base64Utils::decode(Key)));
 
@@ -171,7 +260,7 @@ namespace siddiqsoft
 	{
 		auto now_ts      = std::chrono::system_clock::now();
 
-		auto now_iso8601 = DateUtils::ISO8601<std::string>(now_ts);
+		auto now_iso8601 = DateUtils::ISO8601(now_ts);
 		std::cout << "now_iso8601   : " << now_iso8601 << std::endl;
 		std::cout << "now_iso8601   : " << DateUtils::ISO8601() << std::endl;
 	}
@@ -181,7 +270,7 @@ namespace siddiqsoft
 	{
 		auto now_ts      = std::chrono::system_clock::now();
 
-		auto now_rfc7231 = DateUtils::RFC7231<std::string>(now_ts);
+		auto now_rfc7231 = DateUtils::RFC7231(now_ts);
 		std::cout << "now_rfc7231   : " << now_rfc7231 << std::endl;
 		std::cout << "now_rfc7231   : " << DateUtils::RFC7231() << std::endl;
 	}
