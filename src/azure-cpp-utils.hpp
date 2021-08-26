@@ -1,4 +1,4 @@
-/*
+﻿/*
     azure-cpp-utils : Azure Utilities for Modern C++
 
     BSD 3-Clause License
@@ -73,7 +73,47 @@ namespace siddiqsoft
 			return _WStr;
 		}
 	}
-#define _NORW(_NorWT, _Literal) (NorW_1<_NorWT>(_Literal, L##_Literal))
+#define _NORW(_NorWT, _Literal) NorW_1<_NorWT>(_Literal, L##_Literal)
+
+
+	struct ConversionUtils
+	{
+		/// @brief Convert given wide string to utf8 encoded string
+		/// @param src std::wstring input
+		/// @return std::string with utf-8 encoding
+		static std::string utf8FromWide(const std::wstring& src)
+		{
+			if (src.empty()) return {};
+
+			if (size_t destSize = WideCharToMultiByte(CP_UTF8, 0, src.c_str(), src.length(), NULL, 0, NULL, NULL); destSize > 0) {
+				// Allocate appropriate buffer +1 for null-char
+				std::vector<char> destBuffer(destSize + 1);
+				destSize = WideCharToMultiByte(CP_UTF8, 0, src.c_str(), src.length(), destBuffer.data(), static_cast<DWORD>(destSize), NULL, NULL);
+				return {destBuffer.data(), destSize};
+			}
+
+			// Fall-through error -> empty string
+			return {};
+		}
+
+		/// @brief Given a utf-8 encoded string returns a utf-16 in std::wstring
+		/// @param src Utf-8 encoded string
+		/// @return Utf-16 encoded wstring
+		static std::wstring wideFromUtf8(const std::string& src)
+		{
+			if (src.empty()) return {};
+
+			if (size_t destSize = MultiByteToWideChar(CP_UTF8, 0, src.c_str(), src.length(), NULL, 0); destSize > 0) {
+				// Allocate appropriate buffer +1 for null-char
+				std::vector<wchar_t> destBuffer(destSize + 1);
+				destSize = MultiByteToWideChar(CP_UTF8, 0, src.c_str(), src.length(), destBuffer.data(), static_cast<DWORD>(destSize));
+				return {destBuffer.data(), destSize};
+			}
+
+			// Fall-through error -> empty string
+			return {};
+		}
+	};
 
 
 	struct DateUtils
@@ -149,82 +189,89 @@ namespace siddiqsoft
 
 	struct Base64Utils
 	{
+		template <typename T = char>
+			requires std::same_as<T, char> || std::same_as<T, wchar_t>
+		static std::basic_string<T> urlEscape(const std::basic_string<T>& src)
+		{
+			if (!src.empty()) {
+				auto encodeVal {src};
+
+				// Make the value url-safe per https://tools.ietf.org/html/rfc4648#section-5
+				if constexpr (std::is_same_v<T, char>) {
+					std::ranges::for_each(encodeVal, [](T& ch) {
+						if (ch == '+')
+							ch = '-';
+						else if (ch == '/')
+							ch = '_';
+					});
+					encodeVal.erase(std::remove(encodeVal.begin(), encodeVal.end(), '\r'), encodeVal.end());
+					encodeVal.erase(std::remove(encodeVal.begin(), encodeVal.end(), '\n'), encodeVal.end());
+					encodeVal.erase(std::remove(encodeVal.begin(), encodeVal.end(), '='), encodeVal.end());
+
+					return encodeVal;
+				}
+				if constexpr (std::is_same_v<T, wchar_t>) {
+					std::ranges::for_each(encodeVal, [](T& ch) {
+						if (ch == L'+')
+							ch = L'-';
+						else if (ch == L'/')
+							ch = L'_';
+					});
+					encodeVal.erase(std::remove(encodeVal.begin(), encodeVal.end(), L'\r'), encodeVal.end());
+					encodeVal.erase(std::remove(encodeVal.begin(), encodeVal.end(), L'\n'), encodeVal.end());
+					encodeVal.erase(std::remove(encodeVal.begin(), encodeVal.end(), L'='), encodeVal.end());
+
+					return encodeVal;
+				}
+			}
+
+			return {};
+		}
+
+
 		/// @brief Base64 encode a given "binary" string and optionally url escape
 		/// @param argBin The bytes to encode
 		/// @param urlEscape Optional. Url Escape the resulting string
 		/// @return Base64 encoded string
 		template <typename T = char>
 			requires std::same_as<T, char> || std::same_as<T, wchar_t>
-		static std::basic_string<T> encode(const std::basic_string<T>& argBin, bool urlEscape = false)
+		static std::basic_string<T> encode(const std::basic_string<T>& argBin)
 		{
 			DWORD destSize = 0;
 
-			if constexpr (std::is_same_v<T, char>) {
-				if (!argBin.empty() && (TRUE == CryptBinaryToStringA((const BYTE*)(argBin.data()),
-				                                                     static_cast<DWORD>(argBin.length()),
-				                                                     CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF,
-				                                                     NULL,
-				                                                     &destSize)))
+			/*
+			 * NOTE: Cannot fold after the std::invoke() or std::apply() as the signature varies between the two functions.
+			 * std::invoke( std::is_same_v<T,wchar_t> ? CryptBinaryToStringW : CryptBinaryToStringA, ... )
+			 * fails to compile since the member types differ and it cannot cast the return into a single type.
+			 */
+			if (!argBin.empty() &&
+			    (TRUE == std::is_same_v<T, wchar_t> ? CryptBinaryToStringW((const BYTE*)(argBin.data()),
+			                                                               static_cast<DWORD>(argBin.length() * sizeof(T)),
+			                                                               CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF,
+			                                                               NULL,
+			                                                               &destSize)
+			                                        : CryptBinaryToStringA((const BYTE*)(argBin.data()),
+			                                                               static_cast<DWORD>(argBin.length() * sizeof(T)),
+			                                                               CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF,
+			                                                               NULL,
+			                                                               &destSize)))
+			{
+				auto dest = std::make_unique<T[]>(destSize);
+				if (TRUE == std::is_same_v<T, wchar_t> ? CryptBinaryToStringW((const BYTE*)(argBin.data()),
+				                                                              static_cast<DWORD>(argBin.length() * sizeof(T)),
+				                                                              CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF,
+				                                                              reinterpret_cast<LPWSTR>(dest.get()),
+				                                                              &destSize)
+				                                       : CryptBinaryToStringA((const BYTE*)(argBin.data()),
+				                                                              static_cast<DWORD>(argBin.length() * sizeof(T)),
+				                                                              CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF,
+				                                                              reinterpret_cast<LPSTR>(dest.get()),
+				                                                              &destSize))
 				{
-					auto dest = std::make_unique<std::byte[]>(destSize * sizeof(T));
-					if (TRUE == CryptBinaryToStringA((const BYTE*)(argBin.data()),
-					                                 static_cast<DWORD>(argBin.length()),
-					                                 CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF,
-					                                 reinterpret_cast<T*>(dest.get()),
-					                                 &destSize))
-					{
-						auto encodeVal = std::basic_string<T>(reinterpret_cast<T*>(dest.get()), destSize);
-
-						if (urlEscape) {
-							// Make the value url-safe per https://tools.ietf.org/html/rfc4648#section-5
-							std::for_each(encodeVal.begin(), encodeVal.end(), [](auto& ch) {
-								switch (ch) {
-									case '+': ch = '-'; break;
-									case '/': ch = '_'; break;
-								}
-							});
-							encodeVal.erase(std::remove(encodeVal.begin(), encodeVal.end(), '\r'), encodeVal.end());
-							encodeVal.erase(std::remove(encodeVal.begin(), encodeVal.end(), '\n'), encodeVal.end());
-							encodeVal.erase(std::remove(encodeVal.begin(), encodeVal.end(), '='), encodeVal.end());
-						}
-
-						return encodeVal;
-					}
+					return std::basic_string<T> {reinterpret_cast<T*>(dest.get()), destSize};
 				}
 			}
-			else if constexpr (std::is_same_v<T, wchar_t>) {
-				if (!argBin.empty() && (TRUE == CryptBinaryToStringW((const BYTE*)(argBin.data()),
-				                                                     static_cast<DWORD>(argBin.length() * sizeof(T)),
-				                                                     CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF,
-				                                                     NULL,
-				                                                     &destSize)))
-				{
-					auto dest = std::make_unique<T[]>(destSize);
-					if (TRUE == CryptBinaryToStringW((const BYTE*)(argBin.data()),
-					                                 static_cast<DWORD>(argBin.length() * sizeof(T)),
-					                                 CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF,
-					                                 reinterpret_cast<T*>(dest.get()),
-					                                 &destSize))
-					{
-						auto encodeVal = std::basic_string<T>(reinterpret_cast<T*>(dest.get()), destSize);
 
-						if (urlEscape) {
-							// Make the value url-safe per https://tools.ietf.org/html/rfc4648#section-5
-							std::for_each(encodeVal.begin(), encodeVal.end(), [](auto& ch) {
-								switch (ch) {
-									case L'+': ch = L'-'; break;
-									case L'/': ch = L'_'; break;
-								}
-							});
-							encodeVal.erase(std::remove(encodeVal.begin(), encodeVal.end(), L'\r'), encodeVal.end());
-							encodeVal.erase(std::remove(encodeVal.begin(), encodeVal.end(), L'\n'), encodeVal.end());
-							encodeVal.erase(std::remove(encodeVal.begin(), encodeVal.end(), L'='), encodeVal.end());
-						}
-
-						return encodeVal;
-					}
-				}
-			}
 			// Fall-through is failure; return empty string
 			return {};
 		}
@@ -285,7 +332,7 @@ namespace siddiqsoft
 					{
 						// The function returns number of bytes which means we need to divide by the sizeof(T)
 						// in order to get the number of actual T-elements in the final string.
-						return std::basic_string<T>(reinterpret_cast<T*>(dest.get()), destSize/sizeof(T));
+						return std::basic_string<T>(reinterpret_cast<T*>(dest.get()), destSize / sizeof(T));
 					}
 				}
 			}
@@ -347,45 +394,58 @@ namespace siddiqsoft
 
 	struct EncryptionUtils
 	{
+		/* Implementation Note!
+		 * The support for wstring is for completeness and typically the use-case is where we
+		 * fiddle with utf8 data and not utf16 over the internet and especially json documents!
+		 */
+
 		/// @brief Create a MD5 hash for the given source
 		/// @param source
 		/// @return MD5 of the source argument empty if there is a failure
-		static std::string MD5(const std::string& source)
+		template <typename T = char>
+			requires std::same_as<T, char> || std::same_as<T, wchar_t>
+		static std::basic_string<T> MD5(const std::basic_string<T>& source)
 		{
-			HCRYPTPROV hProv {NULL};
-			HCRYPTHASH hHash {NULL};
-			RunOnEnd   cleanUpOnEnd {[&hProv, &hHash] {
-                // Cleanup on exit of this function scope
-                if (hHash != NULL) CryptDestroyHash(hHash);
-                if (hProv != NULL) CryptReleaseContext(hProv, 0);
-            }};
+			if constexpr (std::is_same_v<T, char>) {
+				HCRYPTPROV hProv {NULL};
+				HCRYPTHASH hHash {NULL};
+				RunOnEnd   cleanUpOnEnd {[&hProv, &hHash] {
+                    // Cleanup on exit of this function scope
+                    if (hHash != NULL) CryptDestroyHash(hHash);
+                    if (hProv != NULL) CryptReleaseContext(hProv, 0);
+                }};
 
-			// Get handle to the crypto provider
-			if (TRUE == CryptAcquireContext(&hProv, NULL, NULL, PROV_RSA_AES, CRYPT_VERIFYCONTEXT)) {
-				// Get the hash library, choose MD5..
-				if (TRUE == CryptCreateHash(hProv, CALG_MD5, 0, 0, &hHash)) {
-					// Hash the source..
-					if (TRUE ==
-					    CryptHashData(hHash, reinterpret_cast<const BYTE*>(source.data()), static_cast<DWORD>(source.length()), 0))
-					{
-						char  rgbDigits[] {"0123456789abcdef"};
-						BYTE  rgbHash[sizeof(rgbDigits)] {};
-						DWORD rgbHashSize = sizeof(rgbDigits);
-						// Fetch the results using the gethashparam call..
-						if (CryptGetHashParam(hHash, HP_HASHVAL, rgbHash, &rgbHashSize, 0)) {
-							std::string result {};
+				// Get handle to the crypto provider
+				if (TRUE == CryptAcquireContext(&hProv, NULL, NULL, PROV_RSA_AES, CRYPT_VERIFYCONTEXT)) {
+					// Get the hash library, choose MD5..
+					if (TRUE == CryptCreateHash(hProv, CALG_MD5, 0, 0, &hHash)) {
+						// Hash the source..
+						if (TRUE ==
+						    CryptHashData(
+						            hHash, reinterpret_cast<const BYTE*>(source.data()), static_cast<DWORD>(source.length()), 0)) {
+							char  rgbDigits[] {"0123456789abcdef"};
+							BYTE  rgbHash[sizeof(rgbDigits)] {};
+							DWORD rgbHashSize = sizeof(rgbDigits);
+							// Fetch the results using the gethashparam call..
+							if (CryptGetHashParam(hHash, HP_HASHVAL, rgbHash, &rgbHashSize, 0)) {
+								std::string result {};
 
-							for (DWORD i = 0; i < rgbHashSize; i++) {
-								std::format_to(std::back_inserter(result),
-								               "{}{}",
-								               rgbDigits[rgbHash[i] >> 4],
-								               rgbDigits[rgbHash[i] & 0xf]);
+								for (DWORD i = 0; i < rgbHashSize; i++) {
+									std::format_to(std::back_inserter(result),
+									               "{}{}",
+									               rgbDigits[rgbHash[i] >> 4],
+									               rgbDigits[rgbHash[i] & 0xf]);
+								}
+
+								return result;
 							}
-
-							return result;
 						}
 					}
 				}
+			}
+			else {
+				// Call the std::string version and convert to target wstring
+				return ConversionUtils::wideFromUtf8(MD5<char>(ConversionUtils::utf8FromWide(source)));
 			}
 
 			// Fall-through failure
@@ -398,54 +458,63 @@ namespace siddiqsoft
 		/// @param argSource Source text
 		/// @param argKey Source key; MUST NOT be base64 encoded
 		/// @return Binary enclosed in string (narrow); you must base64encode to get useful result.
-		static std::string HMAC(const std::string& message, const std::string& key)
+		template <typename T = char>
+			requires std::same_as<T, char> || std::same_as<T, wchar_t>
+		static std::basic_string<T> HMAC(const std::basic_string<T>& message, const std::basic_string<T>& key)
 		{
-			BCRYPT_ALG_HANDLE  hAlg {NULL};
-			BCRYPT_HASH_HANDLE hHash {NULL};
-			NTSTATUS           status {0};
-			RunOnEnd           cleanupOnEnd {[&hAlg, &hHash] {
-                // All handles we allocate are cleaned up when this function returns to caller
-                if (hAlg) BCryptCloseAlgorithmProvider(hAlg, 0);
-                if (hHash) BCryptDestroyHash(hHash);
-            }};
+			if constexpr (std::is_same_v<T, char>) {
+				BCRYPT_ALG_HANDLE  hAlg {NULL};
+				BCRYPT_HASH_HANDLE hHash {NULL};
+				NTSTATUS           status {0};
+				RunOnEnd           cleanupOnEnd {[&hAlg, &hHash] {
+                    // All handles we allocate are cleaned up when this function returns to caller
+                    if (hAlg) BCryptCloseAlgorithmProvider(hAlg, 0);
+                    if (hHash) BCryptDestroyHash(hHash);
+                }};
 
 
-			if (status = BCryptOpenAlgorithmProvider(&hAlg, BCRYPT_SHA256_ALGORITHM, NULL, BCRYPT_ALG_HANDLE_HMAC_FLAG);
-			    status == 0) {
-				// Set the key for the hash function..
-				// Passing NULL, 0 to the pbHashObject and cbHashObject asks the method to allocate
-				// memory on our behalf.
-				if (status = BCryptCreateHash(hAlg,
-				                              &hHash,
-				                              NULL,
-				                              0,
-				                              reinterpret_cast<UCHAR*>(const_cast<char*>(key.data())),
-				                              static_cast<DWORD>(key.length()),
-				                              0);
-				    status == 0)
-				{
-					// Let's hash our message!
-					if (status = BCryptHashData(hHash,
-					                            reinterpret_cast<UCHAR*>(const_cast<char*>(message.data())),
-					                            static_cast<DWORD>(message.length()),
-					                            0);
+				if (status = BCryptOpenAlgorithmProvider(&hAlg, BCRYPT_SHA256_ALGORITHM, NULL, BCRYPT_ALG_HANDLE_HMAC_FLAG);
+				    status == 0) {
+					// Set the key for the hash function..
+					// Passing NULL, 0 to the pbHashObject and cbHashObject asks the method to allocate
+					// memory on our behalf.
+					if (status = BCryptCreateHash(hAlg,
+					                              &hHash,
+					                              NULL,
+					                              0,
+					                              reinterpret_cast<UCHAR*>(const_cast<char*>(key.data())),
+					                              static_cast<DWORD>(key.length()),
+					                              0);
 					    status == 0)
 					{
-						// Get the size of the hash so we can fetch it..
-						DWORD cbHash {0};
-						ULONG cbData {0};
-						if (status = BCryptGetProperty(
-						            hAlg, BCRYPT_HASH_LENGTH, reinterpret_cast<UCHAR*>(&cbHash), sizeof(DWORD), &cbData, 0);
-						    status == 0) {
-							auto pbHash = std::make_unique<BYTE[]>(cbHash);
-							// Fetch the hash value
-							if (status = BCryptFinishHash(hHash, reinterpret_cast<UCHAR*>(pbHash.get()), cbHash, 0); status == 0) {
-								// Return the HMAC as a raw binary..client must choose to encode or leave as-is
-								return std::string {reinterpret_cast<char*>(pbHash.get()), cbHash};
+						// Let's hash our message!
+						if (status = BCryptHashData(hHash,
+						                            reinterpret_cast<UCHAR*>(const_cast<char*>(message.data())),
+						                            static_cast<DWORD>(message.length()),
+						                            0);
+						    status == 0)
+						{
+							// Get the size of the hash so we can fetch it..
+							DWORD cbHash {0};
+							ULONG cbData {0};
+							if (status = BCryptGetProperty(
+							            hAlg, BCRYPT_HASH_LENGTH, reinterpret_cast<UCHAR*>(&cbHash), sizeof(DWORD), &cbData, 0);
+							    status == 0) {
+								auto pbHash = std::make_unique<BYTE[]>(cbHash);
+								// Fetch the hash value
+								if (status = BCryptFinishHash(hHash, reinterpret_cast<UCHAR*>(pbHash.get()), cbHash, 0);
+								    status == 0) {
+									// Return the HMAC as a raw binary..client must choose to encode or leave as-is
+									return std::string {reinterpret_cast<char*>(pbHash.get()), cbHash};
+								}
 							}
 						}
 					}
 				}
+			}
+			else {
+				return ConversionUtils::wideFromUtf8(
+				        HMAC<char>(ConversionUtils::utf8FromWide(message), ConversionUtils::utf8FromWide(key)));
 			}
 
 			// Fall-through is failure
@@ -458,15 +527,17 @@ namespace siddiqsoft
 		/// @param header
 		/// @param payload The string wiht json tokens
 		/// @return
-		static std::string JWTHMAC256(const std::string& secret, const std::string& header, const std::string& payload)
+		template <typename T = char>
+			requires std::same_as<T, char> || std::same_as<T, wchar_t>
+		static std::basic_string<T> JWTHMAC256(const std::basic_string<T>& secret, const std::basic_string<T>& header, const std::basic_string<T>& payload)
 		{
-			auto s1        = Base64Utils::encode(header, true);
-			auto s2        = Base64Utils::encode(payload, true);
-			auto a3        = std::format("{}.{}", s1, s2);
-			auto a4        = HMAC(a3, secret);
-			auto signature = Base64Utils::encode(a4, true);
+			auto s1        = Base64Utils::urlEscape<T>(Base64Utils::encode<T>(header));
+			auto s2        = Base64Utils::urlEscape<T>(Base64Utils::encode<T>(payload));
+			auto a3        = std::format( _NORW(T, "{}.{}"), s1, s2);
+			auto a4        = HMAC<T>(a3, secret);
+			auto signature = Base64Utils::urlEscape<T>(Base64Utils::encode<T>(a4));
 
-			return std::format("{}.{}.{}", s1, s2, signature);
+			return std::format( _NORW(T, "{}.{}.{}"), s1, s2, signature);
 		}
 
 

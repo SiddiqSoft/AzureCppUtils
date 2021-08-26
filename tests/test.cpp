@@ -274,4 +274,34 @@ namespace siddiqsoft
 		std::cout << "now_rfc7231   : " << now_rfc7231 << std::endl;
 		std::cout << "now_rfc7231   : " << DateUtils::RFC7231() << std::endl;
 	}
+
+
+	TEST(ConversionUtils, test1a)
+	{
+		std::string sample {"صديق"};
+
+		try {
+			auto roundTrip = ConversionUtils::utf8FromWide(ConversionUtils::wideFromUtf8(sample));
+			EXPECT_EQ(sample, roundTrip);
+		}
+		catch (const std::exception& ex) {
+			std::cerr << ex.what() << std::endl;
+			EXPECT_FALSE("No match.");
+		}
+	}
+
+	TEST(ConversionUtils, test1a_w)
+	{
+		std::wstring sample {L"صديق"};
+
+		try {
+			auto roundTrip = ConversionUtils::wideFromUtf8(ConversionUtils::utf8FromWide(sample));
+			EXPECT_EQ(sample, roundTrip);
+		}
+		catch (const std::exception& ex) {
+			std::cerr << ex.what() << std::endl;
+			EXPECT_FALSE("No match.");
+		}
+	}
+
 } // namespace siddiqsoft
