@@ -79,6 +79,26 @@ namespace siddiqsoft
 
 	namespace ConversionUtils
 	{
+		/// @brief Convert given wide string to ascii encoded string
+		/// @param src std::wstring input
+		/// @return std::string with ascii encoding
+		static std::string asciiFromWide(const std::wstring& src)
+		{
+			if (src.empty()) return {};
+
+			if (size_t destSize = WideCharToMultiByte(CP_ACP, 0, src.c_str(), src.length(), NULL, 0, NULL, NULL); destSize > 0) {
+				// Allocate appropriate buffer +1 for null-char
+				std::vector<char> destBuffer(destSize + 1);
+				destSize = WideCharToMultiByte(
+				        CP_ACP, 0, src.c_str(), src.length(), destBuffer.data(), static_cast<DWORD>(destSize), NULL, NULL);
+				return {destBuffer.data(), destSize};
+			}
+
+			// Fall-through error -> empty string
+			return {};
+		}
+
+
 		/// @brief Convert given wide string to utf8 encoded string
 		/// @param src std::wstring input
 		/// @return std::string with utf-8 encoding
@@ -110,6 +130,26 @@ namespace siddiqsoft
 				std::vector<wchar_t> destBuffer(destSize + 1);
 				destSize =
 				        MultiByteToWideChar(CP_UTF8, 0, src.c_str(), src.length(), destBuffer.data(), static_cast<DWORD>(destSize));
+				return {destBuffer.data(), destSize};
+			}
+
+			// Fall-through error -> empty string
+			return {};
+		}
+
+
+		/// @brief Given an ascii encoded string returns a utf-16 in std::wstring
+		/// @param src ascii encoded string
+		/// @return Utf-16 encoded wstring
+		static std::wstring wideFromAscii(const std::string& src)
+		{
+			if (src.empty()) return {};
+
+			if (size_t destSize = MultiByteToWideChar(CP_ACP, 0, src.c_str(), src.length(), NULL, 0); destSize > 0) {
+				// Allocate appropriate buffer +1 for null-char
+				std::vector<wchar_t> destBuffer(destSize + 1);
+				destSize =
+				        MultiByteToWideChar(CP_ACP, 0, src.c_str(), src.length(), destBuffer.data(), static_cast<DWORD>(destSize));
 				return {destBuffer.data(), destSize};
 			}
 
@@ -405,12 +445,12 @@ namespace siddiqsoft
 		 * fiddle with utf8 data and not utf16 over the internet and especially json documents!
 		 */
 
-		/// @brief Create a MD5 hash for the given source
-		/// @param source
+		/// @brief Create a MD5 hash for the given source as a string
+		/// @param source Maybe std::string or std::wstring
 		/// @return MD5 of the source argument empty if there is a failure
 		template <typename T = char>
 			requires std::same_as<T, char> || std::same_as<T, wchar_t>
-		static std::basic_string<T> MD5(const std::basic_string<T>& source)
+		static std::string MD5(const std::basic_string<T>& source)
 		{
 			if constexpr (std::is_same_v<T, char>) {
 				HCRYPTPROV hProv {NULL};
@@ -450,8 +490,8 @@ namespace siddiqsoft
 				}
 			}
 			else {
-				// Call the std::string version and convert to target wstring
-				return ConversionUtils::wideFromUtf8(MD5<char>(ConversionUtils::utf8FromWide(source)));
+				// The MD5 result is a "binary" so we must not try and convert.
+				return MD5<char>(ConversionUtils::utf8FromWide(source));
 			}
 
 			// Fall-through failure
@@ -466,7 +506,7 @@ namespace siddiqsoft
 		/// @return Binary enclosed in string (narrow); you must base64encode to get useful result.
 		template <typename T = char>
 			requires std::same_as<T, char> || std::same_as<T, wchar_t>
-		static std::basic_string<T> HMAC(const std::basic_string<T>& message, const std::basic_string<T>& key)
+		static std::string HMAC(const std::basic_string<T>& message, const std::string& key)
 		{
 			if constexpr (std::is_same_v<T, char>) {
 				BCRYPT_ALG_HANDLE  hAlg {NULL};
@@ -519,8 +559,8 @@ namespace siddiqsoft
 				}
 			}
 			else {
-				return ConversionUtils::wideFromUtf8(
-				        HMAC<char>(ConversionUtils::utf8FromWide(message), ConversionUtils::utf8FromWide(key)));
+				// The HMAC result is "binary" and must not be treated as wstring
+				return HMAC<char>(ConversionUtils::asciiFromWide(message), key);
 			}
 
 			// Fall-through is failure
@@ -529,54 +569,53 @@ namespace siddiqsoft
 
 
 		/// @brief Create a JsonWebToken authorization with HMAC 256
-		/// @param secret
+		/// @param secret Must be std::string as the contents are the "key" and treated as "binary"
 		/// @param header
 		/// @param payload The string wiht json tokens
 		/// @return
 		template <typename T = char>
 			requires std::same_as<T, char> || std::same_as<T, wchar_t>
 		static std::basic_string<T>
-		JWTHMAC256(const std::basic_string<T>& secret, const std::basic_string<T>& header, const std::basic_string<T>& payload)
+		JWTHMAC256(const std::string& key, const std::basic_string<T>& header, const std::basic_string<T>& payload)
 		{
 			if constexpr (std::is_same_v<T, char>) {
 				auto s1        = Base64Utils::urlEscape<char>(Base64Utils::encode<char>(header));
 				auto s2        = Base64Utils::urlEscape<char>(Base64Utils::encode<char>(payload));
 				auto a3        = std::format("{}.{}", s1, s2);
-				auto a4        = HMAC<char>(a3, secret);
+				auto a4        = HMAC<char>(a3, key);
 				auto signature = Base64Utils::urlEscape<char>(Base64Utils::encode<char>(a4));
 
 				return std::format("{}.{}.{}", s1, s2, signature);
 			}
 			else {
 				// Delegate to the narrow version; conversion at the edge
-				return ConversionUtils::wideFromUtf8(JWTHMAC256<char>(ConversionUtils::utf8FromWide(secret),
-				                                                      ConversionUtils::utf8FromWide(header),
-				                                                      ConversionUtils::utf8FromWide(payload)));
+				return ConversionUtils::wideFromUtf8(
+				        JWTHMAC256<char>(key, ConversionUtils::utf8FromWide(header), ConversionUtils::utf8FromWide(payload)));
 			}
 		}
 
 
 		/// @brief Create a Shared Access Signature for Azure storage
 		/// https://docs.microsoft.com/en-us/rest/api/eventhub/generate-sas-token
+		/// @param key The key is "binary" in std::string
 		/// @param url The url for the session
 		/// @param keyName The key name
-		/// @param key The key to sign the url with time
 		/// @param timeout Amount of ticks past the "now" (number of seconds since 1970-1-1)
 		/// @return SAS token
 		template <typename T = char>
 			requires std::same_as<T, char> || std::same_as<T, wchar_t>
-		static std::basic_string<T> SASToken(const std::basic_string<T>& url,
+		static std::basic_string<T> SASToken(const std::string&          key,
+		                                     const std::basic_string<T>& url,
 		                                     const std::basic_string<T>& keyName,
-		                                     const std::basic_string<T>& key,
 		                                     const std::chrono::seconds& timeout)
 		{
 			time_t epoch {};
 
 			time(&epoch); // number of seconds since 1970-1-1
 
-			return SASToken<T>(url,
+			return SASToken<T>(key,
+			                   url,
 			                   keyName,
-			                   key,
 			                   std::is_same_v<T, wchar_t> ? std::to_wstring(int64_t(epoch) + timeout.count())
 			                                              : std::to_string(int64_t(epoch) + timeout.count()));
 		}
@@ -584,16 +623,16 @@ namespace siddiqsoft
 
 		/// @brief Create a Shared Access Signature for Azure storage
 		/// https://docs.microsoft.com/en-us/rest/api/eventhub/generate-sas-token
+		/// @param key The key to sign the url with time
 		/// @param url The url for the session
 		/// @param keyName The key name
-		/// @param key The key to sign the url with time
 		/// @param expiry The expiry is the number of seconds since 1970-1-1 plus timeout
 		/// @return SAS token
 		template <typename T = char>
 			requires std::same_as<T, char> || std::same_as<T, wchar_t>
-		static std::basic_string<T> SASToken(const std::basic_string<T>& url,
+		static std::basic_string<T> SASToken(const std::string&          key,
+		                                     const std::basic_string<T>& url,
 		                                     const std::basic_string<T>& keyName,
-		                                     const std::basic_string<T>& key,
 		                                     const std::basic_string<T>& expiry)
 		{
 			if (url.empty()) throw std::invalid_argument("SASToken: url may not be empty");
@@ -611,9 +650,9 @@ namespace siddiqsoft
 			}
 			else {
 				// Delegate to the narrow version and convert at the edges.
-				return ConversionUtils::wideFromUtf8(SASToken<char>(ConversionUtils::utf8FromWide(url),
+				return ConversionUtils::wideFromUtf8(SASToken<char>(key,
+				                                                    ConversionUtils::utf8FromWide(url),
 				                                                    ConversionUtils::utf8FromWide(keyName),
-				                                                    ConversionUtils::utf8FromWide(key),
 				                                                    ConversionUtils::utf8FromWide(expiry)));
 			}
 		}
@@ -628,7 +667,7 @@ namespace siddiqsoft
 		/// @return Cosmos Authorization signature as std::string. It is base64 encoded and urlsafe
 		template <typename T = char>
 			requires std::same_as<T, char> || std::same_as<T, wchar_t>
-		static std::basic_string<T> CosmosToken(const std::basic_string<T>& key,
+		static std::basic_string<T> CosmosToken(const std::string&          key,
 		                                        const std::basic_string<T>& verb,
 		                                        const std::basic_string<T>& type,
 		                                        const std::basic_string<T>& resourceLink,
@@ -664,11 +703,11 @@ namespace siddiqsoft
 			}
 			else {
 				// Delegate to the narrow version, conversion at the edges.
-				return ConversionUtils::wideFromUtf8(CosmosToken<char>(ConversionUtils::utf8FromWide(key),
-				                                                       ConversionUtils::utf8FromWide(verb),
-				                                                       ConversionUtils::utf8FromWide(type),
-				                                                       ConversionUtils::utf8FromWide(resourceLink),
-				                                                       ConversionUtils::utf8FromWide(date)));
+				return ConversionUtils::wideFromAscii(CosmosToken<char>(key,
+				                                                        ConversionUtils::asciiFromWide(verb),
+				                                                        ConversionUtils::asciiFromWide(type),
+				                                                        ConversionUtils::asciiFromWide(resourceLink),
+				                                                        ConversionUtils::asciiFromWide(date)));
 			}
 
 			// Fall-through failure
