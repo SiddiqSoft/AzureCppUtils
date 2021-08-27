@@ -65,7 +65,7 @@
 ///
 namespace siddiqsoft
 {
-#if !_NORW
+#if !defined(_NORW)
 	///
 	/// @brief In support of the macro NORW which allows us to declare/use narrow/wide strings as needed. Plucked from the MS stl
 	/// implementation
@@ -96,12 +96,19 @@ namespace siddiqsoft
 		{
 			if (src.empty()) return {};
 
-			if (size_t destSize = WideCharToMultiByte(CP_ACP, 0, src.c_str(), src.length(), NULL, 0, NULL, NULL); destSize > 0) {
+			if (auto destSize = WideCharToMultiByte(CP_ACP, 0, src.c_str(), static_cast<int>(src.length()), NULL, 0, NULL, NULL);
+			    destSize > 0) {
 				// Allocate appropriate buffer +1 for null-char
-				std::vector<char> destBuffer(destSize + 1);
-				destSize = WideCharToMultiByte(
-				        CP_ACP, 0, src.c_str(), src.length(), destBuffer.data(), static_cast<DWORD>(destSize), NULL, NULL);
-				return {destBuffer.data(), destSize};
+				std::vector<char> destBuffer(static_cast<size_t>(destSize) + 1);
+				destSize = WideCharToMultiByte(CP_ACP,
+				                               0,
+				                               src.c_str(),
+				                               static_cast<int>(src.length()),
+				                               destBuffer.data(),
+				                               static_cast<DWORD>(destSize),
+				                               NULL,
+				                               NULL);
+				return {destBuffer.data(), static_cast<size_t>(destSize)};
 			}
 
 			// Fall-through error -> empty string
@@ -117,12 +124,19 @@ namespace siddiqsoft
 		{
 			if (src.empty()) return {};
 
-			if (size_t destSize = WideCharToMultiByte(CP_UTF8, 0, src.c_str(), src.length(), NULL, 0, NULL, NULL); destSize > 0) {
+			if (auto destSize = WideCharToMultiByte(CP_UTF8, 0, src.c_str(), static_cast<int>(src.length()), NULL, 0, NULL, NULL);
+			    destSize > 0) {
 				// Allocate appropriate buffer +1 for null-char
-				std::vector<char> destBuffer(destSize + 1);
-				destSize = WideCharToMultiByte(
-				        CP_UTF8, 0, src.c_str(), src.length(), destBuffer.data(), static_cast<DWORD>(destSize), NULL, NULL);
-				return {destBuffer.data(), destSize};
+				std::vector<char> destBuffer(static_cast<size_t>(destSize) + 1);
+				destSize = WideCharToMultiByte(CP_UTF8,
+				                               0,
+				                               src.c_str(),
+				                               static_cast<int>(src.length()),
+				                               destBuffer.data(),
+				                               static_cast<DWORD>(destSize),
+				                               NULL,
+				                               NULL);
+				return {destBuffer.data(), static_cast<size_t>(destSize)};
 			}
 
 			// Fall-through error -> empty string
@@ -136,12 +150,13 @@ namespace siddiqsoft
 		{
 			if (src.empty()) return {};
 
-			if (size_t destSize = MultiByteToWideChar(CP_UTF8, 0, src.c_str(), src.length(), NULL, 0); destSize > 0) {
+			if (auto destSize = MultiByteToWideChar(CP_UTF8, 0, src.c_str(), static_cast<int>(src.length()), NULL, 0); destSize > 0)
+			{
 				// Allocate appropriate buffer +1 for null-char
-				std::vector<wchar_t> destBuffer(destSize + 1);
-				destSize =
-				        MultiByteToWideChar(CP_UTF8, 0, src.c_str(), src.length(), destBuffer.data(), static_cast<DWORD>(destSize));
-				return {destBuffer.data(), destSize};
+				std::vector<wchar_t> destBuffer(static_cast<size_t>(destSize) + 1);
+				destSize = MultiByteToWideChar(
+				        CP_UTF8, 0, src.c_str(), static_cast<int>(src.length()), destBuffer.data(), static_cast<DWORD>(destSize));
+				return {destBuffer.data(), static_cast<size_t>(destSize)};
 			}
 
 			// Fall-through error -> empty string
@@ -156,12 +171,13 @@ namespace siddiqsoft
 		{
 			if (src.empty()) return {};
 
-			if (size_t destSize = MultiByteToWideChar(CP_ACP, 0, src.c_str(), src.length(), NULL, 0); destSize > 0) {
+			if (auto destSize = MultiByteToWideChar(CP_ACP, 0, src.c_str(), static_cast<int>(src.length()), NULL, 0); destSize > 0)
+			{
 				// Allocate appropriate buffer +1 for null-char
-				std::vector<wchar_t> destBuffer(destSize + 1);
-				destSize =
-				        MultiByteToWideChar(CP_ACP, 0, src.c_str(), src.length(), destBuffer.data(), static_cast<DWORD>(destSize));
-				return {destBuffer.data(), destSize};
+				std::vector<wchar_t> destBuffer(static_cast<size_t>(destSize) + 1);
+				destSize = MultiByteToWideChar(
+				        CP_ACP, 0, src.c_str(), static_cast<int>(src.length()), destBuffer.data(), static_cast<DWORD>(destSize));
+				return {destBuffer.data(), static_cast<size_t>(destSize)};
 			}
 
 			// Fall-through error -> empty string
@@ -193,14 +209,14 @@ namespace siddiqsoft
 				// yyyy-mm-ddThh:mm:ss.mmmZ
 				char buff[_countof("yyyy-mm-ddThh:mm:ss.0000000Z")] {};
 
-				if (ec != EINVAL) strftime(buff, sizeof(buff), "%FT%T", &timeInfo);
+				if (ec != EINVAL) strftime(buff, _countof(buff), "%FT%T", &timeInfo);
 				return std::format("{}.{:03}Z", buff, msTime);
 			}
 			else if constexpr (std::is_same_v<T, wchar_t>) {
 				// https://en.wikipedia.org/wiki/ISO_8601
 				// yyyy-mm-ddThh:mm:ss.mmmZ
 				wchar_t buff[256] {};
-				if (ec != EINVAL) wcsftime(buff, sizeof(buff), L"%FT%T", &timeInfo);
+				if (ec != EINVAL) wcsftime(buff, _countof(buff), L"%FT%T", &timeInfo);
 				return std::format(L"{}.{:03}Z", buff, msTime);
 			}
 
@@ -227,14 +243,14 @@ namespace siddiqsoft
 			// as it returns the local timezone and not GMT.
 			if constexpr (std::is_same_v<T, char>) {
 				char buff[sizeof "Tue, 01 Nov 1994 08:12:31 GMT"] {};
-				if (ec != EINVAL) strftime(buff, sizeof(buff), "%a, %d %h %Y %T GMT", &timeInfo);
+				if (ec != EINVAL) strftime(buff, _countof(buff), "%a, %d %h %Y %T GMT", &timeInfo);
 
 				return buff;
 			}
 
 			if constexpr (std::is_same_v<T, wchar_t>) {
 				wchar_t buff[sizeof L"Tue, 01 Nov 1994 08:12:31 GMT"] {};
-				if (ec != EINVAL) wcsftime(buff, sizeof(buff), L"%a, %d %h %Y %T GMT", &timeInfo);
+				if (ec != EINVAL) wcsftime(buff, _countof(buff), L"%a, %d %h %Y %T GMT", &timeInfo);
 
 				return buff;
 			}
@@ -315,19 +331,20 @@ namespace siddiqsoft
 			                                                               NULL,
 			                                                               &destSize)))
 			{
-				auto dest = std::make_unique<T[]>(destSize);
+				std::vector<T> dest(static_cast<size_t>(destSize) + 1);
+
 				if (TRUE == std::is_same_v<T, wchar_t> ? CryptBinaryToStringW((const BYTE*)(argBin.data()),
 				                                                              static_cast<DWORD>(argBin.length() * sizeof(T)),
 				                                                              CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF,
-				                                                              reinterpret_cast<LPWSTR>(dest.get()),
+				                                                              reinterpret_cast<LPWSTR>(dest.data()),
 				                                                              &destSize)
 				                                       : CryptBinaryToStringA((const BYTE*)(argBin.data()),
 				                                                              static_cast<DWORD>(argBin.length() * sizeof(T)),
 				                                                              CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF,
-				                                                              reinterpret_cast<LPSTR>(dest.get()),
+				                                                              reinterpret_cast<LPSTR>(dest.data()),
 				                                                              &destSize))
 				{
-					return std::basic_string<T> {reinterpret_cast<T*>(dest.get()), destSize};
+					return std::basic_string<T> {reinterpret_cast<T*>(dest.data()), destSize};
 				}
 			}
 
@@ -356,16 +373,16 @@ namespace siddiqsoft
 				                                                         NULL)))
 				{
 					// This call will size the buffer and put '\0` to ensure we don't overrun the buffer.
-					auto dest = std::make_unique<std::byte[]>(destSize * sizeof(T));
+					std::vector<std::byte> dest(destSize * sizeof(T));
 					if (TRUE == CryptStringToBinaryA(argEncoded.data(),
 					                                 static_cast<DWORD>(argEncoded.length()),
 					                                 CRYPT_STRING_BASE64 | CRYPT_STRING_STRICT,
-					                                 reinterpret_cast<BYTE*>(dest.get()),
+					                                 reinterpret_cast<BYTE*>(dest.data()),
 					                                 &destSize,
 					                                 NULL,
 					                                 NULL))
 					{
-						return std::basic_string<T>(reinterpret_cast<T*>(dest.get()), destSize);
+						return std::basic_string<T>(reinterpret_cast<T*>(dest.data()), destSize);
 					}
 				}
 			}
@@ -380,18 +397,18 @@ namespace siddiqsoft
 				                                                         NULL)))
 				{
 					// This call will size the buffer and put '\0` to ensure we don't overrun the buffer.
-					auto dest = std::make_unique<T[]>(destSize);
+					std::vector<T> dest(destSize);
 					if (TRUE == CryptStringToBinaryW(argEncoded.data(),
 					                                 static_cast<DWORD>(argEncoded.length()),
 					                                 CRYPT_STRING_BASE64 | CRYPT_STRING_STRICT,
-					                                 reinterpret_cast<BYTE*>(dest.get()),
+					                                 reinterpret_cast<BYTE*>(dest.data()),
 					                                 &destSize,
 					                                 NULL,
 					                                 NULL))
 					{
 						// The function returns number of bytes which means we need to divide by the sizeof(T)
 						// in order to get the number of actual T-elements in the final string.
-						return std::basic_string<T>(reinterpret_cast<T*>(dest.get()), destSize / sizeof(T));
+						return std::basic_string<T>(reinterpret_cast<T*>(dest.data()), destSize / sizeof(T));
 					}
 				}
 			}
@@ -559,12 +576,12 @@ namespace siddiqsoft
 							if (status = BCryptGetProperty(
 							            hAlg, BCRYPT_HASH_LENGTH, reinterpret_cast<UCHAR*>(&cbHash), sizeof(DWORD), &cbData, 0);
 							    status == 0) {
-								auto pbHash = std::make_unique<BYTE[]>(cbHash);
+								std::vector<BYTE> pbHash(cbHash);
 								// Fetch the hash value
-								if (status = BCryptFinishHash(hHash, reinterpret_cast<UCHAR*>(pbHash.get()), cbHash, 0);
+								if (status = BCryptFinishHash(hHash, reinterpret_cast<UCHAR*>(pbHash.data()), cbHash, 0);
 								    status == 0) {
 									// Return the HMAC as a raw binary..client must choose to encode or leave as-is
-									return std::string {reinterpret_cast<char*>(pbHash.get()), cbHash};
+									return std::string {reinterpret_cast<char*>(pbHash.data()), cbHash};
 								}
 							}
 						}
@@ -689,8 +706,6 @@ namespace siddiqsoft
 			if (key.empty()) throw std::invalid_argument("CosmosToken: key may not be empty");
 			if (date.empty()) throw std::invalid_argument("CosmosToken: date may not be empty");
 			if (verb.empty()) throw std::invalid_argument("CosmosToken: verb may not be empty");
-			if (type.empty()) throw std::invalid_argument("CosmosToken: type may not be empty");
-			if (resourceLink.empty()) throw std::invalid_argument("CosmosToken: resourceLink may not be empty");
 
 			if constexpr (std::is_same_v<T, char>) {
 				// The formula is expressed as per
