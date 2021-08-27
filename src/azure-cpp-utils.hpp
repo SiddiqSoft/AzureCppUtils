@@ -50,7 +50,7 @@
 
 #if __cpp_lib_format && __cpp_lib_concepts
 
-#if _WIN64 || WIN64 || WIN32 || _WIN32
+#if defined(_WIN64) || defined(WIN64) || defined(WIN32) || defined(_WIN32)
 #include <Windows.h>
 #include <wincrypt.h>
 #include <bcrypt.h>
