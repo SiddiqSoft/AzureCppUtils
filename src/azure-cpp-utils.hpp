@@ -1,5 +1,5 @@
 ﻿/*
-    azure-cpp-utils : Azure Utilities for Modern C++
+    azure-cpp-utils : Azure REST API Utilities for Modern C++
 
     BSD 3-Clause License
 
@@ -33,6 +33,7 @@
  */
 
 #pragma once
+
 #ifndef AZURECPPUTILS_HPP
 #define AZURECPPUTILS_HPP
 
@@ -49,20 +50,26 @@
 
 #if __cpp_lib_format && __cpp_lib_concepts
 
+#if _WIN64 || WIN64 || WIN32 || _WIN32
 #include <Windows.h>
 #include <wincrypt.h>
 #include <bcrypt.h>
 #pragma comment(lib, "bcrypt")
 #pragma comment(lib, "crypt32")
+#endif
 
 #include "siddiqsoft/RunOnEnd.hpp"
 
-
+///
+/// @brief SiddiqSoft
+///
 namespace siddiqsoft
 {
 #if !_NORW
+	///
 	/// @brief In support of the macro NORW which allows us to declare/use narrow/wide strings as needed. Plucked from the MS stl
 	/// implementation
+	///
 	template <typename _NorWT>
 		requires std::same_as<_NorWT, char> || std::same_as<_NorWT, wchar_t>
 	[[nodiscard]] constexpr const _NorWT* NorW_1(const char* const _Str, const wchar_t* const _WStr) noexcept
@@ -77,7 +84,10 @@ namespace siddiqsoft
 #define _NORW(_NorWT, _Literal) NorW_1<_NorWT>(_Literal, L##_Literal)
 #endif
 
-	namespace ConversionUtils
+	///
+	/// @brief Conversion Functions for ascii to wide, utf8 to wide and vice-versa
+	///
+	struct ConversionUtils
 	{
 		/// @brief Convert given wide string to ascii encoded string
 		/// @param src std::wstring input
@@ -98,10 +108,11 @@ namespace siddiqsoft
 			return {};
 		}
 
-
+		///
 		/// @brief Convert given wide string to utf8 encoded string
 		/// @param src std::wstring input
 		/// @return std::string with utf-8 encoding
+		///
 		static std::string utf8FromWide(const std::wstring& src)
 		{
 			if (src.empty()) return {};
@@ -156,10 +167,11 @@ namespace siddiqsoft
 			// Fall-through error -> empty string
 			return {};
 		}
-	}; // namespace ConversionUtils
+	};
 
 
-	namespace DateUtils
+	/// @brief Date Time utilities for REST API
+	struct DateUtils
 	{
 		/// @brief Converts the argument to ISO8601 format
 		/// @tparam T Must be string or wstring
@@ -179,7 +191,7 @@ namespace siddiqsoft
 			if constexpr (std::is_same_v<T, char>) {
 				// https://en.wikipedia.org/wiki/ISO_8601
 				// yyyy-mm-ddThh:mm:ss.mmmZ
-				char buff[sizeof "yyyy-mm-ddThh:mm:ss.0000000Z"] {};
+				char buff[_countof("yyyy-mm-ddThh:mm:ss.0000000Z")] {};
 
 				if (ec != EINVAL) strftime(buff, sizeof(buff), "%FT%T", &timeInfo);
 				return std::format("{}.{:03}Z", buff, msTime);
@@ -187,7 +199,7 @@ namespace siddiqsoft
 			else if constexpr (std::is_same_v<T, wchar_t>) {
 				// https://en.wikipedia.org/wiki/ISO_8601
 				// yyyy-mm-ddThh:mm:ss.mmmZ
-				wchar_t buff[sizeof L"yyyy-mm-ddThh:mm:ss.0000000Z"] {};
+				wchar_t buff[256] {};
 				if (ec != EINVAL) wcsftime(buff, sizeof(buff), L"%FT%T", &timeInfo);
 				return std::format(L"{}.{:03}Z", buff, msTime);
 			}
@@ -227,10 +239,11 @@ namespace siddiqsoft
 				return buff;
 			}
 		}
-	}; // namespace DateUtils
+	};
 
 
-	namespace Base64Utils
+	/// @brief Base64 encode/decode functions
+	struct Base64Utils
 	{
 		/// @brief URL escape the base64 encoded string
 		/// @tparam T std::string or std::wstring
@@ -386,10 +399,11 @@ namespace siddiqsoft
 			// Fall-through is failure; return empty string
 			return {};
 		}
-	}; // namespace Base64Utils
+	};
 
 
-	namespace UrlUtils
+	/// @brief Url encode function
+	struct UrlUtils
 	{
 		/// @brief Helper to encode the given string in context of the HTTP url
 		/// @param source Source string
@@ -435,16 +449,15 @@ namespace siddiqsoft
 
 			return retOutput;
 		}
-	}; // namespace UrlUtils
+	};
 
 
-	namespace EncryptionUtils
+	/// @brief Encryption utility functions for ServiceBus, Cosmos, EventGrid, EventHub
+	/// Implementation Note!
+	/// The support for wstring is for completeness and typically the use-case is where we
+	/// fiddle with utf8 data and not utf16 over the internet and especially json documents!
+	struct EncryptionUtils
 	{
-		/* Implementation Note!
-		 * The support for wstring is for completeness and typically the use-case is where we
-		 * fiddle with utf8 data and not utf16 over the internet and especially json documents!
-		 */
-
 		/// @brief Create a MD5 hash for the given source as a string
 		/// @param source Maybe std::string or std::wstring
 		/// @return MD5 of the source argument empty if there is a failure
@@ -713,7 +726,7 @@ namespace siddiqsoft
 			// Fall-through failure
 			return {};
 		}
-	}; // namespace EncryptionUtils
+	};
 } // namespace siddiqsoft
 
 #endif

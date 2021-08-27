@@ -15,6 +15,13 @@ Azure C++ Utils : Azure REST API Helpers for Modern C++
 - Header-only
 - Use Win32 functions on Windows
 
+## Requirements
+- The build and tests are for Visual Studio 2019 under x64.
+
+## Usage
+- Use the nuget [SiddiqSoft.AzureCppUtils](https://www.nuget.org/packages/SiddiqSoft.AzureCppUtils/)
+- Copy paste..whatever works.
+
 # Features 
 
 - DateUtils
@@ -33,16 +40,109 @@ Azure C++ Utils : Azure REST API Helpers for Modern C++
   - SASToken
   - CosmosToken  
 
-> All of the functions support std::string and std::wstring.
-> *However*, the EncryptionUtils have disabled the support for std::wstring as it is 
+> All of the functions support string and wstring.
+> *However*, the EncryptionUtils have disabled the support for wstring as it is 
 
-## Requirements
-- The build and tests are for Visual Studio 2019 under x64.
+## API
 
-## Usage
-- Use the nuget [SiddiqSoft.AzureCppUtils](https://www.nuget.org/packages/SiddiqSoft.AzureCppUtils/)
-- Copy paste..whatever works.
 
+```cpp
+struct ConversionUtils
+{
+    string  asciiFromWide(const wstring& src);
+    string  utf8FromWide( const wstring& src);
+    wstring wideFromUtf8( const string&  src);
+    wstring wideFromAscii(const string&  src);
+}
+
+struct DateUtils
+{
+    template <typename T = char>
+        requires same_as<T, char> || same_as<T, wchar_t>
+    basic_string<T> ISO8601(const chrono::system_clock::time_point& rawtp = chrono::system_clock::now())
+
+    template <typename T = char>
+        requires same_as<T, char> || same_as<T, wchar_t>
+    basic_string<T> RFC7231(const chrono::system_clock::time_point& rawtp = chrono::system_clock::now())
+}
+
+
+struct Base64Utils
+{
+    template <typename T = char>
+        requires same_as<T, char> || same_as<T, wchar_t>
+    basic_string<T> urlEscape(const basic_string<T>& src)
+
+    template <typename T = char>
+        requires same_as<T, char> || same_as<T, wchar_t>
+    basic_string<T> encode(const basic_string<T>& argBin)
+
+    template <typename T = char>
+        requires same_as<T, char> || same_as<T, wchar_t>
+    basic_string<T> decode(const basic_string<T>& argEncoded)
+
+}
+
+
+struct UrlUtils
+{
+    template <typename T = char>
+        requires same_as<T, char> || same_as<T, wchar_t>
+    basic_string<T> encode(const basic_string<T>& source, bool lowerCase = false)
+}
+
+
+struct EncryptionUtils
+{
+    // Always returns a "binary" in std::string
+    template <typename T = char>
+        requires same_as<T, char> || same_as<T, wchar_t>
+    string MD5(const basic_string<T>& source)
+
+    // Always returns a "binary" in std::string
+    template <typename T = char>
+        requires same_as<T, char> || same_as<T, wchar_t>
+    string HMAC(const basic_string<T>& message,
+                const string& key)  // "binary" or decoded
+
+    template <typename T = char>
+        requires same_as<T, char> || same_as<T, wchar_t>
+    basic_string<T>
+    JWTHMAC256(const string& key, // "binary" or decoded
+               const basic_string<T>& header,
+               const basic_string<T>& payload)
+
+    // Returns tokens that can be used in the HTTP request header
+    // Note that the key is always in std::string since they are decoded from base64 values from the Azure portal.
+    template <typename T = char>
+        requires same_as<T, char> || same_as<T, wchar_t>
+    basic_string<T> SASToken(const string&          key, // "binary" or decoded
+                             const basic_string<T>& url,
+                             const basic_string<T>& keyName,
+                             const chrono::seconds& timeout)
+
+
+    // Returns tokens that can be used in the HTTP request header
+    // Note that the key is always in std::string since they are decoded from base64 values from the Azure portal.
+    template <typename T = char>
+        requires same_as<T, char> || same_as<T, wchar_t>
+    basic_string<T> SASToken(const string&          key, // "binary" or decoded
+                             const basic_string<T>& url,
+                             const basic_string<T>& keyName,
+                             const basic_string<T>& expiry)
+
+    // Returns tokens that can be used in the HTTP request header
+    // Note that the key is always in std::string since they are decoded from base64 values from the Azure portal.
+    template <typename T = char>
+        requires same_as<T, char> || same_as<T, wchar_t>
+    basic_string<T> CosmosToken(const string&          key, // "binary" or decoded
+                                const basic_string<T>& verb,
+                                const basic_string<T>& type,
+                                const basic_string<T>& resourceLink,
+                                const basic_string<T>& date)
+}
+
+```
 
 
 <p align="right">
