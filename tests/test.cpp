@@ -1,4 +1,4 @@
-/*
+﻿/*
     azure-cpp-utils : Azure Utilities for Modern C++
 
     BSD 3-Clause License
@@ -84,6 +84,96 @@ namespace siddiqsoft
 	}
 
 
+	TEST(Base64Utils, test1a_w)
+	{
+		std::wstring sample {L"@#$%67yhgbjko)(*&^%EsdfghjGFR%^Yghji876tY7<>:{}\">+_(*^$#~jgHJ"};
+		std::wstring targetSample {L"QAAjACQAJQA2ADcAeQBoAGcAYgBqAGsAbwApACgAKgAmAF4AJQBFAHMAZABmAGcAaABqAEcARgBSACUAXgBZAGcAaABqAG"
+		                           L"kAOAA3ADYAdABZADcAPAA+ADoAewB9ACIAPgArAF8AKAAqAF4AJAAjAH4AagBnAEgASgA="}; // UTF-16 decode
+
+		try {
+			auto result = Base64Utils::encode(sample);
+			EXPECT_EQ(targetSample, result) << "Not Valid encode";
+
+			auto result2 = Base64Utils::decode(result);
+			EXPECT_EQ(sample, result2) << "Not valid decode";
+
+			auto roundTrip = Base64Utils::decode(Base64Utils::encode(sample));
+			EXPECT_EQ(sample, roundTrip);
+		}
+		catch (const std::exception& ex) {
+			std::cerr << ex.what() << std::endl;
+			EXPECT_FALSE("No match.");
+		}
+	}
+
+
+	TEST(Base64Utils, test1b_w)
+	{
+		std::wstring sample {L"hello.world"};
+		std::wstring targetSample {L"aABlAGwAbABvAC4AdwBvAHIAbABkAA=="};
+
+		try {
+			auto result = Base64Utils::encode(sample);
+
+			EXPECT_EQ(targetSample, result) << "Not Valid encode";
+
+			auto result2 = Base64Utils::decode(result);
+			EXPECT_EQ(sample, result2) << "Not Valid decode";
+
+			auto roundTrip = Base64Utils::decode(Base64Utils::encode(sample));
+			EXPECT_EQ(sample, roundTrip);
+		}
+		catch (const std::exception& ex) {
+			std::cerr << ex.what() << std::endl;
+			EXPECT_FALSE("No match.");
+		}
+	}
+
+	TEST(Base64Utils, test1c_w)
+	{
+		std::wstring sample {L"hello."};
+
+		try {
+			auto roundTrip = Base64Utils::decode(Base64Utils::encode(sample));
+			EXPECT_EQ(sample, roundTrip);
+		}
+		catch (const std::exception& ex) {
+			std::cerr << ex.what() << std::endl;
+			EXPECT_FALSE("No match.");
+		}
+	}
+
+
+	TEST(Base64Utils, test1d)
+	{
+		std::string sample {"صديق"};
+
+		try {
+			auto roundTrip = Base64Utils::decode(Base64Utils::encode(sample));
+			EXPECT_EQ(sample, roundTrip);
+		}
+		catch (const std::exception& ex) {
+			std::cerr << ex.what() << std::endl;
+			EXPECT_FALSE("No match.");
+		}
+	}
+
+	TEST(Base64Utils, test1d_w)
+	{
+		std::wstring sample {L"صديق"};
+
+		try {
+			auto roundTrip = Base64Utils::decode(Base64Utils::encode(sample));
+			EXPECT_EQ(sample, roundTrip);
+		}
+		catch (const std::exception& ex) {
+			std::cerr << ex.what() << std::endl;
+			EXPECT_FALSE("No match.");
+		}
+	}
+
+
+	/* Encryption Tests */
 	TEST(EncryptionUtils, MD5HashTest)
 	{
 		std::string myMessage = "My ^&()=+-_[]{};:\'\"<>?`~ N@me is $0.50! A whole 50 off! #discount./|\\";
@@ -95,6 +185,16 @@ namespace siddiqsoft
 		EXPECT_EQ(varKey1, "56ab24c15b72a457069c5ea42fcfc640");
 	}
 
+	TEST(EncryptionUtils, MD5HashTest_w)
+	{
+		std::wstring myMessage = L"My ^&()=+-_[]{};:\'\"<>?`~ N@me is $0.50! A whole 50 off! #discount./|\\";
+		auto         varKey    = EncryptionUtils::MD5(myMessage);
+		EXPECT_EQ(varKey, "a2cf7440dab41a41487ec62f40d68cee");
+
+		std::wstring myMessage1 = L"happy";
+		auto         varKey1    = EncryptionUtils::MD5(myMessage1);
+		EXPECT_EQ(varKey1, "56ab24c15b72a457069c5ea42fcfc640");
+	}
 
 	TEST(EncryptionUtils, SASToken_1)
 	{
@@ -108,7 +208,7 @@ namespace siddiqsoft
 		std::string secret {"myPrimaryKey"};
 
 		auto url = "myNamespace.servicebus.windows.net/myEventHub";
-		auto sas = EncryptionUtils::SASToken(url, keyname, secret, "1629608276");
+		auto sas = EncryptionUtils::SASToken<char>(secret, url, keyname, "1629608276");
 
 		// clang-format off
 		EXPECT_EQ("SharedAccessSignature sr=myNamespace.servicebus.windows.net%2fmyEventHub&sig=%2bl9P4WDuWjGTXrA8PeFKGl0g9Nj5OnynM55TK3huc1M%3d&se=1629608276&skn=RootManageSharedAccessKey",
@@ -116,6 +216,25 @@ namespace siddiqsoft
 		// clang-format on
 	}
 
+	TEST(EncryptionUtils, SASToken_1_w)
+	{
+		// https://docs.microsoft.com/en-us/rest/api/eventhub/generate-sas-token#code-try-4
+		/*
+		    Now: 1629607976 --> 1629608276
+		    SASToken: SharedAccessSignature
+		   sr=myNamespace.servicebus.windows.net%2fmyEventHub&sig=%2bl9P4WDuWjGTXrA8PeFKGl0g9Nj5OnynM55TK3huc1M%3d&se=1629608276&skn=RootManageSharedAccessKey
+		*/
+		std::wstring keyname {L"RootManageSharedAccessKey"};
+		std::string  secret {"myPrimaryKey"};
+		std::wstring url {L"myNamespace.servicebus.windows.net/myEventHub"};
+
+		auto sas = EncryptionUtils::SASToken(secret, url, keyname, std::wstring {L"1629608276"});
+
+		// clang-format off
+		EXPECT_EQ(L"SharedAccessSignature sr=myNamespace.servicebus.windows.net%2fmyEventHub&sig=%2bl9P4WDuWjGTXrA8PeFKGl0g9Nj5OnynM55TK3huc1M%3d&se=1629608276&skn=RootManageSharedAccessKey",
+		          sas);
+		// clang-format on
+	}
 
 	TEST(EncryptionUtils, JWTHMAC256_1)
 	{
@@ -135,6 +254,23 @@ namespace siddiqsoft
 		// clang-format on
 	}
 
+	TEST(EncryptionUtils, JWTHMAC256_1_w)
+	{
+		std::wstring header {L"{\"alg\":\"HS256\",\"typ\":\"JWT\"}"};
+		std::wstring payload {L"{\"loggedInAs\":\"admin\",\"iat\":1422779638}"};
+		std::string  secret {"secretkey"};
+
+		// Caution using nlohman::json to dump()
+		// The JSON specification does not mandate ordering of the key-value pairs. However, if you notice, the JWT base64url are
+		// very sensitive to ordering.
+		auto jwt = EncryptionUtils::JWTHMAC256(secret, header, payload);
+
+		// clang-format off
+		EXPECT_STREQ(jwt.c_str(),
+		             L"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dnZWRJbkFzIjoiYWRtaW4iLCJpYXQiOjE0MjI3Nzk2Mzh9.gzSraSYS8EXBxLN_oWnFSRgCzcmJmMjLiuyu5CSpyHI")
+		        << "Not Valid JWT encode";
+		// clang-format on
+	}
 
 	TEST(EncryptionUtils, HMAC_1)
 	{
@@ -152,37 +288,116 @@ namespace siddiqsoft
 		}
 	}
 
+	TEST(EncryptionUtils, HMAC_1_w)
+	{
+		std::wstring myData {L"hello world"};
+		std::string  myKey {"01234567890123456789012345678901"};
+
+		try {
+			auto r1 = EncryptionUtils::HMAC<wchar_t>(myData, myKey);
+
+			// Using online tool: https://www.liavaag.org/English/SHA-Generator/HMAC/
+			EXPECT_STREQ("B8dXpkmWppplo/hAbiHLuXgIEPFErnypOewwhH1+tPQ=", Base64Utils::encode(r1).c_str());
+		}
+		catch (const std::exception& e) {
+			EXPECT_TRUE(false) << e.what() << std::endl;
+		}
+	}
 
 	TEST(EncryptionUtils, CosmosToken)
 	{
-		auto Key = "dsZQi3KtZmCv1ljt3VNWNm7sQUF1y5rJfC6kv5JiwvW0EndXdDku/dkKBp8/ufDToSxLzR4y+O/0H/t4bQtVNw==";
+		std::string Key = "dsZQi3KtZmCv1ljt3VNWNm7sQUF1y5rJfC6kv5JiwvW0EndXdDku/dkKBp8/ufDToSxLzR4y+O/0H/t4bQtVNw==";
 
 		EXPECT_EQ(Key, Base64Utils::encode(Base64Utils::decode(Key)));
 
 		auto decodedKey = siddiqsoft::Base64Utils::decode(Key);
-		auto auth       = EncryptionUtils::CosmosToken(decodedKey, "GET", "dbs", "dbs/ToDoList", "Thu, 27 Apr 2017 00:51:12 GMT");
+		auto auth = EncryptionUtils::CosmosToken<char>(decodedKey, "GET", "dbs", "dbs/ToDoList", "Thu, 27 Apr 2017 00:51:12 GMT");
 
 		// https://docs.microsoft.com/en-us/rest/api/cosmos-db/access-control-on-cosmosdb-resources?redirectedfrom=MSDN
 		EXPECT_EQ("type%3dmaster%26ver%3d1.0%26sig%3dc09PEVJrgp2uQRkr934kFbTqhByc7TVr3OHyqlu%2bc%2bc%3d", auth);
 	}
 
+	TEST(EncryptionUtils, CosmosToken_w)
+	{
+		std::string Key {"dsZQi3KtZmCv1ljt3VNWNm7sQUF1y5rJfC6kv5JiwvW0EndXdDku/dkKBp8/ufDToSxLzR4y+O/0H/t4bQtVNw=="};
+
+		EXPECT_EQ(Key, Base64Utils::encode(Base64Utils::decode(Key)));
+
+		auto decodedKey = siddiqsoft::Base64Utils::decode(Key);
+		auto auth       = EncryptionUtils::CosmosToken<wchar_t>(
+                decodedKey, L"GET", L"dbs", L"dbs/ToDoList", L"Thu, 27 Apr 2017 00:51:12 GMT");
+
+		// https://docs.microsoft.com/en-us/rest/api/cosmos-db/access-control-on-cosmosdb-resources?redirectedfrom=MSDN
+		EXPECT_EQ(L"type%3dmaster%26ver%3d1.0%26sig%3dc09PEVJrgp2uQRkr934kFbTqhByc7TVr3OHyqlu%2bc%2bc%3d", auth);
+	}
+
+	/* DateUtils tests */
 
 	TEST(DateUtils, ISO8601_1)
 	{
 		auto now_ts      = std::chrono::system_clock::now();
 
-		auto now_iso8601 = DateUtils::ISO8601<std::string>(now_ts);
+		auto now_iso8601 = DateUtils::ISO8601(now_ts);
 		std::cout << "now_iso8601   : " << now_iso8601 << std::endl;
 		std::cout << "now_iso8601   : " << DateUtils::ISO8601() << std::endl;
 	}
 
+	TEST(DateUtils, ISO8601_1_w)
+	{
+		auto now_ts      = std::chrono::system_clock::now();
+
+		auto now_iso8601 = DateUtils::ISO8601<wchar_t>(now_ts);
+		std::wcerr << L"now_iso8601   : " << now_iso8601 << std::endl;
+		std::wcerr << L"now_iso8601   : " << DateUtils::ISO8601<wchar_t>() << std::endl;
+	}
 
 	TEST(DateUtils, RFC7231_1)
 	{
 		auto now_ts      = std::chrono::system_clock::now();
 
-		auto now_rfc7231 = DateUtils::RFC7231<std::string>(now_ts);
+		auto now_rfc7231 = DateUtils::RFC7231(now_ts);
 		std::cout << "now_rfc7231   : " << now_rfc7231 << std::endl;
 		std::cout << "now_rfc7231   : " << DateUtils::RFC7231() << std::endl;
 	}
+
+	TEST(DateUtils, RFC7231_1_w)
+	{
+		auto now_ts      = std::chrono::system_clock::now();
+
+		auto now_rfc7231 = DateUtils::RFC7231<wchar_t>(now_ts);
+		std::wcerr << L"now_rfc7231   : " << now_rfc7231 << std::endl;
+		std::wcerr << L"now_rfc7231   : " << DateUtils::RFC7231<wchar_t>() << std::endl;
+	}
+
+
+	/* ConversionUtils tests */
+
+	TEST(ConversionUtils, test1a)
+	{
+		std::string sample {"صديق"};
+
+		try {
+			auto roundTrip = ConversionUtils::utf8FromWide(ConversionUtils::wideFromUtf8(sample));
+			EXPECT_EQ(sample, roundTrip);
+		}
+		catch (const std::exception& ex) {
+			std::cerr << ex.what() << std::endl;
+			EXPECT_FALSE("No match.");
+		}
+	}
+
+	TEST(ConversionUtils, test1a_w)
+	{
+		std::wstring sample {L"صديق"};
+
+		try {
+			auto roundTrip = ConversionUtils::wideFromUtf8(ConversionUtils::utf8FromWide(sample));
+			EXPECT_EQ(sample, roundTrip);
+		}
+		catch (const std::exception& ex) {
+			std::cerr << ex.what() << std::endl;
+			EXPECT_FALSE("No match.");
+		}
+	}
+
 } // namespace siddiqsoft
