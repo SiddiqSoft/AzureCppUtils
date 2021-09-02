@@ -48,8 +48,6 @@
 #include <concepts>
 #include <format>
 
-#if __cpp_lib_format && __cpp_lib_concepts
-
 #if defined(_WIN64) || defined(WIN64) || defined(WIN32) || defined(_WIN32)
 #include <Windows.h>
 #include <wincrypt.h>
@@ -60,16 +58,12 @@
 
 #include "siddiqsoft/RunOnEnd.hpp"
 
-///
 /// @brief SiddiqSoft
-///
 namespace siddiqsoft
 {
 #if !defined(_NORW)
-	///
 	/// @brief In support of the macro NORW which allows us to declare/use narrow/wide strings as needed. Plucked from the MS stl
 	/// implementation
-	///
 	template <typename _NorWT>
 		requires std::same_as<_NorWT, char> || std::same_as<_NorWT, wchar_t>
 	[[nodiscard]] constexpr const _NorWT* NorW_1(const char* const _Str, const wchar_t* const _WStr) noexcept
@@ -84,9 +78,7 @@ namespace siddiqsoft
 #define _NORW(_NorWT, _Literal) NorW_1<_NorWT>(_Literal, L##_Literal)
 #endif
 
-	///
 	/// @brief Conversion Functions for ascii to wide, utf8 to wide and vice-versa
-	///
 	struct ConversionUtils
 	{
 		/// @brief Convert given wide string to ascii encoded string
@@ -115,11 +107,9 @@ namespace siddiqsoft
 			return {};
 		}
 
-		///
 		/// @brief Convert given wide string to utf8 encoded string
 		/// @param src std::wstring input
 		/// @return std::string with utf-8 encoding
-		///
 		static std::string utf8FromWide(const std::wstring& src)
 		{
 			if (src.empty()) return {};
@@ -191,8 +181,9 @@ namespace siddiqsoft
 	{
 		/// @brief Converts the argument to ISO8601 format
 		/// @tparam T Must be string or wstring
-		/// @param rawTime time_point representing the time. Defaults to "now"
+		/// @param rawtp time_point representing the time. Defaults to "now"
 		/// @return String representing ISO 8601 format with milliseconds empty if fails
+		/// @see The specification https://en.wikipedia.org/wiki/ISO_8601
 		template <typename T = char>
 			requires std::same_as<T, char> || std::same_as<T, wchar_t>
 		static std::basic_string<T> ISO8601(const std::chrono::system_clock::time_point& rawtp = std::chrono::system_clock::now())
@@ -213,7 +204,6 @@ namespace siddiqsoft
 				return std::format("{}.{:03}Z", buff, msTime);
 			}
 			else if constexpr (std::is_same_v<T, wchar_t>) {
-				// https://en.wikipedia.org/wiki/ISO_8601
 				// yyyy-mm-ddThh:mm:ss.mmmZ
 				wchar_t buff[256] {};
 				if (ec != EINVAL) wcsftime(buff, _countof(buff), L"%FT%T", &timeInfo);
@@ -531,8 +521,8 @@ namespace siddiqsoft
 
 		/// @brief Returns binary HMAC using SHA-256.
 		/// https://www.liavaag.org/English/SHA-Generator/HMAC/
-		/// @param argSource Source text
-		/// @param argKey Source key; MUST NOT be base64 encoded
+		/// @param message Source text
+		/// @param key Source key; MUST NOT be base64 encoded
 		/// @return Binary enclosed in string (narrow); you must base64encode to get useful result.
 		template <typename T = char>
 			requires std::same_as<T, char> || std::same_as<T, wchar_t>
@@ -599,10 +589,10 @@ namespace siddiqsoft
 
 
 		/// @brief Create a JsonWebToken authorization with HMAC 256
-		/// @param secret Must be std::string as the contents are the "key" and treated as "binary"
-		/// @param header
+		/// @param key Must be std::string as the contents are the "key" and treated as "binary"
+		/// @param header The JWT header
 		/// @param payload The string wiht json tokens
-		/// @return
+		/// @return HMAC256 encoded JWT token
 		template <typename T = char>
 			requires std::same_as<T, char> || std::same_as<T, wchar_t>
 		static std::basic_string<T>
@@ -743,7 +733,5 @@ namespace siddiqsoft
 		}
 	};
 } // namespace siddiqsoft
-
-#endif
 
 #endif // !AZURECPPUTILS_HPP
