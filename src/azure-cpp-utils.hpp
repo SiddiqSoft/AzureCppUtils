@@ -88,8 +88,10 @@ namespace siddiqsoft
 		{
 			if (src.empty()) return {};
 
-			if (auto destSize = WideCharToMultiByte(CP_ACP, 0, src.c_str(), static_cast<int>(src.length()), NULL, 0, NULL, NULL);
-			    destSize > 0) {
+			if (auto destSize =
+			            WideCharToMultiByte(CP_ACP, 0, src.c_str(), static_cast<int>(src.length()), nullptr, 0, nullptr, nullptr);
+			    destSize > 0)
+			{
 				// Allocate appropriate buffer +1 for null-char
 				std::vector<char> destBuffer(static_cast<size_t>(destSize) + 1);
 				destSize = WideCharToMultiByte(CP_ACP,
@@ -98,8 +100,8 @@ namespace siddiqsoft
 				                               static_cast<int>(src.length()),
 				                               destBuffer.data(),
 				                               static_cast<DWORD>(destSize),
-				                               NULL,
-				                               NULL);
+				                               nullptr,
+				                               nullptr);
 				return {destBuffer.data(), static_cast<size_t>(destSize)};
 			}
 
@@ -114,8 +116,10 @@ namespace siddiqsoft
 		{
 			if (src.empty()) return {};
 
-			if (auto destSize = WideCharToMultiByte(CP_UTF8, 0, src.c_str(), static_cast<int>(src.length()), NULL, 0, NULL, NULL);
-			    destSize > 0) {
+			if (auto destSize =
+			            WideCharToMultiByte(CP_UTF8, 0, src.c_str(), static_cast<int>(src.length()), nullptr, 0, nullptr, nullptr);
+			    destSize > 0)
+			{
 				// Allocate appropriate buffer +1 for null-char
 				std::vector<char> destBuffer(static_cast<size_t>(destSize) + 1);
 				destSize = WideCharToMultiByte(CP_UTF8,
@@ -124,8 +128,8 @@ namespace siddiqsoft
 				                               static_cast<int>(src.length()),
 				                               destBuffer.data(),
 				                               static_cast<DWORD>(destSize),
-				                               NULL,
-				                               NULL);
+				                               nullptr,
+				                               nullptr);
 				return {destBuffer.data(), static_cast<size_t>(destSize)};
 			}
 
@@ -140,8 +144,8 @@ namespace siddiqsoft
 		{
 			if (src.empty()) return {};
 
-			if (auto destSize = MultiByteToWideChar(CP_UTF8, 0, src.c_str(), static_cast<int>(src.length()), NULL, 0); destSize > 0)
-			{
+			if (auto destSize = MultiByteToWideChar(CP_UTF8, 0, src.c_str(), static_cast<int>(src.length()), nullptr, 0);
+			    destSize > 0) {
 				// Allocate appropriate buffer +1 for null-char
 				std::vector<wchar_t> destBuffer(static_cast<size_t>(destSize) + 1);
 				destSize = MultiByteToWideChar(
@@ -161,8 +165,8 @@ namespace siddiqsoft
 		{
 			if (src.empty()) return {};
 
-			if (auto destSize = MultiByteToWideChar(CP_ACP, 0, src.c_str(), static_cast<int>(src.length()), NULL, 0); destSize > 0)
-			{
+			if (auto destSize = MultiByteToWideChar(CP_ACP, 0, src.c_str(), static_cast<int>(src.length()), nullptr, 0);
+			    destSize > 0) {
 				// Allocate appropriate buffer +1 for null-char
 				std::vector<wchar_t> destBuffer(static_cast<size_t>(destSize) + 1);
 				destSize = MultiByteToWideChar(
@@ -198,16 +202,16 @@ namespace siddiqsoft
 			if constexpr (std::is_same_v<T, char>) {
 				// https://en.wikipedia.org/wiki/ISO_8601
 				// yyyy-mm-ddThh:mm:ss.mmmZ
-				char buff[_countof("yyyy-mm-ddThh:mm:ss.0000000Z")] {};
+				std::vector<char> buff(32, 0);
 
-				if (ec != EINVAL) strftime(buff, _countof(buff), "%FT%T", &timeInfo);
-				return std::format("{}.{:03}Z", buff, msTime);
+				if (ec != EINVAL) strftime(buff.data(), buff.capacity(), "%FT%T", &timeInfo);
+				return std::format("{}.{:03}Z", buff.data(), msTime);
 			}
 			else if constexpr (std::is_same_v<T, wchar_t>) {
 				// yyyy-mm-ddThh:mm:ss.mmmZ
-				wchar_t buff[256] {};
-				if (ec != EINVAL) wcsftime(buff, _countof(buff), L"%FT%T", &timeInfo);
-				return std::format(L"{}.{:03}Z", buff, msTime);
+				std::vector<wchar_t> buff(32, 0);
+				if (ec != EINVAL) wcsftime(buff.data(), buff.capacity(), L"%FT%T", &timeInfo);
+				return std::format(L"{}.{:03}Z", buff.data(), msTime);
 			}
 
 			return {};
@@ -232,17 +236,17 @@ namespace siddiqsoft
 			// Note that since we are getting the UTC time we should not use the %z or %Z in the strftime format
 			// as it returns the local timezone and not GMT.
 			if constexpr (std::is_same_v<T, char>) {
-				char buff[sizeof "Tue, 01 Nov 1994 08:12:31 GMT"] {};
-				if (ec != EINVAL) strftime(buff, _countof(buff), "%a, %d %h %Y %T GMT", &timeInfo);
+				std::vector<char> buff(32, 0);
+				if (ec != EINVAL) strftime(buff.data(), buff.capacity(), "%a, %d %h %Y %T GMT", &timeInfo);
 
-				return buff;
+				return buff.data();
 			}
 
 			if constexpr (std::is_same_v<T, wchar_t>) {
-				wchar_t buff[sizeof L"Tue, 01 Nov 1994 08:12:31 GMT"] {};
-				if (ec != EINVAL) wcsftime(buff, _countof(buff), L"%a, %d %h %Y %T GMT", &timeInfo);
+				std::vector<wchar_t> buff(32, 0);
+				if (ec != EINVAL) wcsftime(buff.data(), buff.capacity(), L"%a, %d %h %Y %T GMT", &timeInfo);
 
-				return buff;
+				return buff.data();
 			}
 		}
 	};
@@ -311,27 +315,27 @@ namespace siddiqsoft
 			 */
 			if (!argBin.empty() &&
 			    (TRUE == std::is_same_v<T, wchar_t> ? CryptBinaryToStringW((const BYTE*)(argBin.data()),
-			                                                               static_cast<DWORD>(argBin.length() * sizeof(T)),
+			                                                               static_cast<DWORD>(argBin.length() * sizeof(wchar_t)),
 			                                                               CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF,
-			                                                               NULL,
+			                                                               nullptr,
 			                                                               &destSize)
 			                                        : CryptBinaryToStringA((const BYTE*)(argBin.data()),
-			                                                               static_cast<DWORD>(argBin.length() * sizeof(T)),
+			                                                               static_cast<DWORD>(argBin.length() * sizeof(wchar_t)),
 			                                                               CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF,
-			                                                               NULL,
+			                                                               nullptr,
 			                                                               &destSize)))
 			{
 				std::vector<T> dest(static_cast<size_t>(destSize) + 1);
 
 				if (TRUE == std::is_same_v<T, wchar_t> ? CryptBinaryToStringW((const BYTE*)(argBin.data()),
-				                                                              static_cast<DWORD>(argBin.length() * sizeof(T)),
+				                                                              static_cast<DWORD>(argBin.length() * sizeof(char)),
 				                                                              CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF,
-				                                                              reinterpret_cast<LPWSTR>(dest.data()),
+				                                                              reinterpret_cast<wchar_t*>(dest.data()),
 				                                                              &destSize)
 				                                       : CryptBinaryToStringA((const BYTE*)(argBin.data()),
-				                                                              static_cast<DWORD>(argBin.length() * sizeof(T)),
+				                                                              static_cast<DWORD>(argBin.length() * sizeof(char)),
 				                                                              CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF,
-				                                                              reinterpret_cast<LPSTR>(dest.data()),
+				                                                              reinterpret_cast<char*>(dest.data()),
 				                                                              &destSize))
 				{
 					return std::basic_string<T> {reinterpret_cast<T*>(dest.data()), destSize};
@@ -473,8 +477,8 @@ namespace siddiqsoft
 		static std::string MD5(const std::basic_string<T>& source)
 		{
 			if constexpr (std::is_same_v<T, char>) {
-				HCRYPTPROV hProv {NULL};
-				HCRYPTHASH hHash {NULL};
+				HCRYPTPROV hProv {};
+				HCRYPTHASH hHash {};
 				RunOnEnd   cleanUpOnEnd {[&hProv, &hHash] {
                     // Cleanup on exit of this function scope
                     if (hHash != NULL) CryptDestroyHash(hHash);
@@ -482,18 +486,18 @@ namespace siddiqsoft
                 }};
 
 				// Get handle to the crypto provider
-				if (TRUE == CryptAcquireContext(&hProv, NULL, NULL, PROV_RSA_AES, CRYPT_VERIFYCONTEXT)) {
+				if (TRUE == CryptAcquireContext(&hProv, nullptr, nullptr, PROV_RSA_AES, CRYPT_VERIFYCONTEXT)) {
 					// Get the hash library, choose MD5..
 					if (TRUE == CryptCreateHash(hProv, CALG_MD5, 0, 0, &hHash)) {
 						// Hash the source..
 						if (TRUE ==
 						    CryptHashData(
 						            hHash, reinterpret_cast<const BYTE*>(source.data()), static_cast<DWORD>(source.length()), 0)) {
-							char  rgbDigits[] {"0123456789abcdef"};
-							BYTE  rgbHash[sizeof(rgbDigits)] {};
-							DWORD rgbHashSize = sizeof(rgbDigits);
+							const char rgbDigits[] {"0123456789abcdef"};
+							BYTE       rgbHash[sizeof(rgbDigits)] {};
+							DWORD      rgbHashSize = sizeof(rgbDigits);
 							// Fetch the results using the gethashparam call..
-							if (CryptGetHashParam(hHash, HP_HASHVAL, rgbHash, &rgbHashSize, 0)) {
+							if (TRUE == CryptGetHashParam(hHash, HP_HASHVAL, rgbHash, &rgbHashSize, 0)) {
 								std::string result {};
 
 								for (DWORD i = 0; i < rgbHashSize; i++) {
@@ -529,8 +533,8 @@ namespace siddiqsoft
 		static std::string HMAC(const std::basic_string<T>& message, const std::string& key)
 		{
 			if constexpr (std::is_same_v<T, char>) {
-				BCRYPT_ALG_HANDLE  hAlg {NULL};
-				BCRYPT_HASH_HANDLE hHash {NULL};
+				BCRYPT_ALG_HANDLE  hAlg {};
+				BCRYPT_HASH_HANDLE hHash {};
 				NTSTATUS           status {0};
 				RunOnEnd           cleanupOnEnd {[&hAlg, &hHash] {
                     // All handles we allocate are cleaned up when this function returns to caller
@@ -539,14 +543,14 @@ namespace siddiqsoft
                 }};
 
 
-				if (status = BCryptOpenAlgorithmProvider(&hAlg, BCRYPT_SHA256_ALGORITHM, NULL, BCRYPT_ALG_HANDLE_HMAC_FLAG);
+				if (status = BCryptOpenAlgorithmProvider(&hAlg, BCRYPT_SHA256_ALGORITHM, nullptr, BCRYPT_ALG_HANDLE_HMAC_FLAG);
 				    status == 0) {
 					// Set the key for the hash function..
 					// Passing NULL, 0 to the pbHashObject and cbHashObject asks the method to allocate
 					// memory on our behalf.
 					if (status = BCryptCreateHash(hAlg,
 					                              &hHash,
-					                              NULL,
+					                              nullptr,
 					                              0,
 					                              reinterpret_cast<UCHAR*>(const_cast<char*>(key.data())),
 					                              static_cast<DWORD>(key.length()),
