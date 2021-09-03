@@ -33,16 +33,15 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "basic_tests", "tests\basic_
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{384C8FAD-ED7B-4512-8162-CA7E85BABB57}"
 	ProjectSection(SolutionItems) = preProject
-		docs\Doxyfile = docs\Doxyfile
-		docs\doxygen-awesome-darkmode-toggle.js = docs\doxygen-awesome-darkmode-toggle.js
-		docs\doxygen-awesome-sidebar-only-darkmode-toggle.css = docs\doxygen-awesome-sidebar-only-darkmode-toggle.css
-		docs\doxygen-awesome-sidebar-only.css = docs\doxygen-awesome-sidebar-only.css
-		docs\doxygen-awesome.css = docs\doxygen-awesome.css
-		docs\footer.html = docs\footer.html
-		docs\header.html = docs\header.html
-		docs\mainpage.md = docs\mainpage.md
-		docs\rebuild-docs.ps1 = docs\rebuild-docs.ps1
-		docs\work-in-progress.png = docs\work-in-progress.png
+		src\docs\Doxyfile = src\docs\Doxyfile
+		src\docs\doxygen-awesome-darkmode-toggle.js = src\docs\doxygen-awesome-darkmode-toggle.js
+		src\docs\doxygen-awesome-sidebar-only-darkmode-toggle.css = src\docs\doxygen-awesome-sidebar-only-darkmode-toggle.css
+		src\docs\doxygen-awesome-sidebar-only.css = src\docs\doxygen-awesome-sidebar-only.css
+		src\docs\doxygen-awesome.css = src\docs\doxygen-awesome.css
+		src\docs\footer.html = src\docs\footer.html
+		src\docs\header.html = src\docs\header.html
+		src\docs\mainpage.md = src\docs\mainpage.md
+		src\docs\rebuild-docs.ps1 = src\docs\rebuild-docs.ps1
 	EndProjectSection
 EndProject
 Global
@@ -61,6 +60,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{025C9280-6302-401E-949F-F82DF4D47204} = {179E7FDB-7795-456D-AC2D-66670D708FC3}
+		{384C8FAD-ED7B-4512-8162-CA7E85BABB57} = {8A6E91C4-25AE-43E1-A2A8-6D020B8B3287}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {58ECAD81-0BE8-4DF7-8F5B-7098036D04E7}

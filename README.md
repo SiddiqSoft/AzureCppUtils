@@ -31,7 +31,7 @@ Azure C++ Utils : Azure REST API Helpers for Modern C++
 - EncryptionUtils
   - MD5, HMAC, JWTSHA256, SASToken, CosmosToken  
 
-The the documentation [here](https://siddiqsoft.github.io/azure-cpp-utils/)
+The the documentation [here](https://siddiqsoft.github.io/azure-cpp-utils/html/index.html)
 
 <p align="right">
 &copy; 2021 Siddiq Software LLC. All rights reserved.

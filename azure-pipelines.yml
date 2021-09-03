@@ -101,7 +101,7 @@ steps:
     tag: '$(build.buildNumber)'
     title: 'v$(build.buildNumber)'
     releaseNotesSource: 'inline'
-    releaseNotesInline: 'Documentation: https://siddiqsoft.github.io/azure-cpp-utils/'
+    releaseNotesInline: 'Documentation: https://siddiqsoft.github.io/azure-cpp-utils/html/index.html'
     isPreRelease: true
     changeLogCompareToRelease: 'lastFullRelease'
     changeLogType: 'commitBased'
