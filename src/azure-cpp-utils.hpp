@@ -332,12 +332,12 @@ namespace siddiqsoft
                 if (TRUE == std::is_same_v<T, wchar_t> ? CryptBinaryToStringW((const BYTE*)(argBin.data()),
                                                                               static_cast<DWORD>(argBin.length() * sizeof(wchar_t)),
                                                                               CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF,
-                                                                              reinterpret_cast<wchar_t*>(dest.data()),
+                                                                              LPWSTR(dest.data()),
                                                                               &destSize)
                                                        : CryptBinaryToStringA((const BYTE*)(argBin.data()),
                                                                               static_cast<DWORD>(argBin.length() * sizeof(char)),
                                                                               CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF,
-                                                                              reinterpret_cast<char*>(dest.data()),
+                                                                              LPSTR(dest.data()),
                                                                               &destSize))
                 {
                     return std::basic_string<T> {reinterpret_cast<T*>(dest.data()), destSize};
@@ -368,14 +368,14 @@ namespace siddiqsoft
              * fails to compile since the member types differ and it cannot cast the return into a single type.
              */
             if (TRUE == std::is_same_v<wchar_t, T>
-                        ? CryptStringToBinaryW(LPCWSTR(textuallyEncoded.data()),
+                        ? CryptStringToBinaryW(LPCWSTR(textuallyEncoded.c_str()),
                                                static_cast<DWORD>(textuallyEncoded.length()), // in character count
                                                CRYPT_STRING_BASE64,
                                                nullptr,   // output; NULL to calculate destSize
                                                &destSize, // this is in bytes
                                                nullptr,
                                                nullptr)
-                        : CryptStringToBinaryA(LPCSTR(textuallyEncoded.data()),
+                        : CryptStringToBinaryA(LPCSTR(textuallyEncoded.c_str()),
                                                static_cast<DWORD>(textuallyEncoded.length()), // in character count
                                                CRYPT_STRING_BASE64,
                                                nullptr,   // output; NULL to calculate destSize
@@ -388,14 +388,14 @@ namespace siddiqsoft
                 // The +1 ensures we pad with blank/NUL item.
                 std::vector<T> dest(static_cast<size_t>(destSize / sizeof(T)) + 1);
 
-                if (TRUE == std::is_same_v<wchar_t, T> ? CryptStringToBinaryW(LPCWSTR(textuallyEncoded.data()),
+                if (TRUE == std::is_same_v<wchar_t, T> ? CryptStringToBinaryW(LPCWSTR(textuallyEncoded.c_str()),
                                                                               static_cast<DWORD>(textuallyEncoded.length()),
                                                                               CRYPT_STRING_BASE64,
                                                                               reinterpret_cast<BYTE*>(dest.data()),
                                                                               &destSize,
                                                                               nullptr,
                                                                               nullptr)
-                                                       : CryptStringToBinaryA(LPCSTR(textuallyEncoded.data()),
+                                                       : CryptStringToBinaryA(LPCSTR(textuallyEncoded.c_str()),
                                                                               static_cast<DWORD>(textuallyEncoded.length()),
                                                                               CRYPT_STRING_BASE64,
                                                                               reinterpret_cast<BYTE*>(dest.data()),
