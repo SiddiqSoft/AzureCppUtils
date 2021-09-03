@@ -4,6 +4,7 @@ trigger:
     include:
     - main
     - develop
+    - bugfix/*
     - release/*
   paths:
     exclude:
@@ -80,7 +81,6 @@ steps:
     packagesToPack: 'nuget/*.nuspec'
     versioningScheme: 'off'
     buildProperties: 'VERSION=$(build.buildNumber)'
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
 
 - task: NuGetCommand@2
   displayName: 'NuGet push'
@@ -101,6 +101,7 @@ steps:
     tag: '$(build.buildNumber)'
     title: 'v$(build.buildNumber)'
     releaseNotesSource: 'inline'
+    releaseNotesInline: 'Documentation: https://siddiqsoft.github.io/azure-cpp-utils/'
     isPreRelease: true
     changeLogCompareToRelease: 'lastFullRelease'
     changeLogType: 'commitBased'

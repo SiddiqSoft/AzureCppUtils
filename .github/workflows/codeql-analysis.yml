@@ -16,12 +16,12 @@ on:
     branches: [ main ]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [ main ]
+    branches: [ main, bugfix/* ]
 
 jobs:
   analyze:
     name: Analyze
-    runs-on: Windows-latest
+    runs-on: windows-latest
     permissions:
       actions: read
       contents: read
