@@ -873,6 +873,11 @@ WARN_LOGFILE           =
 
 INPUT                  = mainpage.md \
                          ../azure-cpp-utils.hpp \
+                         ../conversion-utils.hpp \
+                         ../date-utils.hpp \
+                         ../base64-utils.hpp \
+                         ../url-utils.hpp \
+                         ../encryption-utils.hpp \
                          ../../tests/test.cpp
 
 # This tag can be used to specify the character encoding of the source files

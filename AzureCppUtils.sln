@@ -6,6 +6,11 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8A6E91C4-25AE-43E1-A2A8-6D020B8B3287}"
 	ProjectSection(SolutionItems) = preProject
 		src\azure-cpp-utils.hpp = src\azure-cpp-utils.hpp
+		src\base64-utils.hpp = src\base64-utils.hpp
+		src\conversion-utils.hpp = src\conversion-utils.hpp
+		src\date-utils.hpp = src\date-utils.hpp
+		src\encryption-utils.hpp = src\encryption-utils.hpp
+		src\url-utils.hpp = src\url-utils.hpp
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{179E7FDB-7795-456D-AC2D-66670D708FC3}"
