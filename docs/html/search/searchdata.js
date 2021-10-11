@@ -3,9 +3,9 @@ var indexSectionsWithContent =
   0: "_abcdehijmnrstuw",
   1: "bcdeu",
   2: "s",
-  3: "amt",
+  3: "abcdemtu",
   4: "acdehijmnrstuw",
-  5: "_a",
+  5: "_bcdeu",
   6: "a"
 };
 

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['azurecpputils_5fhpp_0',['AZURECPPUTILS_HPP',['../azure-cpp-utils_8hpp.html#a69a2b2586399ddc1becae5c4229c3095',1,'azure-cpp-utils.hpp']]]
+  ['base64_5futils_5fhpp_0',['BASE64_UTILS_HPP',['../base64-utils_8hpp.html#aeb616a1f1fda0fa8e6e7c1bce3b8f409',1,'base64-utils.hpp']]]
 ];
