@@ -45,7 +45,6 @@
 #include <format>
 
 
-
 /// @brief SiddiqSoft
 namespace siddiqsoft
 {
@@ -61,12 +60,12 @@ namespace siddiqsoft
             requires std::same_as<T, char> || std::same_as<T, wchar_t>
         static std::basic_string<T> ISO8601(const std::chrono::system_clock::time_point& rawtp = std::chrono::system_clock::now())
         {
-            auto rawtime = std::chrono::system_clock::to_time_t(rawtp);
-            tm   timeInfo {};
+            const auto rawtime = std::chrono::system_clock::to_time_t(rawtp);
+            tm         timeInfo {};
             // We need to get the fractional milliseconds from the raw time point.
             auto msTime = std::chrono::duration_cast<std::chrono::milliseconds>(rawtp.time_since_epoch()).count() % 1000;
             // Get the UTC time packet.
-            auto ec = gmtime_s(&timeInfo, &rawtime);
+            const auto ec = gmtime_s(&timeInfo, &rawtime);
 
             if constexpr (std::is_same_v<T, char>) {
                 // https://en.wikipedia.org/wiki/ISO_8601
@@ -117,6 +116,37 @@ namespace siddiqsoft
 
                 return buff.data();
             }
+        }
+
+
+        /// @brief Returns D.HH:MM:SS ; days.hours:minutes:seconds
+        /// @tparam T Must be either std::string or std::wstring
+        /// @param rawtp Number of seconds
+        /// @return Returns a string representation of the form: "Tue, 01 Nov 1994 08:12:31 GMT"
+        template <typename T = char>
+            requires std::same_as<T, char> || std::same_as<T, wchar_t>
+        static std::basic_string<T> toTimespan(const std::chrono::seconds& arg)
+        {
+            auto asSeconds = arg.count();
+            // https://www.epochconverter.com/
+            // Human-readable time 	Seconds
+            // 1 hour				3600 seconds
+            // 1 day				86400 seconds
+            // 1 week				604800 seconds
+            // 1 month (30.44 days)	2629743 seconds
+            // 1 year (365.24 days)	31556926 seconds
+            auto hours   = (asSeconds / 3600) % 24;
+            auto days    = (asSeconds / 86400);
+            auto months  = (asSeconds / 2629743);
+            auto years   = asSeconds / 31556926;
+            auto weeks   = (asSeconds / 604800);
+            auto minutes = (asSeconds / 60) % 60;
+            auto seconds = asSeconds % 60;
+
+            if constexpr (std::is_same_v<T, char>)
+                return std::format("{}.{:02}:{:02}:{:02}", days, hours, minutes, seconds);
+            else if constexpr (std::is_same_v<T, wchar_t>)
+                return std::format(L"{}.{:02}:{:02}:{:02}", days, hours, minutes, seconds);
         }
     };
 } // namespace siddiqsoft
