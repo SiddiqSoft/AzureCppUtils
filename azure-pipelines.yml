@@ -36,11 +36,9 @@ steps:
     Action: '##vso[build.updatebuildnumber]'
     BuildVersion: $(GitVersion.NugetVersionV2)
 
-- task: CmdLine@2
+- task: run-vcpkg@0
   inputs:
-    script: |
-      echo Loading dependencies
-      vcpkg install vcpkg_response.txt
+    vcpkgArguments: 'vcpkg_response.txt'
 
 - task: NuGetCommand@2
   displayName: 'NuGet restore'
