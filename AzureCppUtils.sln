@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31515.178
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31808.319
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8A6E91C4-25AE-43E1-A2A8-6D020B8B3287}"
 	ProjectSection(SolutionItems) = preProject
@@ -32,6 +32,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		GitVersion.yml = GitVersion.yml
 		LICENSE = LICENSE
 		README.md = README.md
+		SECURITY.md = SECURITY.md
+		vcpkg.json = vcpkg.json
+		vcpkg_response.txt = vcpkg_response.txt
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "basic_tests", "tests\basic_tests.vcxproj", "{025C9280-6302-401E-949F-F82DF4D47204}"
