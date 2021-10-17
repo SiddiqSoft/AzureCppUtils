@@ -36,6 +36,10 @@ steps:
     Action: '##vso[build.updatebuildnumber]'
     BuildVersion: $(GitVersion.NugetVersionV2)
 
+- task: run-vcpkg@0
+  inputs:
+    vcpkgTriplet: 'x64-windows'
+
 - task: NuGetCommand@2
   displayName: 'NuGet restore'
   inputs:
