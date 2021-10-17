@@ -1,0 +1,9 @@
+{
+  "name": "azure-cpp-utils",
+  "version-string": "1.4.0",
+  "homepage": "https://github.com/SiddiqSoft/azure-cpp-utils",
+  "description": "Azure helper functions for modern C++",
+  "dependencies": [
+    "gtest"
+  ]
+}
