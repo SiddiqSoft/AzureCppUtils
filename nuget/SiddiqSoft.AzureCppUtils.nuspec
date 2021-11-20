@@ -22,7 +22,7 @@
 		<copyright>Copyright (c) 2021 Siddiq Software LLC</copyright>
 		<!-- Dependencies -->
 		<dependencies>
-			<dependency id="SiddiqSoft.RunOnEnd" version="1.2.0"/>
+			<dependency id="SiddiqSoft.RunOnEnd" version="1.2"/>
 		</dependencies>
 	</metadata>
 

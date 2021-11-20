@@ -51,6 +51,9 @@
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <VcpkgUseStatic>true</VcpkgUseStatic>
   </PropertyGroup>
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnabled>false</VcpkgEnabled>
+  </PropertyGroup>
   <ItemGroup>
     <ClCompile Include="test.cpp" />
   </ItemGroup>
@@ -60,7 +63,8 @@
   <ItemDefinitionGroup />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\packages\SiddiqSoft.RunOnEnd.1.2.0\build\native\SiddiqSoft.RunOnEnd.targets" Condition="Exists('..\packages\SiddiqSoft.RunOnEnd.1.2.0\build\native\SiddiqSoft.RunOnEnd.targets')" />
+    <Import Project="..\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.5\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.targets" Condition="Exists('..\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.5\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.targets')" />
+    <Import Project="..\packages\SiddiqSoft.RunOnEnd.1.2.1\build\native\SiddiqSoft.RunOnEnd.targets" Condition="Exists('..\packages\SiddiqSoft.RunOnEnd.1.2.1\build\native\SiddiqSoft.RunOnEnd.targets')" />
   </ImportGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -84,7 +88,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>gtest_main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Bscmake>
       <OutputFile />
@@ -113,7 +117,7 @@
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <AdditionalDependencies>gtest_main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Bscmake>
       <OutputFile />
@@ -123,6 +127,7 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\SiddiqSoft.RunOnEnd.1.2.0\build\native\SiddiqSoft.RunOnEnd.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SiddiqSoft.RunOnEnd.1.2.0\build\native\SiddiqSoft.RunOnEnd.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.5\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.1.8.1.5\build\native\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-static.targets'))" />
+    <Error Condition="!Exists('..\packages\SiddiqSoft.RunOnEnd.1.2.1\build\native\SiddiqSoft.RunOnEnd.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SiddiqSoft.RunOnEnd.1.2.1\build\native\SiddiqSoft.RunOnEnd.targets'))" />
   </Target>
 </Project>

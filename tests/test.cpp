@@ -39,7 +39,6 @@
 
 #include "../src/azure-cpp-utils.hpp"
 
-
 namespace siddiqsoft
 {
     TEST(Base64Utils, test1a)
