@@ -20,9 +20,9 @@ variables:
   
 steps:
 - task: NuGetToolInstaller@1
-  displayName: 'Use NuGet 5.11.0'
+  displayName: 'Use NuGet 6.0.0'
   inputs:
-    versionSpec: '5.11.0'
+    versionSpec: '6.0.0'
     checkLatest: true
 
 - task: GitVersion@5
@@ -35,10 +35,6 @@ steps:
   env:
     Action: '##vso[build.updatebuildnumber]'
     BuildVersion: $(GitVersion.NugetVersionV2)
-
-- task: run-vcpkg@0
-  inputs:
-    vcpkgArguments: 'vcpkg_response.txt'
 
 - task: NuGetCommand@2
   displayName: 'NuGet restore'
