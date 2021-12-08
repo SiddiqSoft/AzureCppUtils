@@ -239,11 +239,12 @@ namespace siddiqsoft
 
             time(&epoch); // number of seconds since 1970-1-1
 
-            return SASToken<T>(key,
-                               url,
-                               keyName,
-                               std::is_same_v<T, wchar_t> ? std::to_wstring(int64_t(epoch) + timeout.count())
-                                                          : std::to_string(int64_t(epoch) + timeout.count()));
+            if constexpr (std::is_same_v<T, wchar_t>) {
+                return SASToken<wchar_t>(key, url, keyName, std::to_wstring(int64_t(epoch) + timeout.count()));
+            }
+            else if constexpr (std::is_same_v<T, char>) {
+                return SASToken<char>(key, url, keyName, std::to_string(int64_t(epoch) + timeout.count()));
+            }
         }
 
 

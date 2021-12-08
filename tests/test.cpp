@@ -210,9 +210,18 @@ namespace siddiqsoft
         auto sas = EncryptionUtils::SASToken<char>(secret, url, keyname, "1629608276");
 
         // clang-format off
-		EXPECT_EQ("SharedAccessSignature sr=myNamespace.servicebus.windows.net%2fmyEventHub&sig=%2bl9P4WDuWjGTXrA8PeFKGl0g9Nj5OnynM55TK3huc1M%3d&se=1629608276&skn=RootManageSharedAccessKey",
-		          sas);
+        EXPECT_EQ("SharedAccessSignature sr=myNamespace.servicebus.windows.net%2fmyEventHub&sig=%2bl9P4WDuWjGTXrA8PeFKGl0g9Nj5OnynM55TK3huc1M%3d&se=1629608276&skn=RootManageSharedAccessKey",
+                  sas);
         // clang-format on
+    }
+
+    TEST(EncryptionUtils, SASToken_2)
+    {
+        std::string keyname {"sender"};
+        std::string secret {"kJZN1+Im0GrRYCaZKNUj2YdA3WzP9MIqUKtojbouQeY="};
+
+        auto sas = siddiqsoft::EncryptionUtils::SASToken<char>(
+                secret, "https://helloworldeventhub.servicebus.windows.net/myhub", keyname, std::chrono::hours(24));
     }
 
     TEST(EncryptionUtils, SASToken_1_w)
@@ -230,8 +239,8 @@ namespace siddiqsoft
         auto sas = EncryptionUtils::SASToken(secret, url, keyname, std::wstring {L"1629608276"});
 
         // clang-format off
-		EXPECT_EQ(L"SharedAccessSignature sr=myNamespace.servicebus.windows.net%2fmyEventHub&sig=%2bl9P4WDuWjGTXrA8PeFKGl0g9Nj5OnynM55TK3huc1M%3d&se=1629608276&skn=RootManageSharedAccessKey",
-		          sas);
+        EXPECT_EQ(L"SharedAccessSignature sr=myNamespace.servicebus.windows.net%2fmyEventHub&sig=%2bl9P4WDuWjGTXrA8PeFKGl0g9Nj5OnynM55TK3huc1M%3d&se=1629608276&skn=RootManageSharedAccessKey",
+                  sas);
         // clang-format on
     }
 
@@ -247,9 +256,9 @@ namespace siddiqsoft
         auto jwt = EncryptionUtils::JWTHMAC256(secret, header, payload);
 
         // clang-format off
-		EXPECT_STREQ(jwt.c_str(),
-		             "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dnZWRJbkFzIjoiYWRtaW4iLCJpYXQiOjE0MjI3Nzk2Mzh9.gzSraSYS8EXBxLN_oWnFSRgCzcmJmMjLiuyu5CSpyHI")
-		        << "Not Valid JWT encode";
+        EXPECT_STREQ(jwt.c_str(),
+                     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dnZWRJbkFzIjoiYWRtaW4iLCJpYXQiOjE0MjI3Nzk2Mzh9.gzSraSYS8EXBxLN_oWnFSRgCzcmJmMjLiuyu5CSpyHI")
+                << "Not Valid JWT encode";
         // clang-format on
     }
 
@@ -265,9 +274,9 @@ namespace siddiqsoft
         auto jwt = EncryptionUtils::JWTHMAC256(secret, header, payload);
 
         // clang-format off
-		EXPECT_STREQ(jwt.c_str(),
-		             L"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dnZWRJbkFzIjoiYWRtaW4iLCJpYXQiOjE0MjI3Nzk2Mzh9.gzSraSYS8EXBxLN_oWnFSRgCzcmJmMjLiuyu5CSpyHI")
-		        << "Not Valid JWT encode";
+        EXPECT_STREQ(jwt.c_str(),
+                     L"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dnZWRJbkFzIjoiYWRtaW4iLCJpYXQiOjE0MjI3Nzk2Mzh9.gzSraSYS8EXBxLN_oWnFSRgCzcmJmMjLiuyu5CSpyHI")
+                << "Not Valid JWT encode";
         // clang-format on
     }
 
