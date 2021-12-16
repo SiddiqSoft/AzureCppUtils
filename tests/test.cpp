@@ -386,6 +386,42 @@ namespace siddiqsoft
         EXPECT_EQ(L"0.00:00:40", DateUtils::toTimespan<wchar_t>(std::chrono::seconds(40)));
     }
 
+
+    TEST(DateUtils, parseEpoch_1)
+    {
+        auto xCallStartTime = "1563400635.344906";
+        auto xCallEndTime   = "1563404341.603589";
+        auto callStartTime  = DateUtils::parseEpoch(xCallStartTime);
+        auto callEndTime    = DateUtils::parseEpoch(xCallEndTime);
+        auto [delta, ds]    = DateUtils::diff<std::string>(callEndTime, callStartTime);
+        std::cerr << "delta         : " << delta << std::endl;
+        std::cerr << "ds            : " << ds << std::endl;
+        std::cerr << std::format("ds, delta: {}, {}", ds, delta) << std::endl;
+    }
+
+
+    TEST(DateUtils, RoundTripIso8601)
+    {
+        auto tsNow     = std::chrono::system_clock::now();
+
+        auto x_iso8601 = DateUtils::ISO8601(tsNow);
+        std::cerr << "x_iso8601     : " << x_iso8601 << std::endl;
+        std::cerr << std::format("x_iso8601: {}\n", x_iso8601) << std::endl;
+        auto y_tp = DateUtils::parseISO8601(x_iso8601);
+        std::cerr << "y_tp          : " << y_tp.time_since_epoch().count() << std::endl;
+        std::cerr << std::format("y_tp: {}\n", y_tp.time_since_epoch().count()) << std::endl;
+        auto x_iso8601_rt = DateUtils::ISO8601(y_tp);
+        std::cerr << "x_iso8601_rt  : " << x_iso8601_rt << std::endl;
+        std::cerr << std::format("x_iso8601_rt: {}\n", x_iso8601_rt) << std::endl;
+
+        auto [delta, deltastr] = DateUtils::diff<std::string>(tsNow, y_tp);
+        std::cerr << std::format("deltaMS: {}\n", delta) << std::endl;
+        std::cerr << std::format("delta  : {}\n", deltastr) << std::endl;
+
+        EXPECT_EQ(x_iso8601, x_iso8601_rt);
+    }
+
+
     /* ConversionUtils tests */
 
     TEST(ConversionUtils, test1a)
