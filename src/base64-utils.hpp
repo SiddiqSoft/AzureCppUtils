@@ -103,7 +103,7 @@ namespace siddiqsoft
 
 
         /// @brief Base64 encode a given "binary" string and optionally url escape
-        /// @param textuallyEncoded The bytes to encode
+        /// @param argBin The bytes to encode
         /// @return Base64 encoded string
         /// @remarks This is not a generic be-all implementation. For this, you should really call the underlying function directly
         /// with the necessary options. The implementation here is focussed on meeting the requirements for Azure services.

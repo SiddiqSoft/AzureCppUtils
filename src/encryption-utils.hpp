@@ -78,6 +78,8 @@ namespace siddiqsoft
             requires std::same_as<T, char> || std::same_as<T, wchar_t>
         static std::string MD5(const std::basic_string<T>& source)
         {
+            constexpr char rgbDigits[] {"0123456789abcdef"};
+
             if constexpr (std::is_same_v<T, char>) {
                 HCRYPTPROV hProv {};
                 HCRYPTHASH hHash {};
@@ -95,9 +97,8 @@ namespace siddiqsoft
                         if (TRUE ==
                             CryptHashData(
                                     hHash, reinterpret_cast<const BYTE*>(source.data()), static_cast<DWORD>(source.length()), 0)) {
-                            const char rgbDigits[] {"0123456789abcdef"};
-                            BYTE       rgbHash[sizeof(rgbDigits)] {};
-                            DWORD      rgbHashSize = sizeof(rgbDigits);
+                            BYTE  rgbHash[sizeof(rgbDigits)] {};
+                            DWORD rgbHashSize = sizeof(rgbDigits);
                             // Fetch the results using the gethashparam call..
                             if (TRUE == CryptGetHashParam(hHash, HP_HASHVAL, rgbHash, &rgbHashSize, 0)) {
                                 std::string result {};

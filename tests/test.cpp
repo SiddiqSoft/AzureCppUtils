@@ -224,6 +224,16 @@ namespace siddiqsoft
                 secret, "https://helloworldeventhub.servicebus.windows.net/myhub", keyname, std::chrono::hours(24));
     }
 
+    TEST(EncryptionUtils, SASToken_2_w)
+    {
+        std::wstring keyname {L"sender"};
+        std::string  secret {"kJZN1+Im0GrRYCaZKNUj2YdA3WzP9MIqUKtojbouQeY="};
+
+        auto sas = siddiqsoft::EncryptionUtils::SASToken<wchar_t>(
+                secret, L"https://helloworldeventhub.servicebus.windows.net/myhub", keyname, std::chrono::hours(24));
+    }
+
+
     TEST(EncryptionUtils, SASToken_1_w)
     {
         // https://docs.microsoft.com/en-us/rest/api/eventhub/generate-sas-token#code-try-4
@@ -377,6 +387,7 @@ namespace siddiqsoft
         std::wcerr << L"now_rfc7231   : " << DateUtils::RFC7231<wchar_t>() << std::endl;
     }
 
+
     TEST(DateUtils, toTimespan_1)
     {
         auto t3 = 71928998I64;
@@ -391,12 +402,25 @@ namespace siddiqsoft
     {
         auto xCallStartTime = "1563400635.344906";
         auto xCallEndTime   = "1563404341.603589";
-        auto callStartTime  = DateUtils::parseEpoch(xCallStartTime);
-        auto callEndTime    = DateUtils::parseEpoch(xCallEndTime);
-        auto [delta, ds]    = DateUtils::diff<std::string>(callEndTime, callStartTime);
+        auto callStartTime  = DateUtils::parseEpoch<std::string>(xCallStartTime);
+        auto callEndTime    = DateUtils::parseEpoch<std::string>(xCallEndTime);
+        auto [delta, ds]    = DateUtils::diff<char>(callEndTime, callStartTime);
         std::cerr << "delta         : " << delta << std::endl;
         std::cerr << "ds            : " << ds << std::endl;
         std::cerr << std::format("ds, delta: {}, {}", ds, delta) << std::endl;
+    }
+
+
+    TEST(DateUtils, parseEpoch_1_w)
+    {
+        auto xCallStartTime = L"1563400635.344906";
+        auto xCallEndTime   = L"1563404341.603589";
+        auto callStartTime  = DateUtils::parseEpoch<std::wstring>(xCallStartTime);
+        auto callEndTime    = DateUtils::parseEpoch<std::wstring>(xCallEndTime);
+        auto [delta, ds]    = DateUtils::diff<wchar_t>(callEndTime, callStartTime);
+        std::wcerr << L"delta         : " << delta << std::endl;
+        std::wcerr << L"ds            : " << ds << std::endl;
+        std::wcerr << std::format(L"ds, delta: {}, {}", ds, delta) << std::endl;
     }
 
 
@@ -414,13 +438,34 @@ namespace siddiqsoft
         std::cerr << "x_iso8601_rt  : " << x_iso8601_rt << std::endl;
         std::cerr << std::format("x_iso8601_rt: {}\n", x_iso8601_rt) << std::endl;
 
-        auto [delta, deltastr] = DateUtils::diff<std::string>(tsNow, y_tp);
+        auto [delta, deltastr] = DateUtils::diff<char>(tsNow, y_tp);
         std::cerr << std::format("deltaMS: {}\n", delta) << std::endl;
         std::cerr << std::format("delta  : {}\n", deltastr) << std::endl;
 
         EXPECT_EQ(x_iso8601, x_iso8601_rt);
     }
 
+
+    TEST(DateUtils, RoundTripIso8601_w)
+    {
+        auto tsNow     = std::chrono::system_clock::now();
+
+        auto x_iso8601 = DateUtils::ISO8601<wchar_t>(tsNow);
+        std::wcerr << L"x_iso8601     : " << x_iso8601 << std::endl;
+        std::wcerr << std::format(L"x_iso8601: {}\n", x_iso8601) << std::endl;
+        auto y_tp = DateUtils::parseISO8601<wchar_t>(x_iso8601);
+        std::wcerr << "y_tp          : " << y_tp.time_since_epoch().count() << std::endl;
+        std::wcerr << std::format(L"y_tp: {}\n", y_tp.time_since_epoch().count()) << std::endl;
+        auto x_iso8601_rt = DateUtils::ISO8601<wchar_t>(y_tp);
+        std::wcerr << L"x_iso8601_rt  : " << x_iso8601_rt << std::endl;
+        std::wcerr << std::format(L"x_iso8601_rt: {}\n", x_iso8601_rt) << std::endl;
+
+        auto [delta, deltastr] = DateUtils::diff<wchar_t>(tsNow, y_tp);
+        std::wcerr << std::format(L"deltaMS: {}\n", delta) << std::endl;
+        std::wcerr << std::format(L"delta  : {}\n", deltastr) << std::endl;
+
+        EXPECT_EQ(x_iso8601, x_iso8601_rt);
+    }
 
     /* ConversionUtils tests */
 

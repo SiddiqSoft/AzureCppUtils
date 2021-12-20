@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['widefromascii_0',['wideFromAscii',['../structsiddiqsoft_1_1_conversion_utils.html#a3852b2f7b6e1a24f68fdeb892603843a',1,'siddiqsoft::ConversionUtils']]],
-  ['widefromutf8_1',['wideFromUtf8',['../structsiddiqsoft_1_1_conversion_utils.html#a4c5a7fc721a5ebd6e070f57cfe25b62e',1,'siddiqsoft::ConversionUtils']]]
+  ['urlescape_0',['urlEscape',['../structsiddiqsoft_1_1_base64_utils.html#ac84b9a1ae677d52018a44bde07b6a448',1,'siddiqsoft::Base64Utils']]],
+  ['utf8fromwide_1',['utf8FromWide',['../structsiddiqsoft_1_1_conversion_utils.html#a8bac13b0822c7ea78b521b7c77794876',1,'siddiqsoft::ConversionUtils']]]
 ];

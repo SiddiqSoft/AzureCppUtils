@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td id="projectlogo"><img alt="Logo" src="Siddiq-Software-Avatar.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">Azure C++ Utils<span id="projectnumber">&#160;1.2.9+3</span>
+   <div id="projectname">Azure C++ Utils<span id="projectnumber">&#160;1.5.0</span>
    </div>
    <div id="projectbrief">Azure REST API Helpers for Modern C++</div>
   </td>
@@ -112,12 +112,134 @@ requires std::same_as&lt;T, char&gt; || std::same_as&lt;T, wchar_t&gt;</td></tr>
 <tr class="memitem:a3236c43bb12d113eaace33a6595e0618"><td class="memTemplItemLeft" align="right" valign="top">static std::basic_string&lt; T &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structsiddiqsoft_1_1_date_utils.html#a3236c43bb12d113eaace33a6595e0618">RFC7231</a> (const std::chrono::system_clock::time_point &amp;rawtp=std::chrono::system_clock::now())</td></tr>
 <tr class="memdesc:a3236c43bb12d113eaace33a6595e0618"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build a time and date string compliant with the RFC7231.  <a href="structsiddiqsoft_1_1_date_utils.html#a3236c43bb12d113eaace33a6595e0618">More...</a><br /></td></tr>
 <tr class="separator:a3236c43bb12d113eaace33a6595e0618"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae5ef487cb7747a1953c9d19114429776"><td class="memTemplParams" colspan="2">template&lt;typename T  = char&gt; <br />
+requires std::same_as&lt;T, char&gt; || std::same_as&lt;T, wchar_t&gt;</td></tr>
+<tr class="memitem:ae5ef487cb7747a1953c9d19114429776"><td class="memTemplItemLeft" align="right" valign="top">static std::basic_string&lt; T &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structsiddiqsoft_1_1_date_utils.html#ae5ef487cb7747a1953c9d19114429776">toTimespan</a> (const std::chrono::seconds &amp;arg)</td></tr>
+<tr class="memdesc:ae5ef487cb7747a1953c9d19114429776"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns D.HH:MM:SS ; days.hours:minutes:seconds.  <a href="structsiddiqsoft_1_1_date_utils.html#ae5ef487cb7747a1953c9d19114429776">More...</a><br /></td></tr>
+<tr class="separator:ae5ef487cb7747a1953c9d19114429776"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a384cce36c37fc65998515ca2be355164"><td class="memTemplParams" colspan="2">template&lt;class T  = std::string&gt; <br />
+requires std::same_as&lt;T, std::string&gt; || std::same_as&lt;T, std::wstring&gt; || std::same_as&lt;T, uint64_t&gt;</td></tr>
+<tr class="memitem:a384cce36c37fc65998515ca2be355164"><td class="memTemplItemLeft" align="right" valign="top">static std::chrono::system_clock::time_point&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structsiddiqsoft_1_1_date_utils.html#a384cce36c37fc65998515ca2be355164">parseEpoch</a> (const T &amp;arg)</td></tr>
+<tr class="memdesc:a384cce36c37fc65998515ca2be355164"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts the epoch time into a time_point. The reason for string is due to the permissibility of epoch with decimals where the portion after the decimal represents milliseconds.  <a href="structsiddiqsoft_1_1_date_utils.html#a384cce36c37fc65998515ca2be355164">More...</a><br /></td></tr>
+<tr class="separator:a384cce36c37fc65998515ca2be355164"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a729825219ea9a1898f6f84a5ee1178fd"><td class="memTemplParams" colspan="2">template&lt;typename T  = char&gt; <br />
+requires std::same_as&lt;T, char&gt; || std::same_as&lt;T, wchar_t&gt;</td></tr>
+<tr class="memitem:a729825219ea9a1898f6f84a5ee1178fd"><td class="memTemplItemLeft" align="right" valign="top">static std::tuple&lt; std::chrono::milliseconds, std::basic_string&lt; T &gt; &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structsiddiqsoft_1_1_date_utils.html#a729825219ea9a1898f6f84a5ee1178fd">diff</a> (const std::chrono::time_point&lt; std::chrono::system_clock &gt; &amp;end, const std::chrono::time_point&lt; std::chrono::system_clock &gt; &amp;start)</td></tr>
+<tr class="memdesc:a729825219ea9a1898f6f84a5ee1178fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a tuple where the first is the chrono::duration&lt;Z&gt; and the second is std::basic_string&lt;T&gt; as.  <a href="structsiddiqsoft_1_1_date_utils.html#a729825219ea9a1898f6f84a5ee1178fd">More...</a><br /></td></tr>
+<tr class="separator:a729825219ea9a1898f6f84a5ee1178fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:affcf1de15194c18fc6d2905e60d06694"><td class="memTemplParams" colspan="2">template&lt;typename T  = char&gt; <br />
+requires std::same_as&lt;T, char&gt; || std::same_as&lt;T, wchar_t&gt;</td></tr>
+<tr class="memitem:affcf1de15194c18fc6d2905e60d06694"><td class="memTemplItemLeft" align="right" valign="top">static T&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structsiddiqsoft_1_1_date_utils.html#affcf1de15194c18fc6d2905e60d06694">durationString</a> (std::chrono::duration&lt; uint64_t &gt; arg)</td></tr>
+<tr class="memdesc:affcf1de15194c18fc6d2905e60d06694"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return string with days:hours:minutes:seconds for the provided milliseconds.  <a href="structsiddiqsoft_1_1_date_utils.html#affcf1de15194c18fc6d2905e60d06694">More...</a><br /></td></tr>
+<tr class="separator:affcf1de15194c18fc6d2905e60d06694"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeedacb61be050654c5fb91ecd15b0a86"><td class="memTemplParams" colspan="2">template&lt;class T  = char&gt; <br />
+requires std::same_as&lt;T, char&gt; || std::same_as&lt;T, wchar_t&gt;</td></tr>
+<tr class="memitem:aeedacb61be050654c5fb91ecd15b0a86"><td class="memTemplItemLeft" align="right" valign="top">static std::chrono::system_clock::time_point&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structsiddiqsoft_1_1_date_utils.html#aeedacb61be050654c5fb91ecd15b0a86">parseISO8601</a> (const std::basic_string&lt; T &gt; &amp;arg)</td></tr>
+<tr class="memdesc:aeedacb61be050654c5fb91ecd15b0a86"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts from ISO8601 format string into time_point.  <a href="structsiddiqsoft_1_1_date_utils.html#aeedacb61be050654c5fb91ecd15b0a86">More...</a><br /></td></tr>
+<tr class="separator:aeedacb61be050654c5fb91ecd15b0a86"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Date Time utilities for REST API. </p>
 
-<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00053">53</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00052">52</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a729825219ea9a1898f6f84a5ee1178fd" name="a729825219ea9a1898f6f84a5ee1178fd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a729825219ea9a1898f6f84a5ee1178fd">&#9670;&nbsp;</a></span>diff()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T  = char&gt; <br />
+requires std::same_as&lt;T, char&gt; || std::same_as&lt;T, wchar_t&gt;</div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static std::tuple&lt; std::chrono::milliseconds, std::basic_string&lt; T &gt; &gt; siddiqsoft::DateUtils::diff </td>
+          <td>(</td>
+          <td class="paramtype">const std::chrono::time_point&lt; std::chrono::system_clock &gt; &amp;&#160;</td>
+          <td class="paramname"><em>end</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::chrono::time_point&lt; std::chrono::system_clock &gt; &amp;&#160;</td>
+          <td class="paramname"><em>start</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns a tuple where the first is the chrono::duration&lt;Z&gt; and the second is std::basic_string&lt;T&gt; as. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td>Output type (char or wchar_t) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">end</td><td>time_point of end </td></tr>
+    <tr><td class="paramname">start</td><td>time_point of start </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Returns a tuple where the first is the chrono::duration&lt;Z&gt; and the second is std::basic_string&lt;T&gt; as "HH:MM:SS.mmm" </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00219">219</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
+
+</div>
+</div>
+<a id="affcf1de15194c18fc6d2905e60d06694" name="affcf1de15194c18fc6d2905e60d06694"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#affcf1de15194c18fc6d2905e60d06694">&#9670;&nbsp;</a></span>durationString()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T  = char&gt; <br />
+requires std::same_as&lt;T, char&gt; || std::same_as&lt;T, wchar_t&gt;</div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static T siddiqsoft::DateUtils::durationString </td>
+          <td>(</td>
+          <td class="paramtype">std::chrono::duration&lt; uint64_t &gt;&#160;</td>
+          <td class="paramname"><em>arg</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return string with days:hours:minutes:seconds for the provided milliseconds. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">arg</td><td>Expressed as uint64_t so we can relay any resolution: us, ms, ns, s.. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>string years/mohths/weeks/days and hour:minute:second </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00253">253</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
+
+</div>
+</div>
 <a id="a26a8c444d7822c170b8da11c5b9a2052" name="a26a8c444d7822c170b8da11c5b9a2052"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a26a8c444d7822c170b8da11c5b9a2052">&#9670;&nbsp;</a></span>ISO8601()</h2>
 
@@ -161,7 +283,99 @@ requires std::same_as&lt;T, char&gt; || std::same_as&lt;T, wchar_t&gt;</div>
 <dl class="section return"><dt>Returns</dt><dd>String representing ISO 8601 format with milliseconds empty if fails </dd></dl>
 <dl class="section see"><dt>See also</dt><dd>The specification <a href="https://en.wikipedia.org/wiki/ISO_8601">https://en.wikipedia.org/wiki/ISO_8601</a> </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00062">62</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00061">61</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
+
+</div>
+</div>
+<a id="a384cce36c37fc65998515ca2be355164" name="a384cce36c37fc65998515ca2be355164"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a384cce36c37fc65998515ca2be355164">&#9670;&nbsp;</a></span>parseEpoch()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class T  = std::string&gt; <br />
+requires std::same_as&lt;T, std::string&gt; || std::same_as&lt;T, std::wstring&gt; || std::same_as&lt;T, uint64_t&gt;</div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static std::chrono::system_clock::time_point siddiqsoft::DateUtils::parseEpoch </td>
+          <td>(</td>
+          <td class="paramtype">const T &amp;&#160;</td>
+          <td class="paramname"><em>arg</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Converts the epoch time into a time_point. The reason for string is due to the permissibility of epoch with decimals where the portion after the decimal represents milliseconds. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td>Must be either std::string or std::wstring or as uint64_t </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">arg</td><td>A string or wstring </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>time_point </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00160">160</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
+
+</div>
+</div>
+<a id="aeedacb61be050654c5fb91ecd15b0a86" name="aeedacb61be050654c5fb91ecd15b0a86"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeedacb61be050654c5fb91ecd15b0a86">&#9670;&nbsp;</a></span>parseISO8601()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class T  = char&gt; <br />
+requires std::same_as&lt;T, char&gt; || std::same_as&lt;T, wchar_t&gt;</div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static std::chrono::system_clock::time_point siddiqsoft::DateUtils::parseISO8601 </td>
+          <td>(</td>
+          <td class="paramtype">const std::basic_string&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>arg</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Converts from ISO8601 format string into time_point. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td>One of the following: std::string, std::string_view, std::wstring or std::wstring_view </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">arg</td><td>string containing the ISO8601 format time </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>time_point </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00333">333</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
 
 </div>
 </div>
@@ -207,7 +421,53 @@ requires std::same_as&lt;T, char&gt; || std::same_as&lt;T, wchar_t&gt;</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Returns a string representation of the form: "Tue, 01 Nov 1994 08:12:31 GMT" </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00096">96</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00095">95</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
+
+</div>
+</div>
+<a id="ae5ef487cb7747a1953c9d19114429776" name="ae5ef487cb7747a1953c9d19114429776"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae5ef487cb7747a1953c9d19114429776">&#9670;&nbsp;</a></span>toTimespan()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T  = char&gt; <br />
+requires std::same_as&lt;T, char&gt; || std::same_as&lt;T, wchar_t&gt;</div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static std::basic_string&lt; T &gt; siddiqsoft::DateUtils::toTimespan </td>
+          <td>(</td>
+          <td class="paramtype">const std::chrono::seconds &amp;&#160;</td>
+          <td class="paramname"><em>arg</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns D.HH:MM:SS ; days.hours:minutes:seconds. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td>Must be either std::string or std::wstring </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">arg</td><td>Number of seconds </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Returns a string representation of the form: "days.hours:minutes:seconds" </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00128">128</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
 
 </div>
 </div>

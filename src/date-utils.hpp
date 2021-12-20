@@ -121,7 +121,7 @@ namespace siddiqsoft
 
         /// @brief Returns D.HH:MM:SS ; days.hours:minutes:seconds
         /// @tparam T Must be either std::string or std::wstring
-        /// @param rawtp Number of seconds
+        /// @param arg Number of seconds
         /// @return Returns a string representation of the form: "days.hours:minutes:seconds"
         template <typename T = char>
             requires std::same_as<T, char> || std::same_as<T, wchar_t>
@@ -155,7 +155,8 @@ namespace siddiqsoft
         /// @tparam T Must be either std::string or std::wstring or as uint64_t
         /// @param arg A string or wstring
         /// @return time_point
-        template <class T>
+        template <class T = std::string>
+            requires std::same_as<T, std::string> || std::same_as<T, std::wstring> || std::same_as<T, uint64_t>
         static std::chrono::system_clock::time_point parseEpoch(const T& arg)
         {
             tm                                    epoch1tm {};
@@ -168,7 +169,7 @@ namespace siddiqsoft
             // and yields the number of seconds since epoch.
             if constexpr (std::is_same_v<T, uint64_t>)
                 epoch1ntp = arg;
-            else if constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, std::string_view>) {
+            else if constexpr (std::is_same_v<T, std::string>) {
                 epoch1ntp = std::stoull(arg.data());
                 // Check if we have high-resolution part.
                 if (auto locMilli = arg.find("."); locMilli != std::string::npos) {
@@ -177,7 +178,7 @@ namespace siddiqsoft
                     epoch1millis >>= 32;     // divide by 2^32 => milliseconds.
                 }
             }
-            else if constexpr (std::is_same_v<T, std::wstring> || std::is_same_v<T, std::wstring_view>) {
+            else if constexpr (std::is_same_v<T, std::wstring>) {
                 epoch1ntp = std::stoull(arg.data());
                 // Check if we have high-resolution part.
                 if (auto locMilli = arg.find(L"."); locMilli != std::string::npos) {
@@ -206,14 +207,17 @@ namespace siddiqsoft
         }
 
 
-        /// @brief Returns a tuple with first return as the number of milliseconds and the second
-        /// @tparam T Must be either string or wstring
+        /// @brief Returns a tuple where the first is the chrono::duration<Z> and the second is std::basic_string<T> as
+        /// @tparam T Output type (char or wchar_t)
         /// @param end time_point of end
         /// @param start time_point of start
-        /// @return Parameter 0 is milliseconds and the paramter 1 is string as "HH:MM:SS.mm"
-        template <typename T>
-        static std::tuple<uint64_t, T> diff(const std::chrono::time_point<std::chrono::system_clock>& end,
-                                            const std::chrono::time_point<std::chrono::system_clock>& start)
+        /// @return Returns a tuple where the first is the chrono::duration<Z> and the second is std::basic_string<T> as
+        /// "HH:MM:SS.mmm"
+        template <typename T = char>
+            requires std::same_as<T, char> || std::same_as<T, wchar_t>
+        static std::tuple<std::chrono::milliseconds, std::basic_string<T>>
+        diff(const std::chrono::time_point<std::chrono::system_clock>& end,
+             const std::chrono::time_point<std::chrono::system_clock>& start)
         {
             using namespace std;
 
@@ -232,25 +236,26 @@ namespace siddiqsoft
 
             // Clients would find the following useful:
             // {milliseconds, "HH:MM:SS.mmm"}
-            if constexpr (std::is_same_v<T, std::string>)
-                return {chrono::duration_cast<chrono::milliseconds>(delta).count(),
+            if constexpr (std::is_same_v<T, char>)
+                return {std::chrono::duration_cast<std::chrono::milliseconds>(delta),
                         std::format("{:02}:{:02}:{:02}.{:03}", uptimeHours, uptimeMinutes, uptimeSeconds, uptimeMilliseconds)};
-            else if constexpr (std::is_same_v<T, std::wstring>)
-                return {chrono::duration_cast<chrono::milliseconds>(delta).count(),
+            else if constexpr (std::is_same_v<T, wchar_t>)
+                return {std::chrono::duration_cast<std::chrono::milliseconds>(delta),
                         std::format(L"{:02}:{:02}:{:02}.{:03}", uptimeHours, uptimeMinutes, uptimeSeconds, uptimeMilliseconds)};
         }
 
 
         /// @brief Return string with days:hours:minutes:seconds for the provided milliseconds
-        /// @param argMilliseconds
+        /// @param arg Expressed as uint64_t so we can relay any resolution: us, ms, ns, s..
         /// @return string years/mohths/weeks/days and hour:minute:second
-        template <typename T>
-        static T durationString(uint64_t argMilliseconds)
+        template <typename T = char>
+            requires std::same_as<T, char> || std::same_as<T, wchar_t>
+        static T durationString(std::chrono::duration<uint64_t> arg)
         {
             using namespace std;
 
             // We have milliseconds
-            auto asSeconds = argMilliseconds / 1000;
+            auto asSeconds = arg / 1000ms;
             // https://www.epochconverter.com/
             // Human-readable time 	Seconds
             // 1 hour				3600 seconds
@@ -266,7 +271,7 @@ namespace siddiqsoft
             auto minutes = (asSeconds / 60) % 60;
             auto seconds = asSeconds % 60;
 
-            if constexpr (std::is_same_v<T, std::string>) {
+            if constexpr (std::is_same_v<T, char>) {
                 if (years > 0) {
                     return std::format("{} years / {} months / {} weeks / {} days and {:02}:{:02}:{:02}",
                                        years,
@@ -291,7 +296,7 @@ namespace siddiqsoft
                     return std::format("{:02}:{:02}:{:02}", hours, minutes, seconds);
                 }
             }
-            else if constexpr (std::is_same_v<T, std::wstring>) {
+            else if constexpr (std::is_same_v<T, wchar_t>) {
                 if (years > 0) {
                     return std::format(L"{} years / {} months / {} weeks / {} days and {:02}:{:02}:{:02}",
                                        years,
@@ -323,12 +328,13 @@ namespace siddiqsoft
         /// @tparam T One of the following: std::string, std::string_view, std::wstring or std::wstring_view
         /// @param arg string containing the ISO8601 format time
         /// @return time_point
-        template <class T = std::string>
-        static std::chrono::system_clock::time_point parseISO8601(const T& arg)
+        template <class T = char>
+            requires std::same_as<T, char> || std::same_as<T, wchar_t>
+        static std::chrono::system_clock::time_point parseISO8601(const std::basic_string<T>& arg)
         {
             uint32_t yearPart = 0, monthPart = 0, dayPart = 0, hourPart = 0, minutePart = 0, secondPart = 0, millisecondPart = 0;
 
-            if constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, std::string_view>) {
+            if constexpr (std::is_same_v<T, char>) {
                 sscanf_s(arg.data(),
                          "%d-%d-%dT%d:%d:%d.%ldZ",
                          &yearPart,
@@ -339,7 +345,7 @@ namespace siddiqsoft
                          &secondPart,
                          &millisecondPart);
             }
-            else if constexpr (std::is_same_v<T, std::wstring> || std::is_same_v<T, std::wstring_view>) {
+            else if constexpr (std::is_same_v<T, wchar_t>) {
                 swscanf_s(arg.data(),
                           L"%d-%d-%dT%d:%d:%d.%ldZ",
                           &yearPart,

@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['rfc7231_0',['RFC7231',['../structsiddiqsoft_1_1_date_utils.html#a3236c43bb12d113eaace33a6595e0618',1,'siddiqsoft::DateUtils']]]
+  ['parseepoch_0',['parseEpoch',['../structsiddiqsoft_1_1_date_utils.html#a384cce36c37fc65998515ca2be355164',1,'siddiqsoft::DateUtils']]],
+  ['parseiso8601_1',['parseISO8601',['../structsiddiqsoft_1_1_date_utils.html#aeedacb61be050654c5fb91ecd15b0a86',1,'siddiqsoft::DateUtils']]]
 ];
