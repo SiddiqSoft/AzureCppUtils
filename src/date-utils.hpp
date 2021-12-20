@@ -250,7 +250,7 @@ namespace siddiqsoft
         /// @return string years/mohths/weeks/days and hour:minute:second
         template <typename T = char>
             requires std::same_as<T, char> || std::same_as<T, wchar_t>
-        static T durationString(std::chrono::duration<uint64_t> arg)
+        static std::basic_string<T> durationString(std::chrono::duration<uint64_t> arg)
         {
             using namespace std;
 

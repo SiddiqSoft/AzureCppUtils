@@ -392,9 +392,31 @@ namespace siddiqsoft
     {
         auto t3 = 71928998I64;
 
+        // days.hours:minutes:seconds
         EXPECT_EQ("832.12:16:38", DateUtils::toTimespan<>(std::chrono::seconds(t3)));
         EXPECT_EQ("10.18:19:59", DateUtils::toTimespan<>(std::chrono::seconds(929999)));
         EXPECT_EQ(L"0.00:00:40", DateUtils::toTimespan<wchar_t>(std::chrono::seconds(40)));
+    }
+
+
+    TEST(DateUtils, durationString_1)
+    {
+        auto t3 = 71928998I64;
+
+        EXPECT_EQ("832.12:16:38", DateUtils::toTimespan<>(std::chrono::seconds(t3)));
+
+        auto ds1 = siddiqsoft::DateUtils::durationString<char>(std::chrono::seconds(40));
+        EXPECT_EQ("00:00:40", ds1);
+
+        auto ds2 = siddiqsoft::DateUtils::durationString<char>(std::chrono::seconds(929999));
+        EXPECT_EQ("1 weeks / 10 days and 18:19:59", ds2);
+
+        auto ds3 = siddiqsoft::DateUtils::durationString<char>(std::chrono::seconds(t3));
+        EXPECT_EQ("2 years / 27 months / 118 weeks / 832 days and 12:16:38", ds3);
+
+        auto ds4 = siddiqsoft::DateUtils::durationString<char>(
+                std::chrono::duration_cast<std::chrono::seconds>(std::chrono::microseconds(t3)));
+        EXPECT_EQ("00:01:11", ds4);
     }
 
 
