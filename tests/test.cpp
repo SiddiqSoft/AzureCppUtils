@@ -401,22 +401,79 @@ namespace siddiqsoft
 
     TEST(DateUtils, durationString_1)
     {
-        auto t3 = 71928998I64;
+        using namespace std::chrono;
 
-        EXPECT_EQ("832.12:16:38", DateUtils::toTimespan<>(std::chrono::seconds(t3)));
+        auto t3  = std::chrono::microseconds(71928998I64);
 
         auto ds1 = siddiqsoft::DateUtils::durationString<char>(std::chrono::seconds(40));
-        EXPECT_EQ("00:00:40", ds1);
+        EXPECT_EQ("0min 40s", ds1);
 
-        auto ds2 = siddiqsoft::DateUtils::durationString<char>(std::chrono::seconds(929999));
-        EXPECT_EQ("1 weeks / 10 days and 18:19:59", ds2);
+        std::string ds2 = siddiqsoft::DateUtils::durationString(std::chrono::days(10) + 18h + 19min + 59s);
+        EXPECT_EQ("1weeks 3d 18h 19min 59s", ds2);
 
-        auto ds3 = siddiqsoft::DateUtils::durationString<char>(std::chrono::seconds(t3));
-        EXPECT_EQ("2 years / 27 months / 118 weeks / 832 days and 12:16:38", ds3);
+        auto ds3 = siddiqsoft::DateUtils::durationString<char>(std::chrono::days(832) + 12h + 16min + 38s);
+        EXPECT_EQ("2years / 27months / 118weeks 6d 12h 16min 38s", ds3);
 
-        auto ds4 = siddiqsoft::DateUtils::durationString<char>(
-                std::chrono::duration_cast<std::chrono::seconds>(std::chrono::microseconds(t3)));
-        EXPECT_EQ("00:01:11", ds4);
+        auto ds4 = siddiqsoft::DateUtils::durationString<char>(std::chrono::duration_cast<std::chrono::seconds>(t3));
+        EXPECT_EQ("1min 11s", ds4);
+
+        auto ds5 = siddiqsoft::DateUtils::durationString<char>(std::chrono::seconds(99));
+        EXPECT_EQ("1min 39s", ds5);
+
+        auto ds6 = siddiqsoft::DateUtils::durationString<char>(1h + 11min + 11s);
+        EXPECT_EQ("1h 11min 11s", ds6);
+
+        auto ds7 = siddiqsoft::DateUtils::durationString<char>(59min + 59s + 999ms);
+        EXPECT_EQ("59min 59s 999ms", ds7);
+
+        auto ds8 = siddiqsoft::DateUtils::durationString<char>(std::chrono::days(357) + std::chrono::days(6) + 23h + 59min + 59s +
+                                                               999ms);
+        EXPECT_EQ("11months / 51weeks 6d 23h 59min 60s", ds8);
+
+        auto ds9 = siddiqsoft::DateUtils::durationString<char>(std::chrono::days(17) + 1s);
+        EXPECT_EQ("2weeks 3d 0h 0min 1s", ds9);
+
+        auto ds10 = siddiqsoft::DateUtils::durationString<char>(std::chrono::weeks(51) + std::chrono::days(2) + 1s);
+        EXPECT_EQ("11months / 51weeks 2d 0h 0min 1s", ds10);
+    }
+
+
+    TEST(DateUtils, durationString_1_w)
+    {
+        using namespace std::chrono;
+
+        auto t3  = std::chrono::microseconds(71928998I64);
+
+        auto ds1 = siddiqsoft::DateUtils::durationString<wchar_t>(std::chrono::seconds(40));
+        EXPECT_EQ(L"0min 40s", ds1);
+
+        std::wstring ds2 = siddiqsoft::DateUtils::durationString<wchar_t>(std::chrono::days(10) + 18h + 19min + 59s);
+        EXPECT_EQ(L"1weeks 3d 18h 19min 59s", ds2);
+
+        auto ds3 = siddiqsoft::DateUtils::durationString<wchar_t>(std::chrono::days(832) + 12h + 16min + 38s);
+        EXPECT_EQ(L"2years / 27months / 118weeks 6d 12h 16min 38s", ds3);
+
+        auto ds4 = siddiqsoft::DateUtils::durationString<wchar_t>(std::chrono::duration_cast<std::chrono::seconds>(t3));
+        EXPECT_EQ(L"1min 11s", ds4);
+
+        auto ds5 = siddiqsoft::DateUtils::durationString<wchar_t>(std::chrono::seconds(99));
+        EXPECT_EQ(L"1min 39s", ds5);
+
+        auto ds6 = siddiqsoft::DateUtils::durationString<wchar_t>(1h + 11min + 11s);
+        EXPECT_EQ(L"1h 11min 11s", ds6);
+
+        auto ds7 = siddiqsoft::DateUtils::durationString<wchar_t>(59min + 59s + 999ms);
+        EXPECT_EQ(L"59min 59s 999ms", ds7);
+
+        auto ds8 = siddiqsoft::DateUtils::durationString<wchar_t>(std::chrono::days(357) + std::chrono::days(6) + 23h + 59min +
+                                                                  59s + 999ms);
+        EXPECT_EQ(L"11months / 51weeks 6d 23h 59min 60s", ds8);
+
+        auto ds9 = siddiqsoft::DateUtils::durationString<wchar_t>(std::chrono::days(17) + 1s);
+        EXPECT_EQ(L"2weeks 3d 0h 0min 1s", ds9);
+
+        auto ds10 = siddiqsoft::DateUtils::durationString<wchar_t>(std::chrono::weeks(51) + std::chrono::days(2) + 1s);
+        EXPECT_EQ(L"11months / 51weeks 2d 0h 0min 1s", ds10);
     }
 
 

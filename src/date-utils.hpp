@@ -48,6 +48,23 @@
 /// @brief SiddiqSoft
 namespace siddiqsoft
 {
+#if !defined(_NORW)
+    /// @brief In support of the macro NORW which allows us to declare/use narrow/wide strings as needed. Plucked from the MS stl
+    /// implementation
+    template <typename _NorWT>
+        requires std::same_as<_NorWT, char> || std::same_as<_NorWT, wchar_t>
+    [[nodiscard]] constexpr const _NorWT* NorW_1(const char* const _Str, const wchar_t* const _WStr) noexcept
+    {
+        if constexpr (std::is_same_v<_NorWT, char>) {
+            return _Str;
+        }
+        else {
+            return _WStr;
+        }
+    }
+#define _NORW(_NorWT, _Literal) NorW_1<_NorWT>(_Literal, L##_Literal)
+#endif
+
     /// @brief Date Time utilities for REST API
     struct DateUtils
     {
@@ -245,81 +262,76 @@ namespace siddiqsoft
         }
 
 
-        /// @brief Return string with days:hours:minutes:seconds for the provided milliseconds
+        /// @brief Return string with weeks days hours minutes seconds for the provided duration (default microseconds)
         /// @param arg Expressed as uint64_t so we can relay any resolution: us, ms, ns, s..
-        /// @return string years/mohths/weeks/days and hour:minute:second
-        template <typename T = char>
+        /// @return string years/months/weeks days and hour minute second and millis
+        ///         The years/months are in "parallel" to the weeks days hours minutes seconds
+        ///         The seconds is rounded up if we end up with 500ms after the split
+        ///         years / months / weeks days hours minutes seconds
+        ///                 months / weeks days hours minutes seconds
+        ///                          weeks days hours minutes seconds
+        ///                                days hours minutes seconds
+        ///                                     hours minutes seconds
+        ///                                           minutes seconds
+        ///                                           minutes seconds milliseconds
+        template <typename T = char, typename D = std::chrono::microseconds>
             requires std::same_as<T, char> || std::same_as<T, wchar_t>
-        static std::basic_string<T> durationString(std::chrono::duration<uint64_t> arg)
+        static std::basic_string<T> durationString(const D& arg)
         {
             using namespace std;
 
-            // We have milliseconds
-            auto asSeconds = arg / 1000ms;
-            // https://www.epochconverter.com/
-            // Human-readable time 	Seconds
-            // 1 hour				3600 seconds
-            // 1 day					86400 seconds
-            // 1 week				604800 seconds
-            // 1 month (30.44 days)	2629743 seconds
-            // 1 year (365.24 days)	31556926 seconds
-            auto hours   = (asSeconds / 3600) % 24;
-            auto days    = (asSeconds / 86400);
-            auto months  = (asSeconds / 2629743);
-            auto years   = asSeconds / 31556926;
-            auto weeks   = (asSeconds / 604800);
-            auto minutes = (asSeconds / 60) % 60;
-            auto seconds = asSeconds % 60;
+            std::chrono::days   days(std::chrono::duration_cast<std::chrono::days>(arg));
+            std::chrono::months months(std::chrono::duration_cast<std::chrono::months>(arg));
+            std::chrono::years  years(std::chrono::duration_cast<std::chrono::years>(arg));
+            std::chrono::weeks  weeks(std::chrono::duration_cast<std::chrono::weeks>(arg));
 
-            if constexpr (std::is_same_v<T, char>) {
-                if (years > 0) {
-                    return std::format("{} years / {} months / {} weeks / {} days and {:02}:{:02}:{:02}",
-                                       years,
-                                       months,
-                                       weeks,
-                                       days,
-                                       hours,
-                                       minutes,
-                                       seconds);
-                }
-                else if (months > 0) {
-                    return std::format(
-                            "{} months / {} weeks / {} days and {:02}:{:02}:{:02}", months, weeks, days, hours, minutes, seconds);
-                }
-                else if (weeks > 0) {
-                    return std::format("{} weeks / {} days and {:02}:{:02}:{:02}", weeks, days, hours, minutes, seconds);
-                }
-                else if (days > 0) {
-                    return std::format("{} days and {:02}:{:02}:{:02}", days, hours, minutes, seconds);
-                }
-                else {
-                    return std::format("{:02}:{:02}:{:02}", hours, minutes, seconds);
-                }
+            // We want the "remainder" hours, minutes
+            std::chrono::hours        hours(std::chrono::duration_cast<std::chrono::hours>(arg));
+            std::chrono::minutes      minutes((std::chrono::duration_cast<std::chrono::minutes>(arg) / 60s));
+            std::chrono::seconds      seconds(std::chrono::duration_cast<std::chrono::seconds>(arg) % 60s);
+            std::chrono::milliseconds millis(std::chrono::duration_cast<std::chrono::milliseconds>(arg) % 1000ms);
+            hours %= std::chrono::days(1);
+            minutes %= std::chrono::hours(1);
+            days -= std::chrono::duration_cast<std::chrono::days>(weeks);
+
+            if (years > std::chrono::years(0)) {
+                // Round "up" the seconds if we have excess milliseconds
+                if (millis > 500ms) seconds += 1s;
+                return std::format(_NORW(T, "{}years / {}months / {}weeks {} {} {} {}"),
+                                   years.count(),
+                                   months.count(),
+                                   weeks.count(),
+                                   days,
+                                   hours,
+                                   minutes,
+                                   seconds);
             }
-            else if constexpr (std::is_same_v<T, wchar_t>) {
-                if (years > 0) {
-                    return std::format(L"{} years / {} months / {} weeks / {} days and {:02}:{:02}:{:02}",
-                                       years,
-                                       months,
-                                       weeks,
-                                       days,
-                                       hours,
-                                       minutes,
-                                       seconds);
-                }
-                else if (months > 0) {
-                    return std::format(
-                            L"{} months / {} weeks / {} days and {:02}:{:02}:{:02}", months, weeks, days, hours, minutes, seconds);
-                }
-                else if (weeks > 0) {
-                    return std::format(L"{} weeks / {} days and {:02}:{:02}:{:02}", weeks, days, hours, minutes, seconds);
-                }
-                else if (days > 0) {
-                    return std::format(L"{} days and {:02}:{:02}:{:02}", days, hours, minutes, seconds);
-                }
-                else {
-                    return std::format(L"{:02}:{:02}:{:02}", hours, minutes, seconds);
-                }
+            else if (months > std::chrono::months(0)) {
+                // Round "up" the seconds if we have excess milliseconds
+                if (millis > 500ms) seconds += 1s;
+                return std::format(
+                        _NORW(T, "{}months / {}weeks {} {} {} {}"), months.count(), weeks.count(), days, hours, minutes, seconds);
+            }
+            else if (weeks > std::chrono::weeks(0)) {
+                // Round "up" the seconds if we have excess milliseconds
+                if (millis > 500ms) seconds += 1s;
+                return std::format(_NORW(T, "{}weeks {} {} {} {}"), weeks.count(), days, hours, minutes, seconds);
+            }
+            else if (days > std::chrono::days(0)) {
+                // Round "up" the seconds if we have excess milliseconds
+                if (millis > 500ms) seconds += 1s;
+                return std::format(_NORW(T, "{} {} {} {}"), days, hours, minutes, seconds);
+            }
+            else if (hours > std::chrono::hours(0)) {
+                // Round "up" the seconds if we have excess milliseconds
+                if (millis > 500ms) seconds += 1s;
+                return std::format(_NORW(T, "{} {} {}"), hours, minutes, seconds);
+            }
+            else if (millis > std::chrono::milliseconds(0)) {
+                return std::format(_NORW(T, "{} {} {}"), minutes, seconds, millis);
+            }
+            else {
+                return std::format(_NORW(T, "{} {}"), minutes, seconds);
             }
         }
 
