@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td id="projectlogo"><img alt="Logo" src="Siddiq-Software-Avatar.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">Azure C++ Utils<span id="projectnumber">&#160;1.5.1+1</span>
+   <div id="projectname">Azure C++ Utils<span id="projectnumber">&#160;1.5.2+3</span>
    </div>
    <div id="projectbrief">Azure REST API Helpers for Modern C++</div>
   </td>
@@ -91,7 +91,8 @@ $(document).ready(function(){initNavTree('date-utils_8hpp.html',''); initResizab
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#namespaces">Namespaces</a> &#124;
-<a href="#define-members">Macros</a>  </div>
+<a href="#define-members">Macros</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">C:/Users/maas/source/repos/siddiqsoft/azure-cpp-utils/src/date-utils.hpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -119,8 +120,48 @@ Namespaces</h2></td></tr>
 Macros</h2></td></tr>
 <tr class="memitem:aeb1c256e3a8bcf8660076513eec886e8"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="date-utils_8hpp.html#aeb1c256e3a8bcf8660076513eec886e8">DATE_UTILS_HPP</a></td></tr>
 <tr class="separator:aeb1c256e3a8bcf8660076513eec886e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a142df858be99ec1cc51de4474b239730"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="date-utils_8hpp.html#a142df858be99ec1cc51de4474b239730">_NORW</a>(_NorWT,  _Literal)&#160;&#160;&#160;NorW_1&lt;_NorWT&gt;(_Literal, L##_Literal)</td></tr>
+<tr class="separator:a142df858be99ec1cc51de4474b239730"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a48a27678879041773e35d66b85803b38"><td class="memTemplParams" colspan="2">template&lt;typename _NorWT &gt; <br />
+requires std::same_as&lt;_NorWT, char&gt; || std::same_as&lt;_NorWT, wchar_t&gt;</td></tr>
+<tr class="memitem:a48a27678879041773e35d66b85803b38"><td class="memTemplItemLeft" align="right" valign="top">constexpr const _NorWT *&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacesiddiqsoft.html#a48a27678879041773e35d66b85803b38">siddiqsoft::NorW_1</a> (const char *const _Str, const wchar_t *const _WStr) noexcept</td></tr>
+<tr class="memdesc:a48a27678879041773e35d66b85803b38"><td class="mdescLeft">&#160;</td><td class="mdescRight">In support of the macro NORW which allows us to declare/use narrow/wide strings as needed. Plucked from the MS stl implementation.  <a href="namespacesiddiqsoft.html#a48a27678879041773e35d66b85803b38">More...</a><br /></td></tr>
+<tr class="separator:a48a27678879041773e35d66b85803b38"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a142df858be99ec1cc51de4474b239730" name="a142df858be99ec1cc51de4474b239730"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a142df858be99ec1cc51de4474b239730">&#9670;&nbsp;</a></span>_NORW</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define _NORW</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">_NorWT, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">_Literal&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td>&#160;&#160;&#160;NorW_1&lt;_NorWT&gt;(_Literal, L##_Literal)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00065">65</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
+
+</div>
+</div>
 <a id="aeb1c256e3a8bcf8660076513eec886e8" name="aeb1c256e3a8bcf8660076513eec886e8"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aeb1c256e3a8bcf8660076513eec886e8">&#9670;&nbsp;</a></span>DATE_UTILS_HPP</h2>
 

@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td id="projectlogo"><img alt="Logo" src="Siddiq-Software-Avatar.png"/></td>
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">Azure C++ Utils<span id="projectnumber">&#160;1.5.1+1</span>
+   <div id="projectname">Azure C++ Utils<span id="projectnumber">&#160;1.5.2+3</span>
    </div>
    <div id="projectbrief">Azure REST API Helpers for Modern C++</div>
   </td>
@@ -127,11 +127,11 @@ requires std::same_as&lt;T, char&gt; || std::same_as&lt;T, wchar_t&gt;</td></tr>
 <tr class="memitem:a729825219ea9a1898f6f84a5ee1178fd"><td class="memTemplItemLeft" align="right" valign="top">static std::tuple&lt; std::chrono::milliseconds, std::basic_string&lt; T &gt; &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structsiddiqsoft_1_1_date_utils.html#a729825219ea9a1898f6f84a5ee1178fd">diff</a> (const std::chrono::time_point&lt; std::chrono::system_clock &gt; &amp;end, const std::chrono::time_point&lt; std::chrono::system_clock &gt; &amp;start)</td></tr>
 <tr class="memdesc:a729825219ea9a1898f6f84a5ee1178fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a tuple where the first is the chrono::duration&lt;Z&gt; and the second is std::basic_string&lt;T&gt; as.  <a href="structsiddiqsoft_1_1_date_utils.html#a729825219ea9a1898f6f84a5ee1178fd">More...</a><br /></td></tr>
 <tr class="separator:a729825219ea9a1898f6f84a5ee1178fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:affcf1de15194c18fc6d2905e60d06694"><td class="memTemplParams" colspan="2">template&lt;typename T  = char&gt; <br />
+<tr class="memitem:a25298c15250642d2c39c24d8a7c22b31"><td class="memTemplParams" colspan="2">template&lt;typename T  = char, typename D  = std::chrono::microseconds&gt; <br />
 requires std::same_as&lt;T, char&gt; || std::same_as&lt;T, wchar_t&gt;</td></tr>
-<tr class="memitem:affcf1de15194c18fc6d2905e60d06694"><td class="memTemplItemLeft" align="right" valign="top">static T&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structsiddiqsoft_1_1_date_utils.html#affcf1de15194c18fc6d2905e60d06694">durationString</a> (std::chrono::duration&lt; uint64_t &gt; arg)</td></tr>
-<tr class="memdesc:affcf1de15194c18fc6d2905e60d06694"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return string with days:hours:minutes:seconds for the provided milliseconds.  <a href="structsiddiqsoft_1_1_date_utils.html#affcf1de15194c18fc6d2905e60d06694">More...</a><br /></td></tr>
-<tr class="separator:affcf1de15194c18fc6d2905e60d06694"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a25298c15250642d2c39c24d8a7c22b31"><td class="memTemplItemLeft" align="right" valign="top">static std::basic_string&lt; T &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structsiddiqsoft_1_1_date_utils.html#a25298c15250642d2c39c24d8a7c22b31">durationString</a> (const D &amp;arg)</td></tr>
+<tr class="memdesc:a25298c15250642d2c39c24d8a7c22b31"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return string with weeks days hours minutes seconds for the provided duration (default microseconds)  <a href="structsiddiqsoft_1_1_date_utils.html#a25298c15250642d2c39c24d8a7c22b31">More...</a><br /></td></tr>
+<tr class="separator:a25298c15250642d2c39c24d8a7c22b31"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeedacb61be050654c5fb91ecd15b0a86"><td class="memTemplParams" colspan="2">template&lt;class T  = char&gt; <br />
 requires std::same_as&lt;T, char&gt; || std::same_as&lt;T, wchar_t&gt;</td></tr>
 <tr class="memitem:aeedacb61be050654c5fb91ecd15b0a86"><td class="memTemplItemLeft" align="right" valign="top">static std::chrono::system_clock::time_point&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structsiddiqsoft_1_1_date_utils.html#aeedacb61be050654c5fb91ecd15b0a86">parseISO8601</a> (const std::basic_string&lt; T &gt; &amp;arg)</td></tr>
@@ -141,7 +141,7 @@ requires std::same_as&lt;T, char&gt; || std::same_as&lt;T, wchar_t&gt;</td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >Date Time utilities for REST API. </p>
 
-<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00052">52</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00069">69</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a729825219ea9a1898f6f84a5ee1178fd" name="a729825219ea9a1898f6f84a5ee1178fd"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a729825219ea9a1898f6f84a5ee1178fd">&#9670;&nbsp;</a></span>diff()</h2>
@@ -196,26 +196,26 @@ requires std::same_as&lt;T, char&gt; || std::same_as&lt;T, wchar_t&gt;</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Returns a tuple where the first is the chrono::duration&lt;Z&gt; and the second is std::basic_string&lt;T&gt; as "HH:MM:SS.mmm" </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00219">219</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00236">236</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
 
 </div>
 </div>
-<a id="affcf1de15194c18fc6d2905e60d06694" name="affcf1de15194c18fc6d2905e60d06694"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#affcf1de15194c18fc6d2905e60d06694">&#9670;&nbsp;</a></span>durationString()</h2>
+<a id="a25298c15250642d2c39c24d8a7c22b31" name="a25298c15250642d2c39c24d8a7c22b31"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a25298c15250642d2c39c24d8a7c22b31">&#9670;&nbsp;</a></span>durationString()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;typename T  = char&gt; <br />
+template&lt;typename T  = char, typename D  = std::chrono::microseconds&gt; <br />
 requires std::same_as&lt;T, char&gt; || std::same_as&lt;T, wchar_t&gt;</div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">static T siddiqsoft::DateUtils::durationString </td>
+          <td class="memname">static std::basic_string&lt; T &gt; siddiqsoft::DateUtils::durationString </td>
           <td>(</td>
-          <td class="paramtype">std::chrono::duration&lt; uint64_t &gt;&#160;</td>
+          <td class="paramtype">const D &amp;&#160;</td>
           <td class="paramname"><em>arg</em></td><td>)</td>
           <td></td>
         </tr>
@@ -227,16 +227,16 @@ requires std::same_as&lt;T, char&gt; || std::same_as&lt;T, wchar_t&gt;</div>
 </table>
 </div><div class="memdoc">
 
-<p>Return string with days:hours:minutes:seconds for the provided milliseconds. </p>
+<p>Return string with weeks days hours minutes seconds for the provided duration (default microseconds) </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">arg</td><td>Expressed as uint64_t so we can relay any resolution: us, ms, ns, s.. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>string years/mohths/weeks/days and hour:minute:second </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>string years/months/weeks days and hour minute second and millis The years/months are in "parallel" to the weeks days hours minutes seconds The seconds is rounded up if we end up with 500ms after the split years / months / weeks days hours minutes seconds months / weeks days hours minutes seconds weeks days hours minutes seconds days hours minutes seconds hours minutes seconds minutes seconds minutes seconds milliseconds </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00253">253</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00279">279</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
 
 </div>
 </div>
@@ -283,7 +283,7 @@ requires std::same_as&lt;T, char&gt; || std::same_as&lt;T, wchar_t&gt;</div>
 <dl class="section return"><dt>Returns</dt><dd>String representing ISO 8601 format with milliseconds empty if fails </dd></dl>
 <dl class="section see"><dt>See also</dt><dd>The specification <a href="https://en.wikipedia.org/wiki/ISO_8601">https://en.wikipedia.org/wiki/ISO_8601</a> </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00061">61</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00078">78</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
 
 </div>
 </div>
@@ -329,7 +329,7 @@ requires std::same_as&lt;T, std::string&gt; || std::same_as&lt;T, std::wstring&g
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>time_point </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00160">160</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00177">177</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
 
 </div>
 </div>
@@ -375,7 +375,7 @@ requires std::same_as&lt;T, char&gt; || std::same_as&lt;T, wchar_t&gt;</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>time_point </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00333">333</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00345">345</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
 
 </div>
 </div>
@@ -421,7 +421,7 @@ requires std::same_as&lt;T, char&gt; || std::same_as&lt;T, wchar_t&gt;</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Returns a string representation of the form: "Tue, 01 Nov 1994 08:12:31 GMT" </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00095">95</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00112">112</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
 
 </div>
 </div>
@@ -467,7 +467,7 @@ requires std::same_as&lt;T, char&gt; || std::same_as&lt;T, wchar_t&gt;</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Returns a string representation of the form: "days.hours:minutes:seconds" </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00128">128</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="date-utils_8hpp_source.html#l00145">145</a> of file <a class="el" href="date-utils_8hpp_source.html">date-utils.hpp</a>.</p>
 
 </div>
 </div>

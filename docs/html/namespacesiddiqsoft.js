@@ -15,6 +15,8 @@ var namespacesiddiqsoft =
     [ "TEST", "namespacesiddiqsoft.html#aa9b96837a977895509982e84c6b2449e", null ],
     [ "TEST", "namespacesiddiqsoft.html#ad007687aaf2eb8ab6f9acf65fe3c34c9", null ],
     [ "TEST", "namespacesiddiqsoft.html#a40938b470a1bc03316c0a379437baba1", null ],
+    [ "TEST", "namespacesiddiqsoft.html#a7c3c128d098b17143b30fda953c7ed14", null ],
+    [ "TEST", "namespacesiddiqsoft.html#a90ea89b27dd3cccc3219095d8de43e2d", null ],
     [ "TEST", "namespacesiddiqsoft.html#a8ef467cb220feadce5cb6e27be8c9b39", null ],
     [ "TEST", "namespacesiddiqsoft.html#ad6c04322c61f1c51f20f5c6002283fd5", null ],
     [ "TEST", "namespacesiddiqsoft.html#a9b2b931bb44e55f7bbd25485940c49e1", null ],
