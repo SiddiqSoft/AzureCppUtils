@@ -75,6 +75,7 @@ namespace siddiqsoft
         {
             std::basic_string<T> retOutput {};
 
+
             std::ranges::for_each(source, [&retOutput, &lowerCase](auto ch) {
                 switch (ch) {
                     case 0x20:
@@ -101,11 +102,13 @@ namespace siddiqsoft
                     case 0x3f:
                     case 0x3d:
                     case 0x60:
-                        std::format_to(std::back_inserter(retOutput), lowerCase ? _NORW(T, "%{:02x}") : _NORW(T, "%{:02X}"), ch);
+                        lowerCase ? std::format_to(std::back_inserter(retOutput), "%{:02x}", ch)
+                                  : std::format_to(std::back_inserter(retOutput), "%{:02X}", ch);
                         break;
                     default: std::format_to(std::back_inserter(retOutput), _NORW(T, "{}"), ch);
                 };
             });
+
 
             return retOutput;
         }
