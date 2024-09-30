@@ -42,6 +42,8 @@
 #include <string>
 #include <concepts>
 #include <format>
+#include <algorithm>
+#include <ranges>
 
 #if defined(_WIN64) || defined(WIN64) || defined(WIN32) || defined(_WIN32)
 #include <Windows.h>
