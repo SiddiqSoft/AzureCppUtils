@@ -48,7 +48,8 @@ target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_20)
 # Here we explicitly declare that we depend on the nlohmann_json package and that
 # the client will only need to depend on our file where the nlohmann_json will
 # automatically included.
-
+cpmaddpackage("gh:siddiqsoft/runonend#1.3.0")
+target_link_libraries(${PROJECT_NAME} INTERFACE runonend::runonend)
 
 # ____________________________________
 # Testing
