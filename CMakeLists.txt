@@ -27,7 +27,7 @@ project(AzureCppUtils
 # Options; define and declare defaults
 if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     # We run the tests by default when we're in development mode for this library
-    option(BUILD_TESTS "Build tests. Uncheck for install only runs" OFF)
+    option(BUILD_TESTS "${PROJECT_NAME} - Build tests. Uncheck for install only runs" OFF)
 endif()
 
 
@@ -48,15 +48,15 @@ target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_20)
 # Here we explicitly declare that we depend on the nlohmann_json package and that
 # the client will only need to depend on our file where the nlohmann_json will
 # automatically included.
-cpmaddpackage("gh:siddiqsoft/runonend#1.3.0")
+cpmaddpackage("gh:siddiqsoft/runonend#main")
 target_link_libraries(${PROJECT_NAME} INTERFACE runonend::runonend)
 
 # ____________________________________
 # Testing
 # Available only when building in our repo; controlled by the switch: ${PROJECT_NAME}_BUILD_TESTS = ON
 if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-    if(${BUILD_TESTS} AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests" AND IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/tests" )
-        message(STATUS "Asked to build tests.. BUILD_TESTS = ${BUILD_TESTS}")
+    if(${${PROJECT_NAME}_BUILD_TESTS} AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests" AND IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/tests" )
+        message(STATUS "${PROJECT_NAME} - Asked to build tests.. BUILD_TESTS = ${${PROJECT_NAME}_BUILD_TESTS}")
         add_subdirectory(tests)
     endif()
 endif()
