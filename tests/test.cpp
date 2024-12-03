@@ -37,7 +37,7 @@
 #include <iostream>
 
 
-#include "../src/azure-cpp-utils.hpp"
+#include "../include/siddiqsoft/azure-cpp-utils.hpp"
 
 namespace siddiqsoft
 {
