@@ -6,11 +6,11 @@ if(${BUILD_TESTS})
     add_executable(${TESTPROJ})
 
     # For GCC/Clang coverage data to be included ONLY for our test
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -fprofile-arcs -ftest-coverage -fprofile-instr-generate -fcoverage-mapping")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -fprofile-arcs -ftest-coverage -fprofile-instr-generate -fcoverage-mapping")
-    set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fprofile-instr-generate")
-    message(STATUS "Setting compiler flags for coverage: ${CMAKE_CXX_FLAGS}")
-    message(STATUS "Setting linker flags for coverage  : ${CMAKE_LINKER_FLAGS}")
+    # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -fprofile-arcs -ftest-coverage -fprofile-instr-generate -fcoverage-mapping")
+    # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -fprofile-arcs -ftest-coverage -fprofile-instr-generate -fcoverage-mapping")
+    # set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fprofile-instr-generate")
+    # message(STATUS "Setting compiler flags for coverage: ${CMAKE_CXX_FLAGS}")
+    # message(STATUS "Setting linker flags for coverage  : ${CMAKE_LINKER_FLAGS}")
 
     target_sources( ${TESTPROJ}
                     PRIVATE
