@@ -16,7 +16,6 @@ if(${${PROJECT_NAME}_BUILD_TESTS})
 
 
     include(GoogleTest)
-    enable_testing()
 
     gtest_discover_tests(${TESTPROJ} XML_OUTPUT_DIR "${PROJECT_SOURCE_DIR}/tests/results")
 

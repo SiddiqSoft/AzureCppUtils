@@ -50,5 +50,6 @@ target_link_libraries(${PROJECT_NAME} INTERFACE RunOnEnd::RunOnEnd)
 # Available only when building in our repo; controlled by the switch: ${PROJECT_NAME}_BUILD_TESTS = ON
 if(${${PROJECT_NAME}_BUILD_TESTS} AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests" AND IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/tests" )
     message(STATUS "${PROJECT_NAME} - Asked to build tests.. ${PROJECT_NAME}_BUILD_TESTS = ${${PROJECT_NAME}_BUILD_TESTS}")
+    enable_testing()
     add_subdirectory(tests)
 endif()
