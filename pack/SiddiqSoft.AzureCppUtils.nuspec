@@ -13,16 +13,16 @@
 		<authors>SiddiqSoft</authors>
 		<description>Azure REST API Helpers for Modern C++. Featuring helper functions for date-time, encryption tokens for Azure REST API as a single header-only package and native Win32 libraries.</description>
 		<tags>cpp20 base64 SAS JWT HMAC REST HTTP header-only native nativepackage cpp</tags>
-		<projectUrl>https://github.com/SiddiqSoft/azure-cpp-utils</projectUrl>
+		<projectUrl>https://github.com/SiddiqSoft/AzureCppUtils</projectUrl>
 		<requireLicenseAcceptance>true</requireLicenseAcceptance>
 		<license type="expression">BSD-3-Clause</license>
     <icon>docs\Siddiq-Software-Avatar.png</icon>
     <readme>docs\README.md</readme>
-		<releaseNotes>Documentation: https://siddiqsoft.github.io/azure-cpp-utils/html/index.html</releaseNotes>
+		<releaseNotes></releaseNotes>
 		<copyright>Copyright (c) 2021 Siddiq Software LLC</copyright>
 		<!-- Dependencies -->
 		<dependencies>
-			<dependency id="SiddiqSoft.RunOnEnd" version="1.3"/>
+			<dependency id="SiddiqSoft.RunOnEnd" version="1.3.1"/>
 		</dependencies>
 	</metadata>
 

@@ -45,7 +45,7 @@ target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_20)
 
 # ____________________________________
 # Dependencies
-cpmaddpackage("gh:siddiqsoft/runonend#main")
+cpmaddpackage("gh:siddiqsoft/RunOnEnd#main")
 target_link_libraries(${PROJECT_NAME} INTERFACE RunOnEnd::RunOnEnd)
 
 # ____________________________________

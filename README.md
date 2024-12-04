@@ -1,9 +1,9 @@
 Azure C++ Utils : Azure REST API Helpers for Modern C++
 -------------------------------------------
 <!-- badges -->
-[![Build Status](https://dev.azure.com/siddiqsoft/siddiqsoft/_apis/build/status/SiddiqSoft.azure-cpp-utils?branchName=main)](https://dev.azure.com/siddiqsoft/siddiqsoft/_build/latest?definitionId=16&branchName=main)
+[![Build Status](https://dev.azure.com/siddiqsoft/siddiqsoft/_apis/build/status/SiddiqSoft.AzureCppUtils?branchName=main)](https://dev.azure.com/siddiqsoft/siddiqsoft/_build/latest?definitionId=16&branchName=main)
 ![](https://img.shields.io/nuget/v/SiddiqSoft.AzureCppUtils)
-![](https://img.shields.io/github/v/tag/SiddiqSoft/azure-cpp-utils)
+![](https://img.shields.io/github/v/tag/SiddiqSoft/AzureCppUtils)
 ![](https://img.shields.io/azure-devops/tests/siddiqsoft/siddiqsoft/16)
 ![](https://img.shields.io/azure-devops/coverage/siddiqsoft/siddiqsoft/16)
 <!-- end badges -->
@@ -24,7 +24,7 @@ Azure C++ Utils : Azure REST API Helpers for Modern C++
 ..
 .. # import the CPM.cmake module and activate..
 ..
-CPMAddModule("gh:siddiqsoft/azure-cpp-utils#1.3.1.1")
+CPMAddModule("gh:siddiqsoft/AzureCppUtils#1.3.1.1")
 ..
 ..
 target_link_libraries(your-project PRIVATE AzureCppUtils::AzureCppUtils)
@@ -41,8 +41,6 @@ target_link_libraries(your-project PRIVATE AzureCppUtils::AzureCppUtils)
   - encode, decode
 - EncryptionUtils (`encryption-utils.hpp`)
   - MD5, HMAC, JWTSHA256, SASToken, CosmosToken  
-
-The the documentation [here](https://siddiqsoft.github.io/azure-cpp-utils/html/index.html)
 
 <p align="right">
 &copy; 2021 Siddiq Software LLC. All rights reserved.
