@@ -80,20 +80,20 @@ stages:
     - task: CMake@1
       displayName: 'CMake Configure $(cmake.preset)'
       inputs:
-        cmakeArgs: '--preset $(cmake.preset) -DAzureCppUtils_BUILD_TESTS=ON -DCI_BUILDID=$(GitVersion.MajorMinorPatch).$(GitVersion.CommitsSinceVersionSource)'
+        cmakeArgs: '--preset $(cmake.preset) -DCI_BUILDID=$(GitVersion.MajorMinorPatch).$(GitVersion.CommitsSinceVersionSource)'
         workingDirectory: '$(System.DefaultWorkingDirectory)'
 
     - task: CMake@1
       displayName: 'CMake Build $(cmake.preset)'
       inputs:
-        cmakeArgs: '--build --preset $(cmake.preset) -DAzureCppUtils_BUILD_TESTS=ON -DCI_BUILDID=$(GitVersion.MajorMinorPatch).$(GitVersion.CommitsSinceVersionSource)'
+        cmakeArgs: '--build --preset $(cmake.preset) -DCI_BUILDID=$(GitVersion.MajorMinorPatch).$(GitVersion.CommitsSinceVersionSource)'
         workingDirectory: '$(System.DefaultWorkingDirectory)'
       condition: succeeded()
 
     - task: CMake@1
       displayName: 'CMake Tests $(cmake.preset)'
       inputs:
-        cmakeArgs: '-E chdir $(System.DefaultWorkingDirectory)/build/$(cmake.preset)/tests ctest $(System.DefaultWorkingDirectory)/build/$(cmake.preset) --output-junit $(System.DefaultWorkingDirectory)/build/$(cmake.preset)/tests/results/test_detail.xml --output-on-failure'
+        cmakeArgs: '-E chdir $(System.DefaultWorkingDirectory)/build/$(cmake.preset)/tests ctest --preset $(cmake.preset) --output-junit $(System.DefaultWorkingDirectory)/build/$(cmake.preset)/tests/results/test_detail.xml --output-on-failure'
       condition: succeeded()
       continueOnError: false
 
@@ -101,7 +101,7 @@ stages:
     - task: CMake@1
       displayName: 'CTest Coverage $(cmake.preset) (Linux only)'
       inputs:
-        cmakeArgs: '-E chdir $(System.DefaultWorkingDirectory)/build/$(cmake.preset) ctest $(System.DefaultWorkingDirectory)/build/$(cmake.preset) --output-junit $(System.DefaultWorkingDirectory)/build/$(cmake.preset)/tests/results/test_detail.xml --output-on-failure  -T Test -T Coverage'
+        cmakeArgs: '-E chdir $(System.DefaultWorkingDirectory)/build/$(cmake.preset) ctest --preset $(cmake.preset) --output-junit $(System.DefaultWorkingDirectory)/build/$(cmake.preset)/tests/results/test_detail.xml --output-on-failure  -T Test -T Coverage'
       condition: and(succeeded(), startsWith(variables['Agent.OS'], 'Linux'))
       continueOnError: false
 
@@ -149,11 +149,11 @@ stages:
           poolName: Default
           poolImageName:
           cmake.preset: Windows-Release
-        Linux:
-          osName: Linux
-          poolName: Default
-          poolImageName:
-          cmake.preset: Linux-Release
+        #Linux:
+        #  osName: Linux
+        #  poolName: Default
+        #  poolImageName:
+        #  cmake.preset: Linux-Release
 
     pool:
       name: $(poolName)

@@ -32,7 +32,8 @@
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/${presetName}",
                 "CMAKE_C_COMPILER": "/opt/homebrew/opt/llvm/bin/clang",
                 "CMAKE_CXX_COMPILER": "/opt/homebrew/opt/llvm/bin/clang++",
-                "CMAKE_BUILD_TYPE": "Release"
+                "CMAKE_BUILD_TYPE": "Release",
+                "AzureCppUtils_BUILD_TESTS": "ON"
             },
             "condition": {
                 "type": "equals",
@@ -116,8 +117,7 @@
                 "strategy": "external"
             },
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug",
-                "AzureCppUtils_BUILD_TESTS": "ON"
+                "CMAKE_BUILD_TYPE": "Debug"
             }
         },
         {
