@@ -1,5 +1,5 @@
 ﻿/*
-    azure-cpp-utils : Azure Utilities for Modern C++
+    AzureCppUtils : Azure Utilities for Modern C++
 
     BSD 3-Clause License
 

@@ -25,10 +25,7 @@ project(AzureCppUtils
 
 # ____________________________________
 # Options; define and declare defaults
-if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-    # We run the tests by default when we're in development mode for this library
-    option(${PROJECT_NAME}_BUILD_TESTS "${PROJECT_NAME} - Build tests. Uncheck for install only runs" OFF)
-endif()
+option(${PROJECT_NAME}_BUILD_TESTS "${PROJECT_NAME} - Build tests. Uncheck for install only runs" OFF)
 
 
 # ____________________________________

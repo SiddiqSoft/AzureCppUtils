@@ -203,14 +203,14 @@ stages:
       displayName: 'Release to GitHub'
       inputs:
         gitHubConnection: 'github-packages-sqs'
-        repositoryName: 'siddiqsoft/azure-cpp-utils'
+        repositoryName: 'siddiqsoft/AzureCppUtils'
         action: 'create'
         target: '$(Build.SourceVersion)'
         tagSource: 'userSpecifiedTag'
         tag: '$(GitVersion.MajorMinorPatch).$(GitVersion.CommitsSinceVersionSource)'
         title: 'v$(GitVersion.MajorMinorPatch).$(GitVersion.CommitsSinceVersionSource)'
         releaseNotesSource: 'inline'
-        releaseNotesInline: 'Documentation https://github.com/SiddiqSoft/azure-cpp-utils'
+        releaseNotesInline: 'Documentation https://github.com/SiddiqSoft/AzureCppUtils'
         isPreRelease: true
         changeLogCompareToRelease: 'lastFullRelease'
         changeLogType: 'commitBased'

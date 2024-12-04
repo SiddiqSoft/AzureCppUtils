@@ -4,10 +4,10 @@
 
 
 <!-- badges -->
-[![CodeQL](https://github.com/SiddiqSoft/azure-cpp-utils/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/SiddiqSoft/azure-cpp-utils/actions/workflows/codeql-analysis.yml)
-[![Build Status](https://dev.azure.com/siddiqsoft/siddiqsoft/_apis/build/status/SiddiqSoft.azure-cpp-utils?branchName=main)](https://dev.azure.com/siddiqsoft/siddiqsoft/_build/latest?definitionId=16&branchName=main)
+[![CodeQL](https://github.com/SiddiqSoft/AzureCppUtils/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/SiddiqSoft/AzureCppUtils/actions/workflows/codeql-analysis.yml)
+[![Build Status](https://dev.azure.com/siddiqsoft/siddiqsoft/_apis/build/status/SiddiqSoft.AzureCppUtils?branchName=main)](https://dev.azure.com/siddiqsoft/siddiqsoft/_build/latest?definitionId=16&branchName=main)
 ![](https://img.shields.io/nuget/v/SiddiqSoft.AzureCppUtils)
-![](https://img.shields.io/github/v/tag/SiddiqSoft/azure-cpp-utils)
+![](https://img.shields.io/github/v/tag/SiddiqSoft/AzureCppUtils)
 ![](https://img.shields.io/azure-devops/tests/siddiqsoft/siddiqsoft/16)
 ![](https://img.shields.io/azure-devops/coverage/siddiqsoft/siddiqsoft/16)
 <!-- end badges -->
@@ -39,4 +39,4 @@
 > The "keys" are binary contained within a `std::string`. Do not attempt to store them by conversion to `std::wstring` as they will produce different values and will fail against Azure.
 > You can take the resulting "signed" string and convert it to `std::wstring` as they are url-safe utf-8.
 
-Project is on [GitHub](https://github.com/siddiqsoft/azure-cpp-utils/)
+Project is on [GitHub](https://github.com/siddiqsoft/AzureCppUtils/)

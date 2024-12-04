@@ -3,7 +3,7 @@
 ## Supported Versions
 
 ![](https://img.shields.io/nuget/v/SiddiqSoft.AzureCppUtils)
-![](https://img.shields.io/github/v/tag/SiddiqSoft/azure-cpp-utils)
+![](https://img.shields.io/github/v/tag/SiddiqSoft/AzureCppUtils)
 
 The latest is always supported. These are all header-files so no binaries to worry about. However, if you are using NuGet, please keep them updated!
 
