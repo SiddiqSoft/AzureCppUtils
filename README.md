@@ -1,7 +1,6 @@
 Azure C++ Utils : Azure REST API Helpers for Modern C++
 -------------------------------------------
 <!-- badges -->
-[![CodeQL](https://github.com/SiddiqSoft/azure-cpp-utils/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/SiddiqSoft/azure-cpp-utils/actions/workflows/codeql-analysis.yml)
 [![Build Status](https://dev.azure.com/siddiqsoft/siddiqsoft/_apis/build/status/SiddiqSoft.azure-cpp-utils?branchName=main)](https://dev.azure.com/siddiqsoft/siddiqsoft/_build/latest?definitionId=16&branchName=main)
 ![](https://img.shields.io/nuget/v/SiddiqSoft.AzureCppUtils)
 ![](https://img.shields.io/github/v/tag/SiddiqSoft/azure-cpp-utils)
@@ -13,12 +12,23 @@ Azure C++ Utils : Azure REST API Helpers for Modern C++
 
 - Collect useful helpers for Azure REST API in a single location.
 - Header-only
+  - Use the nuget package or CMakeLists to import into your project.
 - Use Win32 functions on Windows
+  - No support for Linux/Darwin!
 
 ## Usage
 - Use the nuget [SiddiqSoft.AzureCppUtils](https://www.nuget.org/packages/SiddiqSoft.AzureCppUtils/)
-- Include the individual files of the `azure-cpp-utils.hpp` to bring all headers in your source.
-- Copy paste..whatever works.
+- Use the CPM in your CMakeLists file.
+
+```cmake
+..
+.. # import the CPM.cmake module and activate..
+..
+CPMAddModule("gh:siddiqsoft/azure-cpp-utils#1.3.1.1")
+..
+..
+target_link_libraries(your-project PRIVATE AzureCppUtils::AzureCppUtils)
+```
 
 # Features 
 
