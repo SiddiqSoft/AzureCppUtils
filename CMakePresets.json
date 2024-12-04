@@ -15,7 +15,7 @@
                 "CMAKE_C_COMPILER": "/opt/homebrew/opt/llvm/bin/clang",
                 "CMAKE_CXX_COMPILER": "/opt/homebrew/opt/llvm/bin/clang++",
                 "CMAKE_BUILD_TYPE": "Debug",
-                "BUILD_TESTS": "ON"
+                "AzureCppUtils_BUILD_TESTS": "ON"
             },
             "condition": {
                 "type": "equals",
@@ -51,7 +51,7 @@
                 "CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_C_COMPILER": "/usr/bin/clang",
                 "CMAKE_CXX_COMPILER": "/usr/bin/clang++",
-                "BUILD_TESTS": "ON"
+                "AzureCppUtils_BUILD_TESTS": "ON"
             },
             "condition": {
                 "type": "equals",
@@ -75,7 +75,7 @@
                 "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_C_COMPILER": "/usr/bin/clang",
                 "CMAKE_CXX_COMPILER": "/usr/bin/clang++",
-                "BUILD_TESTS": "ON"
+                "AzureCppUtils_BUILD_TESTS": "ON"
             },
             "condition": {
                 "type": "equals",
@@ -98,7 +98,7 @@
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "cl.exe",
                 "CMAKE_CXX_COMPILER": "cl.exe",
-                "BUILD_TESTS": "ON"
+                "AzureCppUtils_BUILD_TESTS": "ON"
             },
             "condition": {
                 "type": "equals",
@@ -117,7 +117,7 @@
             },
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
-                "BUILD_TESTS": "ON"
+                "AzureCppUtils_BUILD_TESTS": "ON"
             }
         },
         {
