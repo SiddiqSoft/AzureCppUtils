@@ -45,18 +45,15 @@ target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_20)
 
 # ____________________________________
 # Dependencies
-# Here we explicitly declare that we depend on the nlohmann_json package and that
-# the client will only need to depend on our file where the nlohmann_json will
-# automatically included.
 cpmaddpackage("gh:siddiqsoft/runonend#main")
-target_link_libraries(${PROJECT_NAME} INTERFACE runonend::runonend)
+target_link_libraries(${PROJECT_NAME} INTERFACE RunOnEnd::RunOnEnd)
 
 # ____________________________________
 # Testing
 # Available only when building in our repo; controlled by the switch: ${PROJECT_NAME}_BUILD_TESTS = ON
 if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     if(${${PROJECT_NAME}_BUILD_TESTS} AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests" AND IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/tests" )
-        message(STATUS "${PROJECT_NAME} - Asked to build tests.. BUILD_TESTS = ${${PROJECT_NAME}_BUILD_TESTS}")
+        message(STATUS "${PROJECT_NAME} - Asked to build tests.. ${PROJECT_NAME}_BUILD_TESTS = ${${PROJECT_NAME}_BUILD_TESTS}")
         add_subdirectory(tests)
     endif()
 endif()
