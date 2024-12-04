@@ -76,17 +76,17 @@ stages:
         configFilePath: 'GitVersion.yml'
 
     # Set the flags for testing, build here.
-    # BUILD_TESTS=ON
+    # AzureCppUtils_BUILD_TESTS=ON
     - task: CMake@1
       displayName: 'CMake Configure $(cmake.preset)'
       inputs:
-        cmakeArgs: '--preset $(cmake.preset) -DBUILD_TESTS=ON -DCI_BUILDID=$(GitVersion.MajorMinorPatch).$(GitVersion.CommitsSinceVersionSource)'
+        cmakeArgs: '--preset $(cmake.preset) -DAzureCppUtils_BUILD_TESTS=ON -DCI_BUILDID=$(GitVersion.MajorMinorPatch).$(GitVersion.CommitsSinceVersionSource)'
         workingDirectory: '$(System.DefaultWorkingDirectory)'
 
     - task: CMake@1
       displayName: 'CMake Build $(cmake.preset)'
       inputs:
-        cmakeArgs: '--build --preset $(cmake.preset) -DBUILD_TESTS=ON -DCI_BUILDID=$(GitVersion.MajorMinorPatch).$(GitVersion.CommitsSinceVersionSource)'
+        cmakeArgs: '--build --preset $(cmake.preset) -DAzureCppUtils_BUILD_TESTS=ON -DCI_BUILDID=$(GitVersion.MajorMinorPatch).$(GitVersion.CommitsSinceVersionSource)'
         workingDirectory: '$(System.DefaultWorkingDirectory)'
       condition: succeeded()
 
@@ -162,6 +162,19 @@ stages:
         - Agent.OS -equals $(osName)
 
     steps:
+    - task: gitversion/setup@3.0.0
+      displayName: 'Install GitVersion..'
+      inputs:
+        versionSpec: '6.x'
+        preferLatestVersion: true
+
+    - task: gitversion/execute@3.0.0
+      displayName: 'Determine Version..'
+      name: version_step
+      inputs:
+        useConfigFile: true
+        configFilePath: 'GitVersion.yml'
+
     - task: NuGetToolInstaller@1
       displayName: 'Install Nuget'
       inputs:
@@ -169,12 +182,12 @@ stages:
         checkLatest: true
 
     - task: NuGetCommand@2
-      displayName: 'NuGet pack'
+      displayName: 'NuGet pack v$(GitVersion.MajorMinorPatch).$(GitVersion.CommitsSinceVersionSource)'
       inputs:
         command: 'pack'
         packagesToPack: 'pack/*.nuspec'
         versioningScheme: 'off'
-        buildProperties: 'VERSION=$(build.buildNumber)'
+        buildProperties: 'VERSION=$(GitVersion.MajorMinorPatch).$(GitVersion.CommitsSinceVersionSource)'
       condition: and(succeeded(), startsWith(variables['Agent.OS'], 'Windows'))
 
     - task: NuGetCommand@2
@@ -194,8 +207,8 @@ stages:
         action: 'create'
         target: '$(Build.SourceVersion)'
         tagSource: 'userSpecifiedTag'
-        tag: '$(build.buildNumber)'
-        title: 'v$(build.buildNumber)'
+        tag: '$(GitVersion.MajorMinorPatch).$(GitVersion.CommitsSinceVersionSource)'
+        title: 'v$(GitVersion.MajorMinorPatch).$(GitVersion.CommitsSinceVersionSource)'
         releaseNotesSource: 'inline'
         releaseNotesInline: 'Documentation https://github.com/SiddiqSoft/azure-cpp-utils'
         isPreRelease: true
