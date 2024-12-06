@@ -76,7 +76,6 @@ stages:
         configFilePath: 'GitVersion.yml'
 
     # Set the flags for testing, build here.
-    # AzureCppUtils_BUILD_TESTS=ON
     - task: CMake@1
       displayName: 'CMake Configure $(cmake.preset)'
       inputs:
@@ -182,12 +181,12 @@ stages:
         checkLatest: true
 
     - task: NuGetCommand@2
-      displayName: 'NuGet pack v$(GitVersion.MajorMinorPatch).$(GitVersion.CommitsSinceVersionSource)'
+      displayName: 'NuGet pack v$(GitVersion.MajorMinorPatch)'
       inputs:
         command: 'pack'
         packagesToPack: 'pack/*.nuspec'
         versioningScheme: 'off'
-        buildProperties: 'VERSION=$(GitVersion.MajorMinorPatch).$(GitVersion.CommitsSinceVersionSource)'
+        buildProperties: 'VERSION=$(GitVersion.MajorMinorPatch)'
       condition: and(succeeded(), startsWith(variables['Agent.OS'], 'Windows'))
 
     - task: NuGetCommand@2
@@ -207,8 +206,8 @@ stages:
         action: 'create'
         target: '$(Build.SourceVersion)'
         tagSource: 'userSpecifiedTag'
-        tag: '$(GitVersion.MajorMinorPatch).$(GitVersion.CommitsSinceVersionSource)'
-        title: 'v$(GitVersion.MajorMinorPatch).$(GitVersion.CommitsSinceVersionSource)'
+        tag: '$(GitVersion.MajorMinorPatch)'
+        title: 'v$(GitVersion.MajorMinorPatch)'
         releaseNotesSource: 'inline'
         releaseNotesInline: 'Documentation https://github.com/SiddiqSoft/AzureCppUtils'
         isPreRelease: true
