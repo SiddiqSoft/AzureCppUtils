@@ -56,7 +56,7 @@
 #pragma comment(lib, "crypt32")
 #endif
 
-
+#include "siddiqsoft/conversion-utils.hpp"
 #include "base64-utils.hpp"
 #include "url-utils.hpp"
 #include "siddiqsoft/RunOnEnd.hpp"
