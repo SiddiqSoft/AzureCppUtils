@@ -30,7 +30,7 @@
 
  Collection | Description
 -----------------|--------------
-`siddiqsoft::ConversionUtils` | Conversion helpers (via the Win32 WideFromMultiByte methods.):<br/>asciiFromWide, wideFromAscii, utf8FromWide, wideFromUtf8.
+`siddiqsoft::ConversionUtils` | Conversion helpers (via the Win32 WideFromMultiByte methods.):<br/>convert_to<char,wchar_t>, convert_to<char,wchar_t>, convert_to<char,wchar_t>, wideFromUtf8.
 `siddiqsoft::DateUtils` | Helpers for RFC7231 and RFC1123 as well as ISO8601 formatd time strings.<br/>Supports `std::string` and `std::wstring` output.
 `siddiqsoft::Base64Utils` | `encode` and `decode` support for `std::string` only.
 `siddiqsoft::EncryptionUtils` | Encryption helpers for:<br/>MD5, HMAC, JWTSHA256, SASToken and  CosmosToken<br/>Supports output to `std::string` and `std::wstring` containers.

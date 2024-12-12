@@ -36,8 +36,11 @@
 #include "gtest/gtest.h"
 #include <iostream>
 
-
-#include "../include/siddiqsoft/azure-cpp-utils.hpp"
+#include "siddiqsoft/conversion-utils.hpp"
+#include "../include/siddiqsoft/base64-utils.hpp"
+#include "../include/siddiqsoft/date-utils.hpp"
+#include "../include/siddiqsoft/encryption-utils.hpp"
+#include "../include/siddiqsoft/url-utils.hpp"
 
 namespace siddiqsoft
 {
@@ -292,14 +295,14 @@ namespace siddiqsoft
 
     TEST(EncryptionUtils, HMAC_1)
     {
-        std::string myData {"hello world"};
+        std::string myData {"hello \xF0\x9F\x8C\x8E"};
         std::string myKey {"01234567890123456789012345678901"};
 
         try {
             auto r1 = EncryptionUtils::HMAC(myData, myKey);
 
             // Using online tool: https://www.liavaag.org/English/SHA-Generator/HMAC/
-            EXPECT_STREQ("B8dXpkmWppplo/hAbiHLuXgIEPFErnypOewwhH1+tPQ=", Base64Utils::encode(r1).c_str());
+            EXPECT_STREQ("f+TQQp/dU+OEWEwY6sRpfVNgN2hKSIklnVOh6iBEPdE=", Base64Utils::encode(r1).c_str());
         }
         catch (const std::exception& e) {
             EXPECT_TRUE(false) << e.what() << std::endl;
@@ -308,14 +311,14 @@ namespace siddiqsoft
 
     TEST(EncryptionUtils, HMAC_1_w)
     {
-        std::wstring myData {L"hello world"};
+        std::wstring myData {L"hello \xD83C\xDF0E"};
         std::string  myKey {"01234567890123456789012345678901"};
 
         try {
             auto r1 = EncryptionUtils::HMAC<wchar_t>(myData, myKey);
 
             // Using online tool: https://www.liavaag.org/English/SHA-Generator/HMAC/
-            EXPECT_STREQ("B8dXpkmWppplo/hAbiHLuXgIEPFErnypOewwhH1+tPQ=", Base64Utils::encode(r1).c_str());
+            EXPECT_STREQ("6zcwPNrzCM1GM/yjRQAvuNOfq35X5b0j0H+BbyfPNx8=", Base64Utils::encode(r1).c_str());
         }
         catch (const std::exception& e) {
             EXPECT_TRUE(false) << e.what() << std::endl;
@@ -545,35 +548,4 @@ namespace siddiqsoft
 
         EXPECT_EQ(x_iso8601, x_iso8601_rt);
     }
-
-    /* ConversionUtils tests */
-
-    TEST(ConversionUtils, test1a)
-    {
-        std::string sample {"صديق"};
-
-        try {
-            auto roundTrip = ConversionUtils::utf8FromWide(ConversionUtils::wideFromUtf8(sample));
-            EXPECT_EQ(sample, roundTrip);
-        }
-        catch (const std::exception& ex) {
-            std::cerr << ex.what() << std::endl;
-            EXPECT_FALSE("No match.");
-        }
-    }
-
-    TEST(ConversionUtils, test1a_w)
-    {
-        std::wstring sample {L"صديق"};
-
-        try {
-            auto roundTrip = ConversionUtils::wideFromUtf8(ConversionUtils::utf8FromWide(sample));
-            EXPECT_EQ(sample, roundTrip);
-        }
-        catch (const std::exception& ex) {
-            std::cerr << ex.what() << std::endl;
-            EXPECT_FALSE("No match.");
-        }
-    }
-
 } // namespace siddiqsoft

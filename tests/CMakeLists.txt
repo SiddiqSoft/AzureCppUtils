@@ -12,7 +12,7 @@ if(${${PROJECT_NAME}_BUILD_TESTS})
 
     # Dependencies
     cpmaddpackage("gh:google/googletest#v1.15.2")
-    target_link_libraries(${TESTPROJ} PRIVATE GTest::gtest_main RunOnEnd::RunOnEnd)
+    target_link_libraries(${TESTPROJ} PRIVATE GTest::gtest_main RunOnEnd::RunOnEnd StringHelpers::StringHelpers)
 
 
     include(GoogleTest)

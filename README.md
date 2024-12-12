@@ -36,7 +36,7 @@ target_link_libraries(your-project PRIVATE AzureCppUtils::AzureCppUtils)
   - RFC7231 and RFC1123
   - ISO8601
 - ConversionUtils (`conversion-utils.hpp`)
-  - utf8fromWide, wideFromUtf8, asciiFromWide and wideFromAscii
+  - convert_to<char,wchar_t>, wideFromUtf8, convert_to<char,wchar_t> and convert_to<char,wchar_t>
 - Bas64Utils (`base64-utils.hpp`)
   - encode, decode
 - EncryptionUtils (`encryption-utils.hpp`)

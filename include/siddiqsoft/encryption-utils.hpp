@@ -118,7 +118,7 @@ namespace siddiqsoft
             }
             else {
                 // The MD5 result is a "binary" so we must not try and convert.
-                return MD5<char>(ConversionUtils::utf8FromWide(source));
+                return MD5<char>(ConversionUtils::convert_to<T,char>(source));
             }
 
             // Fall-through failure
@@ -187,7 +187,7 @@ namespace siddiqsoft
             }
             else {
                 // The HMAC result is "binary" and must not be treated as wstring
-                return HMAC<char>(ConversionUtils::asciiFromWide(message), key);
+                return HMAC<char>(ConversionUtils::convert_to<T,char>(message), key);
             }
 
             // Fall-through is failure
@@ -216,8 +216,8 @@ namespace siddiqsoft
             }
             else {
                 // Delegate to the narrow version; conversion at the edge
-                return ConversionUtils::wideFromUtf8(
-                        JWTHMAC256<char>(key, ConversionUtils::utf8FromWide(header), ConversionUtils::utf8FromWide(payload)));
+                return ConversionUtils::convert_to<char,T>(
+                        JWTHMAC256<char>(key, ConversionUtils::convert_to<T,char>(header), ConversionUtils::convert_to<T,char>(payload)));
             }
         }
 
@@ -278,10 +278,10 @@ namespace siddiqsoft
             }
             else {
                 // Delegate to the narrow version and convert at the edges.
-                return ConversionUtils::wideFromUtf8(SASToken<char>(key,
-                                                                    ConversionUtils::utf8FromWide(url),
-                                                                    ConversionUtils::utf8FromWide(keyName),
-                                                                    ConversionUtils::utf8FromWide(expiry)));
+                return ConversionUtils::convert_to<char,T>(SASToken<char>(key,
+                                                                    ConversionUtils::convert_to<T,char>(url),
+                                                                    ConversionUtils::convert_to<T,char>(keyName),
+                                                                    ConversionUtils::convert_to<T,char>(expiry)));
             }
         }
 
@@ -329,11 +329,11 @@ namespace siddiqsoft
             }
             else {
                 // Delegate to the narrow version, conversion at the edges.
-                return ConversionUtils::wideFromAscii(CosmosToken<char>(key,
-                                                                        ConversionUtils::asciiFromWide(verb),
-                                                                        ConversionUtils::asciiFromWide(type),
-                                                                        ConversionUtils::asciiFromWide(resourceLink),
-                                                                        ConversionUtils::asciiFromWide(date)));
+                return ConversionUtils::convert_to<char,T>(CosmosToken<char>(key,
+                                                                        ConversionUtils::convert_to<T,char>(verb),
+                                                                        ConversionUtils::convert_to<T,char>(type),
+                                                                        ConversionUtils::convert_to<T,char>(resourceLink),
+                                                                        ConversionUtils::convert_to<T,char>(date)));
             }
 
             // Fall-through failure

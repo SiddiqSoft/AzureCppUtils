@@ -26,7 +26,6 @@ project(AzureCppUtils
 # ____________________________________
 # Options; define and declare defaults
 option(${PROJECT_NAME}_BUILD_TESTS "${PROJECT_NAME} - Build tests. Uncheck for install only runs" OFF)
-option(${${PROJECT_NAME}_BUILD_TESTS} "${PROJECT_NAME} - Build tests. Uncheck for install only runs" OFF)
 
 # ____________________________________
 #  Library Definition
@@ -42,8 +41,10 @@ target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_20)
 
 # ____________________________________
 # Dependencies
-cpmaddpackage("gh:siddiqsoft/RunOnEnd#main")
+cpmaddpackage("gh:siddiqsoft/RunOnEnd#1.3.2")
 target_link_libraries(${PROJECT_NAME} INTERFACE RunOnEnd::RunOnEnd)
+cpmaddpackage("gh:siddiqsoft/StringHelpers#1.0.1")
+target_link_libraries(${PROJECT_NAME} INTERFACE StringHelpers::StringHelpers)
 
 # ____________________________________
 # Testing
