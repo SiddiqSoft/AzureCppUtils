@@ -113,7 +113,7 @@ stages:
           MSBuildConfiguration: Release
         Clang-Debug:
           BuildType: Debug
-          cmake.preset: 'Linux-$(matrix)'
+          cmake.preset: 'Linux-Clang-$(BuildType)'
           MSBuildConfiguration: Debug
           cmakeExtraArgs: 
         Clang-Release:
