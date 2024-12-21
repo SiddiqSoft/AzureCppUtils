@@ -41,6 +41,8 @@
 #include <string>
 #include <concepts>
 #include <format>
+#include <ranges>
+
 
 /// @brief SiddiqSoft
 namespace siddiqsoft
