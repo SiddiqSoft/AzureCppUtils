@@ -30,7 +30,6 @@ stages:
       clean: all
     pool:
       poolName: Default
-      name: 
       osName: Windows_NT
       demands:
         - Agent.OS -equals $(osName)
@@ -115,7 +114,6 @@ stages:
       clean: all
     pool:
       poolName: Default
-      name: 
       osName: Linux
       demands:
         - Agent.OS -equals $(osName)
