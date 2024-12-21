@@ -3,7 +3,7 @@
 
     BSD 3-Clause License
 
-    Copyright (c) 2021, Siddiq Software LLC
+    Copyright (c) 2021, Siddiq Software
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -393,7 +393,7 @@ namespace siddiqsoft
 
     TEST(DateUtils, toTimespan_1)
     {
-        auto t3 = 71928998I64;
+        auto t3 = uint64_t(71928998);
 
         // days.hours:minutes:seconds
         EXPECT_EQ("832.12:16:38", DateUtils::toTimespan<>(std::chrono::seconds(t3)));
@@ -406,7 +406,7 @@ namespace siddiqsoft
     {
         using namespace std::chrono;
 
-        auto t3  = std::chrono::microseconds(71928998I64);
+        auto t3  = std::chrono::microseconds(uint64_t(71928998));
 
         auto ds1 = siddiqsoft::DateUtils::durationString<char>(std::chrono::seconds(40));
         EXPECT_EQ("0min 40s", ds1);
@@ -445,7 +445,7 @@ namespace siddiqsoft
     {
         using namespace std::chrono;
 
-        auto t3  = std::chrono::microseconds(71928998I64);
+        auto t3  = std::chrono::microseconds(uint64_t(71928998));
 
         auto ds1 = siddiqsoft::DateUtils::durationString<wchar_t>(std::chrono::seconds(40));
         EXPECT_EQ(L"0min 40s", ds1);

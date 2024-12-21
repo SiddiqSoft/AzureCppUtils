@@ -34,10 +34,11 @@
 
 #pragma once
 
+#include <cstdint>
 #ifndef DATE_UTILS_HPP
 #define DATE_UTILS_HPP
 
-
+#include <ctime>
 #include <iostream>
 #include <chrono>
 #include <string>
@@ -81,21 +82,27 @@ namespace siddiqsoft
             tm         timeInfo {};
             // We need to get the fractional milliseconds from the raw time point.
             auto msTime = std::chrono::duration_cast<std::chrono::milliseconds>(rawtp.time_since_epoch()).count() % 1000;
-            // Get the UTC time packet.
+// Get the UTC time packet.
+#if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
             const auto ec = gmtime_s(&timeInfo, &rawtime);
+            if (ec == EINVAL) throw std::invalid_argument("Invalid argument time");
+#else
+            gmtime_r(&rawtime, &timeInfo);
+#endif
 
             if constexpr (std::is_same_v<T, char>) {
                 // https://en.wikipedia.org/wiki/ISO_8601
                 // yyyy-mm-ddThh:mm:ss.mmmZ
-                std::vector<char> buff(32, 0);
+                std::array<char, 32> buff;
 
-                if (ec != EINVAL) strftime(buff.data(), buff.capacity(), "%FT%T", &timeInfo);
+                strftime(buff.data(), buff.size(), "%FT%T", &timeInfo);
                 return std::format("{}.{:03}Z", buff.data(), msTime);
             }
             else if constexpr (std::is_same_v<T, wchar_t>) {
                 // yyyy-mm-ddThh:mm:ss.mmmZ
-                std::vector<wchar_t> buff(32, 0);
-                if (ec != EINVAL) wcsftime(buff.data(), buff.capacity(), L"%FT%T", &timeInfo);
+                std::array<wchar_t, 32> buff;
+
+                wcsftime(buff.data(), buff.size(), L"%FT%T", &timeInfo);
                 return std::format(L"{}.{:03}Z", buff.data(), msTime);
             }
 
@@ -115,21 +122,27 @@ namespace siddiqsoft
             tm   timeInfo {};
 
             // Get the UTC time packet.
+#if defined(WIN32) || defined(WIN64) || defined(_WIN32) || defined(_WIN64)
             auto ec = gmtime_s(&timeInfo, &rawtime);
+            if (ec != 0) throw std::runtime_error("Failed gmtime_s");
+#elif defined(__linux__) || defined(__APPLE__)
+            if (NULL == gmtime_r(&rawtime, &timeInfo)) throw std::runtime_error("Failed gmtime_s");
+#endif
+
 
             // HTTP-date as per RFC 7231:  Tue, 01 Nov 1994 08:12:31 GMT
             // Note that since we are getting the UTC time we should not use the %z or %Z in the strftime format
             // as it returns the local timezone and not GMT.
             if constexpr (std::is_same_v<T, char>) {
-                std::vector<char> buff(32, 0);
-                if (ec != EINVAL) strftime(buff.data(), buff.capacity(), "%a, %d %h %Y %T GMT", &timeInfo);
+                std::array<char, 32> buff;
+                strftime(buff.data(), buff.size(), "%a, %d %h %Y %T GMT", &timeInfo);
 
                 return buff.data();
             }
 
             if constexpr (std::is_same_v<T, wchar_t>) {
-                std::vector<wchar_t> buff(32, 0);
-                if (ec != EINVAL) wcsftime(buff.data(), buff.capacity(), L"%a, %d %h %Y %T GMT", &timeInfo);
+                std::array<wchar_t, 32> buff;
+                wcsftime(buff.data(), buff.size(), L"%a, %d %h %Y %T GMT", &timeInfo);
 
                 return buff.data();
             }
@@ -179,7 +192,6 @@ namespace siddiqsoft
             tm                                    epoch1tm {};
             uint64_t                              epoch1ntp {0};
             uint64_t                              epoch1millis {0};
-            __time64_t                            epoch1 {0};
             std::chrono::system_clock::time_point ret_tp {};
 
             // Convert the argument to unsigned long; this will drop the decimal portion if persent
@@ -209,10 +221,14 @@ namespace siddiqsoft
             if (epoch1ntp > 0) {
                 // Just in case, we should handle the NTP and the epoch case..
                 // The EPOC time is from Jan 1 1970 whereas NTP starts from 1/1/1900 which necessitates this subtraction
-                epoch1 = (epoch1ntp > 2208988800ULL) ? epoch1ntp - 2208988800ULL : epoch1ntp;
+                time_t epoch1 = (epoch1ntp > 2208988800ULL) ? epoch1ntp - 2208988800ULL : epoch1ntp;
 
                 // Convert to tm structure
+#if defined(WIN32) || defined(WIN64) || defined(_WIN32) || defined(_WIN64)
                 _gmtime64_s(&epoch1tm, &epoch1);
+#elif defined(__linux__) || defined(__APPLE__)
+                gmtime_r(&epoch1, &epoch1tm);
+#endif
 
                 // Create the timepoint
                 ret_tp = std::chrono::system_clock::from_time_t(epoch1);
@@ -245,11 +261,11 @@ namespace siddiqsoft
             uint64_t uptimeHours        = chrono::duration_cast<chrono::hours>(delta).count();
 
             // Account for hours
-            uptimeMinutes = uptimeMinutes % 60i64;
+            uptimeMinutes = uptimeMinutes % uint64_t(60);
             // Account for hours and minutes
-            uptimeSeconds = (uptimeSeconds - (uptimeMinutes * 60i64)) % 60i64;
+            uptimeSeconds = (uptimeSeconds - (uptimeMinutes * uint64_t(60))) % uint64_t(60);
             // Account for hours, minutes and seconds
-            uptimeMilliseconds = (uptimeMilliseconds) % 1000i64;
+            uptimeMilliseconds = (uptimeMilliseconds) % uint64_t(1000);
 
             // Clients would find the following useful:
             // {milliseconds, "HH:MM:SS.mmm"}
@@ -347,6 +363,7 @@ namespace siddiqsoft
             uint32_t yearPart = 0, monthPart = 0, dayPart = 0, hourPart = 0, minutePart = 0, secondPart = 0, millisecondPart = 0;
 
             if constexpr (std::is_same_v<T, char>) {
+#if defined(WIN32) || defined(_WIN32) || defined(_WIN64) || defined(WIN64)
                 sscanf_s(arg.data(),
                          "%d-%d-%dT%d:%d:%d.%ldZ",
                          &yearPart,
@@ -356,8 +373,20 @@ namespace siddiqsoft
                          &minutePart,
                          &secondPart,
                          &millisecondPart);
+#elif defined(__linux__) || defined(__APPLE__)
+                sscanf(arg.data(),
+                       "%d-%d-%dT%d:%d:%d.%udZ",
+                       &yearPart,
+                       &monthPart,
+                       &dayPart,
+                       &hourPart,
+                       &minutePart,
+                       &secondPart,
+                       &millisecondPart);
+#endif
             }
             else if constexpr (std::is_same_v<T, wchar_t>) {
+#if defined(WIN32) || defined(_WIN32) || defined(_WIN64) || defined(WIN64)
                 swscanf_s(arg.data(),
                           L"%d-%d-%dT%d:%d:%d.%ldZ",
                           &yearPart,
@@ -367,6 +396,17 @@ namespace siddiqsoft
                           &minutePart,
                           &secondPart,
                           &millisecondPart);
+#elif defined(__linux__) || defined(__APPLE__)
+                swscanf(arg.data(),
+                        L"%d-%d-%dT%d:%d:%d.%ldZ",
+                        &yearPart,
+                        &monthPart,
+                        &dayPart,
+                        &hourPart,
+                        &minutePart,
+                        &secondPart,
+                        &millisecondPart);
+#endif
             }
             else {
                 throw std::invalid_argument("Type is not supported; must be std::string[_view] or std::wstring[_view]");
@@ -380,8 +420,12 @@ namespace siddiqsoft
                 retTime.tm_hour = hourPart;        // 0-23
                 retTime.tm_min  = minutePart;      // 0-59
                 retTime.tm_sec  = (int)secondPart; // 0-61 (0-60 in C++11)
+#if defined(WIN32) || defined(WIN64) || defined(_WIN32) || defined(_WIN64)
+                auto tp = std::chrono::system_clock::from_time_t(_mkgmtime(&retTime));
+#elif defined(__linux__) || defined(__APPLE__)
+                auto tp = std::chrono::system_clock::from_time_t(timegm(&retTime));
+#endif
 
-                auto tp         = std::chrono::system_clock::from_time_t(_mkgmtime(&retTime));
                 tp += std::chrono::milliseconds(millisecondPart);
                 return tp;
             }
