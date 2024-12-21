@@ -22,7 +22,10 @@ project(AzureCppUtils
         HOMEPAGE_URL    "%%myurl%%"
         DESCRIPTION     "Azure REST API Helpers for Modern C++. Featuring helper functions for date-time, encryption tokens for Azure REST API as a single header-only package. Using OpenSSL on UNIX and native Win32 on Windows.")
 
-
+set( CMAKE_CXX_STANDARD 20)
+set( CMAKE_CXX_STANDARD_REQUIRED On)
+set( CMAKE_CXX_EXTENSIONS Off)
+    
 # ____________________________________
 # Options; define and declare defaults
 option(${PROJECT_NAME}_BUILD_TESTS "${PROJECT_NAME} - Build tests. Uncheck for install only runs" OFF)

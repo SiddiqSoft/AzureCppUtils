@@ -42,7 +42,7 @@
 #include <concepts>
 #include <format>
 #include <ranges>
-
+#include <algorithm>
 
 /// @brief SiddiqSoft
 namespace siddiqsoft
@@ -96,11 +96,6 @@ namespace siddiqsoft
 
             return retOutput;
         }
-
-        UrlUtils(const UrlUtils&)            = default;
-        UrlUtils(UrlUtils&&)                 = default;
-        UrlUtils& operator=(const UrlUtils&) = default;
-        UrlUtils& operator=(UrlUtils&&)      = default;
     };
 } // namespace siddiqsoft
 
