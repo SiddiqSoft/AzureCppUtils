@@ -105,7 +105,7 @@ stages:
         packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;build/*.nupkg'
         nuGetFeedType: 'external'
         publishFeedCredentials: 'sqs-nuget'
-      condition: and(succeeded(), or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Build.SourceBranch'], 'refs/heads/master')), startsWith(variables['Agent.OS'], 'Windows'))
+      condition: and(succeeded(), eq(variables['BuildType'], 'Release'), or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Build.SourceBranch'], 'refs/heads/master')), startsWith(variables['Agent.OS'], 'Windows'))
     - task: GitHubRelease@1
       displayName: 'Release to GitHub'
       inputs:
@@ -123,7 +123,7 @@ stages:
         changeLogType: 'commitBased'
         addChangeLog: false
         assetUploadMode: 'replace'
-      condition: and(succeeded(), or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Build.SourceBranch'], 'refs/heads/master')), startsWith(variables['Agent.OS'], 'Windows'))
+      condition: and(succeeded(), eq(variables['BuildType'], 'Release'), or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Build.SourceBranch'], 'refs/heads/master')), startsWith(variables['Agent.OS'], 'Windows'))
 #   ##################################################################################################### #### ## #
 #   #### Job buildLinux ################################################################################# #### ## #
 #   ##################################################################################################### #### ## #
@@ -140,12 +140,12 @@ stages:
       matrix:
         GCC-Debug:
           BuildType: Debug
-          cmake.preset: 'Linux-GCC-Debug'
+          cmake.preset: 'Linux-GCC-$(BuildType)'
           MSBuildConfiguration: Debug
           cmakeExtraArgs: 
         GCC-Release:
           BuildType: Release
-          cmake.preset: 'Linux-GCC-Release'
+          cmake.preset: 'Linux-GCC-$(BuildType)'
           cmakeExtraArgs: 
           MSBuildConfiguration: Release
         Clang-Debug:
@@ -155,7 +155,7 @@ stages:
           cmakeExtraArgs: 
         Clang-Release:
           BuildType: Release
-          cmake.preset: 'Linux-Clang-Release'
+          cmake.preset: 'Linux-Clang-$(BuildType)'
           cmakeExtraArgs: 
           MSBuildConfiguration: Release
     steps:
@@ -194,7 +194,7 @@ stages:
       displayName: 'CTest Coverage $(cmake.preset) (Linux only)'
       inputs:
         cmakeArgs: '-E chdir $(System.DefaultWorkingDirectory)/build/$(cmake.preset) ctest $(System.DefaultWorkingDirectory)/build/$(cmake.preset) --output-junit $(System.DefaultWorkingDirectory)/build/$(cmake.preset)/tests/results/test_detail.xml --output-on-failure  -T Test -T Coverage'
-      condition: and(succeeded(), startsWith(variables['Agent.OS'], 'Linux'), startsWith(variables['Agent.Agent.OSArchitecture'], 'X64'))
+      condition: and(succeeded(), eq(variables['BuildType'], 'Debug'), startsWith(variables['Agent.OS'], 'Linux'), startsWith(variables['Agent.Agent.OSArchitecture'], 'X64'))
       continueOnError: false
     - task: CmdLine@2
       displayName: 'Coverage collection (Linux builds Only)'
@@ -203,7 +203,7 @@ stages:
           echo "gcovr --delete --root ../../ --print-summary --xml-pretty --xml coverage.xml .  --filter='$(System.DefaultWorkingDirectory)/include/siddiqsoft/*' --filter='$(System.DefaultWorkingDirectory)/tests/*' --gcov-executable 'llvm-cov gcov'"
           gcovr --delete --root $(System.DefaultWorkingDirectory)/ --print-summary --xml-pretty --xml $(System.DefaultWorkingDirectory)/build/$(cmake.preset)/tests/results/coverage.xml $(System.DefaultWorkingDirectory)/build/$(cmake.preset)  --filter='$(System.DefaultWorkingDirectory)/include/*' --filter='$(System.DefaultWorkingDirectory)/tests/*' --gcov-executable 'llvm-cov gcov'
         workingDirectory: '$(System.DefaultWorkingDirectory)/build/$(cmake.preset)'
-      condition: and(succeeded(), startsWith(variables['Agent.OS'], 'Linux'), startsWith(variables['Agent.Agent.OSArchitecture'], 'X64'))
+      condition: and(succeeded(), eq(variables['BuildType'], 'Debug'), startsWith(variables['Agent.OS'], 'Linux'), startsWith(variables['Agent.Agent.OSArchitecture'], 'X64'))
     - task: PublishTestResults@2
       displayName: 'Publish $(BuildType) Test Results test_detail.xml'
       inputs:
@@ -217,7 +217,7 @@ stages:
       displayName: 'Publish Coverage Results (Linux builds)'
       inputs:
         summaryFileLocation: '$(System.DefaultWorkingDirectory)/build/$(cmake.preset)/tests/results/coverage.*'
-      condition: and(succeeded(), startsWith(variables['Agent.OS'], 'Linux'), startsWith(variables['Agent.Agent.OSArchitecture'], 'X64'))
+      condition: and(succeeded(), startsWith(variables['Agent.OS'], 'Linux'), startsWith(variables['Agent.Agent.OSArchitecture'], 'X64'), eq(variables['BuildType'], 'Debug'))
     - task: GitHubRelease@1
       displayName: 'Release to GitHub'
       inputs:
@@ -235,4 +235,4 @@ stages:
         changeLogType: 'commitBased'
         addChangeLog: false
         assetUploadMode: 'replace'
-      condition: and(succeeded(), or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Build.SourceBranch'], 'refs/heads/master')), startsWith(variables['Agent.OS'], 'Linux'))
+      condition: and(succeeded(), eq(variables['BuildType'], 'Release'), or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Build.SourceBranch'], 'refs/heads/master')), startsWith(variables['Agent.OS'], 'Linux'))

@@ -17,7 +17,7 @@ if(${${PROJECT_NAME}_BUILD_TESTS})
     target_sources( ${TESTPROJ}
                     PRIVATE
                     ${PROJECT_SOURCE_DIR}/tests/date-utils-tests.cpp)
-    elseif()
+    else()
     # Windows should have all tests!
     target_sources( ${TESTPROJ}
                     PRIVATE
