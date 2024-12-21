@@ -194,7 +194,7 @@ stages:
       displayName: 'CTest Coverage $(cmake.preset) (Linux only)'
       inputs:
         cmakeArgs: '-E chdir $(System.DefaultWorkingDirectory)/build/$(cmake.preset) ctest $(System.DefaultWorkingDirectory)/build/$(cmake.preset) --output-junit $(System.DefaultWorkingDirectory)/build/$(cmake.preset)/tests/results/test_detail.xml --output-on-failure  -T Test -T Coverage'
-      condition: and(succeeded(), startsWith(variables['Agent.OS'], 'Linux'))
+      condition: and(succeeded(), startsWith(variables['Agent.OS'], 'Linux'), startsWith(variables['Agent.Agent.OSArchitecture'], 'X64'))
       continueOnError: false
     - task: CmdLine@2
       displayName: 'Coverage collection (Linux builds Only)'
@@ -203,7 +203,7 @@ stages:
           echo "gcovr --delete --root ../../ --print-summary --xml-pretty --xml coverage.xml .  --filter='$(System.DefaultWorkingDirectory)/include/siddiqsoft/*' --filter='$(System.DefaultWorkingDirectory)/tests/*' --gcov-executable 'llvm-cov gcov'"
           gcovr --delete --root $(System.DefaultWorkingDirectory)/ --print-summary --xml-pretty --xml $(System.DefaultWorkingDirectory)/build/$(cmake.preset)/tests/results/coverage.xml $(System.DefaultWorkingDirectory)/build/$(cmake.preset)  --filter='$(System.DefaultWorkingDirectory)/include/*' --filter='$(System.DefaultWorkingDirectory)/tests/*' --gcov-executable 'llvm-cov gcov'
         workingDirectory: '$(System.DefaultWorkingDirectory)/build/$(cmake.preset)'
-      condition: and(succeeded(), startsWith(variables['Agent.OS'], 'Linux'))
+      condition: and(succeeded(), startsWith(variables['Agent.OS'], 'Linux'), startsWith(variables['Agent.Agent.OSArchitecture'], 'X64'))
     - task: PublishTestResults@2
       displayName: 'Publish $(BuildType) Test Results test_detail.xml'
       inputs:
@@ -217,23 +217,7 @@ stages:
       displayName: 'Publish Coverage Results (Linux builds)'
       inputs:
         summaryFileLocation: '$(System.DefaultWorkingDirectory)/build/$(cmake.preset)/tests/results/coverage.*'
-      condition: and(succeeded(), startsWith(variables['Agent.OS'], 'Linux'))
-    - task: NuGetCommand@2
-      displayName: 'NuGet pack v$(GitVersion.MajorMinorPatch)'
-      inputs:
-        command: 'pack'
-        packagesToPack: 'pack/*.nuspec'
-        versioningScheme: 'off'
-        buildProperties: 'VERSION=$(GitVersion.MajorMinorPatch)'
-      condition: and(succeeded(), startsWith(variables['Agent.OS'], 'Windows'))
-    - task: NuGetCommand@2
-      displayName: 'NuGet push'
-      inputs:
-        command: 'push'
-        packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;build/*.nupkg'
-        nuGetFeedType: 'external'
-        publishFeedCredentials: 'sqs-nuget'
-      condition: and(succeeded(), or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Build.SourceBranch'], 'refs/heads/master')), startsWith(variables['Agent.OS'], 'Windows'))
+      condition: and(succeeded(), startsWith(variables['Agent.OS'], 'Linux'), startsWith(variables['Agent.Agent.OSArchitecture'], 'X64'))
     - task: GitHubRelease@1
       displayName: 'Release to GitHub'
       inputs:

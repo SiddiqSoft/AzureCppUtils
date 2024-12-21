@@ -10,10 +10,21 @@ if(${${PROJECT_NAME}_BUILD_TESTS})
     target_compile_options( ${TESTPROJ}
                             PRIVATE
                             $<$<CXX_COMPILER_ID:Clang>:-fexperimental-library> )
+
+    # Temporary whilst development of the feature/unix-support branch
+    if((CMAKE_CXX_COMPILER_ID MATCHES [Cc][Ll][Aa][Nn][Gg]) OR (CMAKE_CXX_COMPILER_ID MATCHES [Gg][Cc][Cc]) )
+    # We add one at a time as we complete the re-implementation
     target_sources( ${TESTPROJ}
                     PRIVATE
                     ${PROJECT_SOURCE_DIR}/tests/date-utils-tests.cpp)
-
+    elseif()
+    # Windows should have all tests!
+    target_sources( ${TESTPROJ}
+                    PRIVATE
+                    ${PROJECT_SOURCE_DIR}/tests/base64-utils-tests.cpp
+                    ${PROJECT_SOURCE_DIR}/tests/encryption-utils-tests.cpp
+                    ${PROJECT_SOURCE_DIR}/tests/date-utils-tests.cpp)
+    endif()
 
     if((CMAKE_CXX_COMPILER_ID MATCHES [Cc][Ll][Aa][Nn][Gg]) OR (CMAKE_CXX_COMPILER_ID MATCHES [Gg][Cc][Cc]) )
         message(STATUS "Using sanitizers for leak and address on ${CMAKE_CXX_COMPILER_ID}")
