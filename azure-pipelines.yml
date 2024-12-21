@@ -30,7 +30,7 @@ stages:
       clean: all
     pool:
       poolName: Default
-      name: $(poolName)
+      name: 
       osName: Windows_NT
       demands:
         - Agent.OS -equals $(osName)
@@ -38,11 +38,11 @@ stages:
       matrix:
         Debug:
           BuildType: Debug
-          cmake.preset: 'Windows-$(matrix.BuildType)'
+          cmake.preset: 'Windows-$(BuildType)'
           MSBuildConfiguration: Debug
         Release:
           BuildType: Release
-          cmake.preset: 'Windows-$(matrix.BuildType)'
+          cmake.preset: 'Windows-$(BuildType)'
           MSBuildConfiguration: Release
     steps:
     - checkout: self
@@ -115,7 +115,7 @@ stages:
       clean: all
     pool:
       poolName: Default
-      name: $(poolName)
+      name: 
       osName: Linux
       demands:
         - Agent.OS -equals $(osName)
@@ -123,11 +123,11 @@ stages:
       matrix:
         Debug:
           BuildType: Debug
-          cmake.preset: 'Linux-$(matrix.BuildType)'
+          cmake.preset: 'Linux-$(BuildType)'
           MSBuildConfiguration: Debug
         Release:
           BuildType: Release
-          cmake.preset: 'Linux-$(matrix.BuildType)'
+          cmake.preset: 'Linux-$(BuildType)'
           MSBuildConfiguration: Release
     steps:
     - checkout: self
