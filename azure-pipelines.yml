@@ -17,9 +17,6 @@ trigger:
     exclude:
     - README.md
 
-variables:
-  buildConfiguration: 'Release'
-
 stages:
 ################################## STAGE ####################################
 # STAGE: BuildTest                                                          #
