@@ -196,12 +196,20 @@
             "configurePreset": "Apple-Release"
         },
         {
-            "name": "Linux-Debug",
-            "configurePreset": "Linux-Debug"
+            "name": "Linux-GCC-Debug",
+            "configurePreset": "Linux-GCC-Debug"
         },
         {
-            "name": "Linux-Release",
-            "configurePreset": "Linux-Release"
+            "name": "Linux-GCC-Release",
+            "configurePreset": "Linux-GCC-Release"
+        },
+        {
+            "name": "Linux-Clang-Debug",
+            "configurePreset": "Linux-Clang-Debug"
+        },
+        {
+            "name": "Linux-Clang-Release",
+            "configurePreset": "Linux-Clang-Release"
         },
         {
             "name": "Windows-Debug",
