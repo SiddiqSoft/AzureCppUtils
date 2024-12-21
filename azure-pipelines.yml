@@ -94,6 +94,11 @@ stages:
     displayName: 'Build and Test Linux'
     workspace:
       clean: all
+    pool:
+      name: Default
+      vmImage:
+      demands:
+        - Agent.OS -equals Linux
     strategy:
       matrix:
         Debug:
@@ -106,11 +111,6 @@ stages:
           cmake.preset: 'Linux-Release'
           cmakeExtraArgs: 
           MSBuildConfiguration: Release
-    pool:
-      name: Default
-      vmImage:
-      demands:
-        - Agent.OS -equals Linux
     steps:
     - checkout: self
       fetchDepth: 0
