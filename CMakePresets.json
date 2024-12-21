@@ -244,8 +244,8 @@
             }
         },
         {
-            "name": "Linux-Debug",
-            "configurePreset": "Linux-Debug",
+            "name": "Linux-GCC-Debug",
+            "configurePreset": "Linux-GCC-Debug",
             "output": {
                 "outputOnFailure": true
             },
@@ -255,8 +255,30 @@
             }
         },
         {
-            "name": "Linux-Release",
-            "configurePreset": "Linux-Release",
+            "name": "Linux-GCC-Release",
+            "configurePreset": "Linux-GCC-Release",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error",
+                "stopOnFailure": true
+            }
+        },
+        {
+            "name": "Linux-Clang-Debug",
+            "configurePreset": "Linux-Clang-Debug",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error",
+                "stopOnFailure": true
+            }
+        },
+        {
+            "name": "Linux-Clang-Release",
+            "configurePreset": "Linux-Clang-Release",
             "output": {
                 "outputOnFailure": true
             },
