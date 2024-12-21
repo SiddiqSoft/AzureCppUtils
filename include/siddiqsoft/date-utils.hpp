@@ -93,14 +93,14 @@ namespace siddiqsoft
             if constexpr (std::is_same_v<T, char>) {
                 // https://en.wikipedia.org/wiki/ISO_8601
                 // yyyy-mm-ddThh:mm:ss.mmmZ
-                std::array<char, 32> buff;
+                std::array<char, 32> buff{};
 
                 strftime(buff.data(), buff.size(), "%FT%T", &timeInfo);
                 return std::format("{}.{:03}Z", buff.data(), msTime);
             }
             else if constexpr (std::is_same_v<T, wchar_t>) {
                 // yyyy-mm-ddThh:mm:ss.mmmZ
-                std::array<wchar_t, 32> buff;
+                std::array<wchar_t, 32> buff{};
 
                 wcsftime(buff.data(), buff.size(), L"%FT%T", &timeInfo);
                 return std::format(L"{}.{:03}Z", buff.data(), msTime);

@@ -534,17 +534,18 @@ namespace siddiqsoft
 
         auto x_iso8601 = DateUtils::ISO8601<wchar_t>(tsNow);
         std::wcerr << L"x_iso8601     : " << x_iso8601 << std::endl;
-        std::wcerr << std::format(L"x_iso8601: {}\n", x_iso8601) << std::endl;
+        std::wcerr << std::format(L"x_iso8601     : {}\n", x_iso8601) << std::endl;
         auto y_tp = DateUtils::parseISO8601<wchar_t>(x_iso8601);
-        std::wcerr << "y_tp          : " << y_tp.time_since_epoch().count() << std::endl;
-        std::wcerr << std::format(L"y_tp: {}\n", y_tp.time_since_epoch().count()) << std::endl;
+        std::wcerr << L"tsNow         : " << tsNow << std::endl;
+        std::wcerr << L"y_tp          : " << y_tp.time_since_epoch().count() << std::endl;
+        std::wcerr << std::format(L"y_tp          : {}\n", y_tp.time_since_epoch().count()) << std::endl;
         auto x_iso8601_rt = DateUtils::ISO8601<wchar_t>(y_tp);
         std::wcerr << L"x_iso8601_rt  : " << x_iso8601_rt << std::endl;
-        std::wcerr << std::format(L"x_iso8601_rt: {}\n", x_iso8601_rt) << std::endl;
+        std::wcerr << std::format(L"x_iso8601_rt  : {}\n", x_iso8601_rt) << std::endl;
 
         auto [delta, deltastr] = DateUtils::diff<wchar_t>(tsNow, y_tp);
-        std::wcerr << std::format(L"deltaMS: {}\n", delta) << std::endl;
-        std::wcerr << std::format(L"delta  : {}\n", deltastr) << std::endl;
+        std::wcerr << std::format(L"deltaMS       : {}\n", delta) << std::endl;
+        std::wcerr << std::format(L"delta         : {}\n", deltastr) << std::endl;
 
         EXPECT_EQ(x_iso8601, x_iso8601_rt);
     }
