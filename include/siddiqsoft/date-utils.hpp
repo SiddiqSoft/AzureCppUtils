@@ -44,6 +44,7 @@
 #include <string>
 #include <concepts>
 #include <format>
+#include <array>
 
 
 /// @brief SiddiqSoft
