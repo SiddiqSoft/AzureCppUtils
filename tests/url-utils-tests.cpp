@@ -1,4 +1,4 @@
-﻿/*
+/*
     AzureCppUtils : Azure Utilities for Modern C++
 
     BSD 3-Clause License
@@ -53,6 +53,16 @@ namespace siddiqsoft
         EXPECT_EQ(expected_result, result);
     }
 
+    TEST(UrlUtils, urlescape_1w)
+    {
+        // https://www.urlencoder.io
+        std::wstring src             = LR"(zaqxswcdevfrbgtnhymju,ki.lo/;p'[]\=-0987654321`)";
+        std::wstring expected_result = LR"(zaqxswcdevfrbgtnhymju%2Cki.lo%2F%3Bp%27%5B%5D%5C%3D-0987654321%60)";
+
+        auto result                 = UrlUtils::encode<wchar_t>(src);
+        EXPECT_EQ(expected_result, result);
+    }
+
     TEST(UrlUtils, urlescape_2)
     {
         std::string src = R"(~!@#$%^&*()_+|}{POIUYTREWQASDFGHJKL:"?><MNBVCXZ)";
@@ -62,9 +72,18 @@ namespace siddiqsoft
         EXPECT_EQ(expected_result, result);
     }
 
+    TEST(UrlUtils, urlescape_2w)
+    {
+        std::wstring src             = LR"(~!@#$%^&*()_+|}{POIUYTREWQASDFGHJKL:"?><MNBVCXZ)";
+        std::wstring expected_result = L"~%21%40%23%24%25%5E%26%2A%28%29_%2B%7C%7D%7BPOIUYTREWQASDFGHJKL%3A%22%3F%3E%3CMNBVCXZ";
+
+        auto result                 = UrlUtils::encode<wchar_t>(src);
+        EXPECT_EQ(expected_result, result);
+    }
+
     TEST(UrlUtils, urlescape_3)
     {
-        std::string src = R"("صديق")";
+        std::string src = "\"صديق\"";
         std::string expected_result = "%22%D8%B5%D8%AF%D9%8A%D9%82%22";
 
         auto result = UrlUtils::encode<char>(src);

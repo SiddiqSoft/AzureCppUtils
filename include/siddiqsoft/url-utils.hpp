@@ -78,18 +78,24 @@ namespace siddiqsoft
             std::basic_string<T> retOutput {};
 
 
-            std::ranges::for_each(source, [&retOutput, &lowerCase](auto ch) {
-                if ((ch >= 48 && ch <= 57) || (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122)) {
-                    // Take care of 0..9 A..Z and a..z return them as-is
-                    std::format_to(std::back_inserter(retOutput), _NORW(T, "{}"), ch);
-                }
-                else if (ch == '.' || ch == '-' || ch == '~' || ch == '_') {
+            std::ranges::for_each(source, [&retOutput, &lowerCase](T ch) {
+                if (((ch >= 48 && ch <= 57) || (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122)) ||
+                    (ch == '.' || ch == '-' || ch == '~' || ch == '_'))
+                {
+                    // Takes care of 0-9, A-Z and a-z as well as some
                     // Other special cases
-                    std::format_to(std::back_inserter(retOutput), _NORW(T, "{}"), ch);
+                    if constexpr (std::is_same_v<T, char>)
+                        std::format_to(std::back_inserter(retOutput), "{}", ch);
+                    else if constexpr (std::is_same_v<T, wchar_t>)
+                        std::format_to(std::back_inserter(retOutput), L"{}", ch);
                 }
                 else {
-                    lowerCase ? std::format_to(std::back_inserter(retOutput), "%{:02x}", ch)
-                              : std::format_to(std::back_inserter(retOutput), "%{:02X}", ch);
+                    if constexpr (std::is_same_v<T, char>)
+                        lowerCase ? std::format_to(std::back_inserter(retOutput), "%{:02x}", ch)
+                                  : std::format_to(std::back_inserter(retOutput), "%{:02X}", ch);
+                    else if constexpr (std::is_same_v<T, wchar_t>)
+                        lowerCase ? std::format_to(std::back_inserter(retOutput), L"%{:02x}", ch)
+                                  : std::format_to(std::back_inserter(retOutput), L"%{:02X}", ch);
                 };
             });
 
