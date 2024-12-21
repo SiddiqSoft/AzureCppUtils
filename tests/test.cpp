@@ -34,6 +34,7 @@
 
 
 #include "gtest/gtest.h"
+#include <chrono>
 #include <iostream>
 
 #include "siddiqsoft/conversion-utils.hpp"
@@ -520,10 +521,12 @@ namespace siddiqsoft
         std::cerr << "x_iso8601_rt  : " << x_iso8601_rt << std::endl;
         std::cerr << std::format("x_iso8601_rt: {}\n", x_iso8601_rt) << std::endl;
 
+        // There must be no difference between the original and the round-trip!
         auto [delta, deltastr] = DateUtils::diff<char>(tsNow, y_tp);
         std::cerr << std::format("deltaMS: {}\n", delta) << std::endl;
         std::cerr << std::format("delta  : {}\n", deltastr) << std::endl;
-
+        EXPECT_EQ(std::chrono::milliseconds(0), delta);
+        
         EXPECT_EQ(x_iso8601, x_iso8601_rt);
     }
 
@@ -546,6 +549,7 @@ namespace siddiqsoft
         auto [delta, deltastr] = DateUtils::diff<wchar_t>(tsNow, y_tp);
         std::wcerr << std::format(L"deltaMS       : {}\n", delta) << std::endl;
         std::wcerr << std::format(L"delta         : {}\n", deltastr) << std::endl;
+        EXPECT_EQ(std::chrono::milliseconds(0), delta);
 
         EXPECT_EQ(x_iso8601, x_iso8601_rt);
     }

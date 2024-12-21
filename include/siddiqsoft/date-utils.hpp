@@ -35,6 +35,7 @@
 #pragma once
 
 #include <cstdint>
+#include <stdexcept>
 #ifndef DATE_UTILS_HPP
 #define DATE_UTILS_HPP
 
@@ -79,30 +80,27 @@ namespace siddiqsoft
             requires std::same_as<T, char> || std::same_as<T, wchar_t>
         static std::basic_string<T> ISO8601(const std::chrono::system_clock::time_point& rawtp = std::chrono::system_clock::now())
         {
-            const auto rawtime = std::chrono::system_clock::to_time_t(rawtp);
-            tm         timeInfo {};
+            // https://en.wikipedia.org/wiki/ISO_8601
+            // yyyy-mm-ddThh:mm:ss.mmmZ
+            std::array<T, 32> buff {};
+            const auto        rawtime = std::chrono::system_clock::to_time_t(rawtp);
+            tm                timeInfo {};
             // We need to get the fractional milliseconds from the raw time point.
             auto msTime = std::chrono::duration_cast<std::chrono::milliseconds>(rawtp.time_since_epoch()).count() % 1000;
+
 // Get the UTC time packet.
 #if defined(WIN32) || defined(_WIN32) || defined(_WIN64)
             const auto ec = gmtime_s(&timeInfo, &rawtime);
             if (ec == EINVAL) throw std::invalid_argument("Invalid argument time");
-#else
-            gmtime_r(&rawtime, &timeInfo);
+#elif defined(__linux__) || defined(__APPLE__)
+            if (NULL == gmtime_r(&rawtime, &timeInfo)) throw std::invalid_argument("Invalid argument time");
 #endif
 
             if constexpr (std::is_same_v<T, char>) {
-                // https://en.wikipedia.org/wiki/ISO_8601
-                // yyyy-mm-ddThh:mm:ss.mmmZ
-                std::array<char, 32> buff{};
-
                 strftime(buff.data(), buff.size(), "%FT%T", &timeInfo);
                 return std::format("{}.{:03}Z", buff.data(), msTime);
             }
             else if constexpr (std::is_same_v<T, wchar_t>) {
-                // yyyy-mm-ddThh:mm:ss.mmmZ
-                std::array<wchar_t, 32> buff{};
-
                 wcsftime(buff.data(), buff.size(), L"%FT%T", &timeInfo);
                 return std::format(L"{}.{:03}Z", buff.data(), msTime);
             }
@@ -361,7 +359,7 @@ namespace siddiqsoft
             requires std::same_as<T, char> || std::same_as<T, wchar_t>
         static std::chrono::system_clock::time_point parseISO8601(const std::basic_string<T>& arg)
         {
-            uint32_t yearPart = 0, monthPart = 0, dayPart = 0, hourPart = 0, minutePart = 0, secondPart = 0, millisecondPart = 0;
+            int yearPart = 0, monthPart = 0, dayPart = 0, hourPart = 0, minutePart = 0, secondPart = 0, millisecondPart = 0;
 
             if constexpr (std::is_same_v<T, char>) {
 #if defined(WIN32) || defined(_WIN32) || defined(_WIN64) || defined(WIN64)
@@ -398,6 +396,7 @@ namespace siddiqsoft
                           &secondPart,
                           &millisecondPart);
 #elif defined(__linux__) || defined(__APPLE__)
+                // There is a bug in this implementation for Clang
                 swscanf(arg.data(),
                         L"%d-%d-%dT%d:%d:%d.%ldZ",
                         &yearPart,
