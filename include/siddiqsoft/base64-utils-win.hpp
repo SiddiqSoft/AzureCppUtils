@@ -83,7 +83,7 @@ namespace siddiqsoft
 
                     return encodeVal;
                 }
-                if constexpr (std::is_same_v<T, wchar_t>) {
+                else if constexpr (std::is_same_v<T, wchar_t>) {
                     std::ranges::for_each(encodeVal, [](T& ch) {
                         if (ch == L'+')
                             ch = L'-';

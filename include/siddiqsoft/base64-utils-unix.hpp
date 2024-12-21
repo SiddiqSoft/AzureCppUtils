@@ -83,7 +83,7 @@ namespace siddiqsoft
 
                     return encodeVal;
                 }
-                if constexpr (std::is_same_v<T, wchar_t>) {
+                else if constexpr (std::is_same_v<T, wchar_t>) {
                     std::ranges::for_each(encodeVal, [](T& ch) {
                         if (ch == L'+')
                             ch = L'-';
@@ -114,7 +114,7 @@ namespace siddiqsoft
             uint32_t destSize = 0;
 
             // Fall-through is failure; return empty string
-            return std::basic_string<T>{};
+            return std::basic_string<T> {};
         }
 
 
@@ -130,7 +130,6 @@ namespace siddiqsoft
             uint32_t destSize = 0;
 
             if (textuallyEncoded.empty()) return {};
-
 
 
             // Fall-through is failure; return empty string
