@@ -27,7 +27,10 @@ if(${${PROJECT_NAME}_BUILD_TESTS})
                     ${PROJECT_SOURCE_DIR}/tests/date-utils-tests.cpp)
     endif()
 
-    if((CMAKE_CXX_COMPILER_ID MATCHES [Cc][Ll][Aa][Nn][Gg]) OR (CMAKE_CXX_COMPILER_ID MATCHES [Gg][Nn][Uu]) )
+    # ASAN and Coverage only for Debug builds on Linux
+    if(((CMAKE_CXX_COMPILER_ID MATCHES [Cc][Ll][Aa][Nn][Gg]) 
+        OR (CMAKE_CXX_COMPILER_ID MATCHES [Gg][Nn][Uu]))
+       AND (CMAKE_BUILD_TYPE MATCHES [Dd][Ee][Bb][Uu][Gg]))
         message(STATUS "Using sanitizers for leak and address on ${CMAKE_CXX_COMPILER_ID}")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address,leak")
         target_link_libraries(${TESTPROJ} PRIVATE -fsanitize=address,leak)
