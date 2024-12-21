@@ -77,41 +77,28 @@ namespace siddiqsoft
 
 
             std::ranges::for_each(source, [&retOutput, &lowerCase](auto ch) {
-                switch (ch) {
-                    case 0x20:
-                    case 0x22:
-                    case 0x23:
-                    case 0x24:
-                    case 0x25:
-                    case 0x26:
-                    case 0x27:
-                    case 0x3c:
-                    case 0x3e:
-                    case 0x7b:
-                    case 0x7d:
-                    case 0x2f:
-                    case 0x5c:
-                    case 0x40:
-                    case 0x7e:
-                    case 0x7c:
-                    case 0x2c:
-                    case 0x2b:
-                    case 0x3a:
-                    case 0x5b:
-                    case 0x5d:
-                    case 0x3f:
-                    case 0x3d:
-                    case 0x60:
-                        lowerCase ? std::format_to(std::back_inserter(retOutput), "%{:02x}", ch)
-                                  : std::format_to(std::back_inserter(retOutput), "%{:02X}", ch);
-                        break;
-                    default: std::format_to(std::back_inserter(retOutput), _NORW(T, "{}"), ch);
+                if ((ch >= 48 && ch <= 57) || (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122)) {
+                    // Take care of 0..9 A..Z and a..z return them as-is
+                    std::format_to(std::back_inserter(retOutput), _NORW(T, "{}"), ch);
+                }
+                else if (ch == '.' || ch == '-' || ch == '~' || ch == '_') {
+                    // Other special cases
+                    std::format_to(std::back_inserter(retOutput), _NORW(T, "{}"), ch);
+                }
+                else {
+                    lowerCase ? std::format_to(std::back_inserter(retOutput), "%{:02x}", ch)
+                              : std::format_to(std::back_inserter(retOutput), "%{:02X}", ch);
                 };
             });
 
 
             return retOutput;
         }
+
+        UrlUtils(const UrlUtils&)            = default;
+        UrlUtils(UrlUtils&&)                 = default;
+        UrlUtils& operator=(const UrlUtils&) = default;
+        UrlUtils& operator=(UrlUtils&&)      = default;
     };
 } // namespace siddiqsoft
 

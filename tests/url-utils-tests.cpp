@@ -45,8 +45,28 @@ namespace siddiqsoft
 {
     TEST(UrlUtils, urlescape_1)
     {
+        // https://www.urlencoder.io
         std::string src = R"(zaqxswcdevfrbgtnhymju,ki.lo/;p'[]\=-0987654321`)";
-        std::string expected_result= R"(zaqxswcdevfrbgtnhymju%2Cki.lo%2F%3Bp%27%5B%5D%5C%3D-0987654321%60)";
+        std::string expected_result = R"(zaqxswcdevfrbgtnhymju%2Cki.lo%2F%3Bp%27%5B%5D%5C%3D-0987654321%60)";
+
+        auto result = UrlUtils::encode<char>(src);
+        EXPECT_EQ(expected_result, result);
+    }
+
+    TEST(UrlUtils, urlescape_2)
+    {
+        std::string src = R"(~!@#$%^&*()_+|}{POIUYTREWQASDFGHJKL:"?><MNBVCXZ)";
+        std::string expected_result = "~%21%40%23%24%25%5E%26%2A%28%29_%2B%7C%7D%7BPOIUYTREWQASDFGHJKL%3A%22%3F%3E%3CMNBVCXZ";
+
+        auto result = UrlUtils::encode<char>(src);
+        EXPECT_EQ(expected_result, result);
+    }
+
+    TEST(UrlUtils, urlescape_3)
+    {
+        std::string src = R"("صديق")";
+        std::string expected_result = "%22%D8%B5%D8%AF%D9%8A%D9%82%22";
+
         auto result = UrlUtils::encode<char>(src);
         EXPECT_EQ(expected_result, result);
     }

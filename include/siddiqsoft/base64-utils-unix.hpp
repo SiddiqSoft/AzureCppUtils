@@ -59,6 +59,7 @@ namespace siddiqsoft
     struct Base64Utils
     {
         /// @brief URL escape the base64 encoded string
+        ///        This is *not* the same as URL-encoding a string!
         /// @tparam T std::string or std::wstring
         /// @param src The source MUST be a base64 encoded string
         /// @return url encoded base64 source string

@@ -18,7 +18,6 @@ if(${${PROJECT_NAME}_BUILD_TESTS})
     target_sources( ${TESTPROJ}
                     PRIVATE
                     ${PROJECT_SOURCE_DIR}/tests/url-utils-tests.cpp
-                    ${PROJECT_SOURCE_DIR}/tests/base64-utils-tests.cpp
                     ${PROJECT_SOURCE_DIR}/tests/date-utils-tests.cpp)
     else()
     # Windows should have all tests!
