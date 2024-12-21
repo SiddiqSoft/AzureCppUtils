@@ -47,11 +47,6 @@ stages:
     - checkout: self
       fetchDepth: 0
       name: step1
-    - task: NuGetToolInstaller@1
-      displayName: 'Install Nuget'
-      inputs:
-        versionSpec: '>=6.0.0-0'
-        checkLatest: true
     - task: gitversion/setup@3
       displayName: 'Install GitVersion..'
       inputs:
@@ -89,6 +84,12 @@ stages:
           buildConfiguration: '$(BuildType)'
       continueOnError: false
       condition: succeeded()
+    - task: NuGetToolInstaller@1
+      displayName: 'Install Nuget on Windows'
+      inputs:
+        versionSpec: '>=6.0.0-0'
+        checkLatest: true
+      condition: and(succeeded(), startsWith(variables['Agent.OS'], 'Windows'))
     - task: NuGetCommand@2
       displayName: 'NuGet pack v$(GitVersion.MajorMinorPatch)'
       inputs:
@@ -122,12 +123,10 @@ stages:
         changeLogType: 'commitBased'
         addChangeLog: false
         assetUploadMode: 'replace'
-      condition: and(succeeded(), or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Build.SourceBranch'], 'refs/heads/master')))
-      #condition: and(succeeded(), or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Build.SourceBranch'], 'refs/heads/master')), startsWith(variables['Agent.OS'], 'Linux'))
-      #condition: and(succeeded(), or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Build.SourceBranch'], 'refs/heads/master')), startsWith(variables['Agent.OS'], 'Windows'))
-    ###############################################################################################################
-    #### Job buildLinux ###########################################################################################
-    ###############################################################################################################
+      condition: and(succeeded(), or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Build.SourceBranch'], 'refs/heads/master')), startsWith(variables['Agent.OS'], 'Windows'))
+#   ##################################################################################################### #### ## #
+#   #### Job buildLinux ################################################################################# #### ## #
+#   ##################################################################################################### #### ## #
   - job: buildLinux
     displayName: 'Build and Test Linux'
     workspace:
@@ -163,11 +162,6 @@ stages:
     - checkout: self
       fetchDepth: 0
       name: step1
-    - task: NuGetToolInstaller@1
-      displayName: 'Install Nuget'
-      inputs:
-        versionSpec: '>=6.0.0-0'
-        checkLatest: true
     - task: gitversion/setup@3
       displayName: 'Install GitVersion..'
       inputs:
@@ -257,5 +251,4 @@ stages:
         changeLogType: 'commitBased'
         addChangeLog: false
         assetUploadMode: 'replace'
-      #condition: and(succeeded(), or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Build.SourceBranch'], 'refs/heads/master')), startsWith(variables['Agent.OS'], 'Linux'))
-      condition: and(succeeded(), or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Build.SourceBranch'], 'refs/heads/master')), startsWith(variables['Agent.OS'], 'Windows'))
+      condition: and(succeeded(), or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Build.SourceBranch'], 'refs/heads/master')), startsWith(variables['Agent.OS'], 'Linux'))
