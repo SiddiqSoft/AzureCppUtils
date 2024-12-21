@@ -46,6 +46,7 @@
 #include <concepts>
 #include <format>
 #include <array>
+#include "siddiqsoft/conversion-utils.hpp"
 
 
 /// @brief SiddiqSoft
@@ -128,7 +129,6 @@ namespace siddiqsoft
             if (NULL == gmtime_r(&rawtime, &timeInfo)) throw std::runtime_error("Failed gmtime_s");
 #endif
 
-
             // HTTP-date as per RFC 7231:  Tue, 01 Nov 1994 08:12:31 GMT
             // Note that since we are getting the UTC time we should not use the %z or %Z in the strftime format
             // as it returns the local timezone and not GMT.
@@ -190,7 +190,7 @@ namespace siddiqsoft
         {
             tm                                    epoch1tm {};
             uint64_t                              epoch1ntp {0};
-            uint64_t                              epoch1millis {0};
+            uint64_t                              epoch1micro {0};
             std::chrono::system_clock::time_point ret_tp {};
 
             // Convert the argument to unsigned long; this will drop the decimal portion if persent
@@ -201,18 +201,14 @@ namespace siddiqsoft
                 epoch1ntp = std::stoull(arg.data());
                 // Check if we have high-resolution part.
                 if (auto locMilli = arg.find("."); locMilli != std::string::npos) {
-                    epoch1millis = std::stoull(arg.substr(locMilli + 1).data());
-                    epoch1millis *= 1000000; // offset to allow us to avoid the decimals
-                    epoch1millis >>= 32;     // divide by 2^32 => milliseconds.
+                    epoch1micro = std::stoull(arg.substr(locMilli + 1).data());
                 }
             }
             else if constexpr (std::is_same_v<T, std::wstring>) {
                 epoch1ntp = std::stoull(arg.data());
                 // Check if we have high-resolution part.
                 if (auto locMilli = arg.find(L"."); locMilli != std::string::npos) {
-                    epoch1millis = std::stoull(arg.substr(locMilli + 1).data());
-                    epoch1millis *= 1000000; // offset to allow us to avoid the decimals
-                    epoch1millis >>= 32;     // divide by 2^32 => milliseconds.
+                    epoch1micro = std::stoull(arg.substr(locMilli + 1).data());
                 }
             }
 
@@ -231,8 +227,8 @@ namespace siddiqsoft
 
                 // Create the timepoint
                 ret_tp = std::chrono::system_clock::from_time_t(epoch1);
-                // Add the milliseconds
-                ret_tp += std::chrono::milliseconds(epoch1millis);
+                // Add the microseconds
+                ret_tp += std::chrono::microseconds(epoch1micro);
             }
 
             return ret_tp;
@@ -396,16 +392,18 @@ namespace siddiqsoft
                           &secondPart,
                           &millisecondPart);
 #elif defined(__linux__) || defined(__APPLE__)
-                // There is a bug in this implementation for Clang
-                swscanf(arg.data(),
-                        L"%d-%d-%dT%d:%d:%d.%ldZ",
-                        &yearPart,
-                        &monthPart,
-                        &dayPart,
-                        &hourPart,
-                        &minutePart,
-                        &secondPart,
-                        &millisecondPart);
+                // There is a bug in this implementation for GCC and Clang!!
+                // swscanf(arg.data(),
+                //        L"%d-%d-%dT%d:%d:%d.%ldZ",
+                //        &yearPart,
+                //        &monthPart,
+                //        &dayPart,
+                //        &hourPart,
+                //        &minutePart,
+                //        &secondPart,
+                //        &millisecondPart);
+                // Our work-around is to use the utf8 version and return.
+                return parseISO8601<char>(siddiqsoft::ConversionUtils::convert_to<wchar_t,char>(arg));
 #endif
             }
             else {

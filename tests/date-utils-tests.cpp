@@ -36,6 +36,7 @@
 #include "gtest/gtest.h"
 #include <chrono>
 #include <iostream>
+#include <ratio>
 
 #include "siddiqsoft/conversion-utils.hpp"
 #include "../include/siddiqsoft/base64-utils.hpp"
@@ -373,6 +374,26 @@ namespace siddiqsoft
         std::wcerr << L"now_iso8601   : " << DateUtils::ISO8601<wchar_t>() << std::endl;
     }
 
+    TEST(DateUtils, ISO8601_2)
+    {
+        // 1734763627.344906
+        std::chrono::system_clock::time_point ts =
+                std::chrono::system_clock::from_time_t(1734763627) + std::chrono::microseconds(344906);
+
+        auto ts_iso8601 = DateUtils::ISO8601(ts);
+        EXPECT_EQ("2024-12-21T06:47:07.344Z", ts_iso8601);
+    }
+
+    TEST(DateUtils, ISO8601_2_w)
+    {
+        // 1734763627.344906
+        std::chrono::system_clock::time_point ts =
+                std::chrono::system_clock::from_time_t(1734763627) + std::chrono::microseconds(344906);
+
+        auto ts_iso8601 = DateUtils::ISO8601<wchar_t>(ts);
+        EXPECT_EQ(L"2024-12-21T06:47:07.344Z", ts_iso8601);
+    }
+
     TEST(DateUtils, RFC7231_1)
     {
         auto now_ts      = std::chrono::system_clock::now();
@@ -391,6 +412,23 @@ namespace siddiqsoft
         std::wcerr << L"now_rfc7231   : " << DateUtils::RFC7231<wchar_t>() << std::endl;
     }
 
+    TEST(DateUtils, RFC7231_2)
+    {
+        // https://www.epochconverter.com
+        auto ts         = std::chrono::system_clock::from_time_t(1734763627);
+
+        auto ts_rfc7231 = DateUtils::RFC7231(ts);
+        EXPECT_EQ("Sat, 21 Dec 2024 06:47:07 GMT", ts_rfc7231);
+    }
+
+    TEST(DateUtils, RFC7231_2_w)
+    {
+        // https://www.epochconverter.com
+        auto ts         = std::chrono::system_clock::from_time_t(1734763627);
+
+        auto ts_rfc7231 = DateUtils::RFC7231<wchar_t>(ts);
+        EXPECT_EQ(L"Sat, 21 Dec 2024 06:47:07 GMT", ts_rfc7231);
+    }
 
     TEST(DateUtils, toTimespan_1)
     {
@@ -483,11 +521,17 @@ namespace siddiqsoft
 
     TEST(DateUtils, parseEpoch_1)
     {
-        auto xCallStartTime = "1563400635.344906";
-        auto xCallEndTime   = "1563404341.603589";
+        using namespace std::chrono_literals;
+
+        auto xCallStartTime = "1563400635.344906"; // Wed 2019-07-17T21:57:15.344Z
+        auto xCallEndTime   = "1563404341.603589"; // Wed 2019-07-17T22:59:01.603Z
         auto callStartTime  = DateUtils::parseEpoch<std::string>(xCallStartTime);
-        auto callEndTime    = DateUtils::parseEpoch<std::string>(xCallEndTime);
-        auto [delta, ds]    = DateUtils::diff<char>(callEndTime, callStartTime);
+        std::cerr << std::format("{}", callStartTime) << std::endl;
+        auto callEndTime = DateUtils::parseEpoch<std::string>(xCallEndTime);
+        auto [delta, ds] = DateUtils::diff<char>(callEndTime, callStartTime);
+
+        EXPECT_EQ(3706258ms, std::chrono::milliseconds(delta));
+
         std::cerr << "delta         : " << delta << std::endl;
         std::cerr << "ds            : " << ds << std::endl;
         std::cerr << std::format("ds, delta: {}, {}", ds, delta) << std::endl;
@@ -496,11 +540,16 @@ namespace siddiqsoft
 
     TEST(DateUtils, parseEpoch_1_w)
     {
-        auto xCallStartTime = L"1563400635.344906";
-        auto xCallEndTime   = L"1563404341.603589";
+        using namespace std::chrono_literals;
+
+        auto xCallStartTime = L"1563400635.344906"; // Wed 2019-07-17T21:57:15.344Z
+        auto xCallEndTime   = L"1563404341.603589"; // Wed 2019-07-17T22:59:01.603Z
         auto callStartTime  = DateUtils::parseEpoch<std::wstring>(xCallStartTime);
-        auto callEndTime    = DateUtils::parseEpoch<std::wstring>(xCallEndTime);
-        auto [delta, ds]    = DateUtils::diff<wchar_t>(callEndTime, callStartTime);
+        std::wcerr << std::format(L"{}", callStartTime) << std::endl;
+        auto callEndTime = DateUtils::parseEpoch<std::wstring>(xCallEndTime);
+        auto [delta, ds] = DateUtils::diff<wchar_t>(callEndTime, callStartTime);
+        EXPECT_EQ(3706258ms, std::chrono::milliseconds(delta));
+
         std::wcerr << L"delta         : " << delta << std::endl;
         std::wcerr << L"ds            : " << ds << std::endl;
         std::wcerr << std::format(L"ds, delta: {}, {}", ds, delta) << std::endl;
@@ -526,7 +575,7 @@ namespace siddiqsoft
         std::cerr << std::format("deltaMS: {}\n", delta) << std::endl;
         std::cerr << std::format("delta  : {}\n", deltastr) << std::endl;
         EXPECT_EQ(std::chrono::milliseconds(0), delta);
-        
+
         EXPECT_EQ(x_iso8601, x_iso8601_rt);
     }
 

@@ -12,7 +12,7 @@ if(${${PROJECT_NAME}_BUILD_TESTS})
                             $<$<CXX_COMPILER_ID:Clang>:-fexperimental-library> )
     target_sources( ${TESTPROJ}
                     PRIVATE
-                    ${PROJECT_SOURCE_DIR}/tests/test.cpp)
+                    ${PROJECT_SOURCE_DIR}/tests/date-utils-tests.cpp)
 
 
     if((CMAKE_CXX_COMPILER_ID MATCHES [Cc][Ll][Aa][Nn][Gg]) OR (CMAKE_CXX_COMPILER_ID MATCHES [Gg][Cc][Cc]) )
