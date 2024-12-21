@@ -29,11 +29,10 @@ stages:
     workspace:
       clean: all
     pool:
-      poolName: Default
-      osName: Windows_NT
+      name: Default
       vmImage:
       demands:
-      - Agent.OS -equals $(osName)
+        - Agent.OS -equals Windows_NT
     strategy:
       matrix:
         Debug:
@@ -82,12 +81,12 @@ stages:
       condition: succeeded()
       continueOnError: false
     - task: PublishTestResults@2
-      displayName: 'Publish $(buildConfiguration) Test Results test_detail.xml'
+      displayName: 'Publish $(BuildType) Test Results test_detail.xml'
       inputs:
           testResultsFormat: 'JUnit'
           testResultsFiles: '$(System.DefaultWorkingDirectory)/build/$(cmake.preset)/tests/results/test_detail.xml'
           mergeTestResults: true
-          buildConfiguration: '$(buildConfiguration)'
+          buildConfiguration: '$(BuildType)'
       continueOnError: false
       condition: succeeded()
     #### Job buildLinux ###########################################################################################
@@ -95,22 +94,23 @@ stages:
     displayName: 'Build and Test Linux'
     workspace:
       clean: all
-    pool:
-      poolName: Default
-      vmImage:
-      osName: Linux
-      demands:
-        - Agent.OS -equals $(osName)
     strategy:
       matrix:
         Debug:
           BuildType: Debug
-          cmake.preset: 'Linux-$(BuildType)'
+          cmake.preset: 'Linux-Debug'
           MSBuildConfiguration: Debug
+          cmakeExtraArgs: 
         Release:
           BuildType: Release
-          cmake.preset: 'Linux-$(BuildType)'
+          cmake.preset: 'Linux-Release'
+          cmakeExtraArgs: 
           MSBuildConfiguration: Release
+    pool:
+      name: Default
+      vmImage:
+      demands:
+        - Agent.OS -equals Linux
     steps:
     - checkout: self
       fetchDepth: 0
@@ -163,12 +163,12 @@ stages:
         workingDirectory: '$(System.DefaultWorkingDirectory)/build/$(cmake.preset)'
       condition: and(succeeded(), startsWith(variables['Agent.OS'], 'Linux'))
     - task: PublishTestResults@2
-      displayName: 'Publish $(buildConfiguration) Test Results test_detail.xml'
+      displayName: 'Publish $(BuildType) Test Results test_detail.xml'
       inputs:
           testResultsFormat: 'JUnit'
           testResultsFiles: '$(System.DefaultWorkingDirectory)/build/$(cmake.preset)/tests/results/test_detail.xml'
           mergeTestResults: true
-          buildConfiguration: '$(buildConfiguration)'
+          buildConfiguration: '$(BuildType)'
       continueOnError: false
       condition: succeeded()
     - task: PublishCodeCoverageResults@2
