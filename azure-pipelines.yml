@@ -25,7 +25,7 @@ stages:
 # STAGE: BuildTest                                                          #
 #############################################################################
 - stage: BuildTest
-  displayName: 'Building Multiple OS, Testing and Package for Windows'
+  displayName: 'Building, Testing and Package'
   jobs:
   - job: build
     displayName: 'Build and Test'
