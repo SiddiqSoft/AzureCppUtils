@@ -101,14 +101,24 @@ stages:
         - Agent.OS -equals Linux
     strategy:
       matrix:
-        Debug:
+        GCC-Debug:
           BuildType: Debug
-          cmake.preset: 'Linux-Debug'
+          cmake.preset: 'Linux-GCC-Debug'
           MSBuildConfiguration: Debug
           cmakeExtraArgs: 
-        Release:
+        GCC-Release:
           BuildType: Release
-          cmake.preset: 'Linux-Release'
+          cmake.preset: 'Linux-GCC-Release'
+          cmakeExtraArgs: 
+          MSBuildConfiguration: Release
+        Clang-Debug:
+          BuildType: Debug
+          cmake.preset: 'Linux-$(matrix)'
+          MSBuildConfiguration: Debug
+          cmakeExtraArgs: 
+        Clang-Release:
+          BuildType: Release
+          cmake.preset: 'Linux-Clang-Release'
           cmakeExtraArgs: 
           MSBuildConfiguration: Release
     steps:
