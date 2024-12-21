@@ -12,7 +12,9 @@ if(${${PROJECT_NAME}_BUILD_TESTS})
                             $<$<CXX_COMPILER_ID:Clang>:-fexperimental-library> )
 
     # Temporary whilst development of the feature/unix-support branch
-    if((CMAKE_CXX_COMPILER_ID MATCHES [Cc][Ll][Aa][Nn][Gg]) OR (CMAKE_CXX_COMPILER_ID MATCHES [Gg][Cc][Cc]) )
+    if((CMAKE_CXX_COMPILER_ID MATCHES [Cc][Ll][Aa][Nn][Gg])
+        OR (CMAKE_CXX_COMPILER_ID MATCHES [Gg][Cc][Cc])
+        OR (CMAKE_CXX_COMPILER_ID MATCHES [Gg][++]))
     # We add one at a time as we complete the re-implementation
     target_sources( ${TESTPROJ}
                     PRIVATE
