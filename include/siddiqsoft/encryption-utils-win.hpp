@@ -38,6 +38,8 @@
 #define ENCRYPTION_UTILS_WIN_HPP
 
 
+#if defined(_WIN64) || defined(WIN64) || defined(WIN32) || defined(_WIN32)
+
 #include <algorithm>
 #include <iostream>
 #include <chrono>
@@ -48,13 +50,11 @@
 #include <concepts>
 #include <format>
 
-#if defined(_WIN64) || defined(WIN64) || defined(WIN32) || defined(_WIN32)
 #include <Windows.h>
 #include <wincrypt.h>
 #include <bcrypt.h>
 #pragma comment(lib, "bcrypt")
 #pragma comment(lib, "crypt32")
-#endif
 
 #include "siddiqsoft/conversion-utils.hpp"
 #include "base64-utils.hpp"
@@ -341,5 +341,6 @@ namespace siddiqsoft
         }
     };
 } // namespace siddiqsoft
+#endif
 
 #endif // !AZURECPPUTILS_HPP

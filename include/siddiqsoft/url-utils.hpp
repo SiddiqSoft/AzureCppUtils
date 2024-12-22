@@ -79,8 +79,8 @@ namespace siddiqsoft
 
 
             std::ranges::for_each(source, [&retOutput, &lowerCase](T ch) {
-                if (((ch >= 48 && ch <= 57) || (ch >= 65 && ch <= 90) || (ch >= 97 && ch <= 122)) ||
-                    (ch == '.' || ch == '-' || ch == '~' || ch == '_'))
+                if ((((ch >= 48) && (ch <= 57)) || ((ch >= 65) && (ch <= 90)) || ((ch >= 97) && (ch <= 122))) ||
+                    ((ch == '.') || (ch == '-') || (ch == '~') || (ch == '_')))
                 {
                     // Takes care of 0-9, A-Z and a-z as well as some
                     // Other special cases
