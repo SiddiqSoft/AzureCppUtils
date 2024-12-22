@@ -87,9 +87,11 @@ namespace siddiqsoft
         }
     }
 
-
+#if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
     TEST(Base64Utils, test1a_w)
     {
+        // This test works only for Windows; the native functions support UTF-16 encoding/decoding
+        // whereas the OpenSSL version only supports utf-8
         std::wstring sample {L"@#$%67yhgbjko)(*&^%EsdfghjGFR%^Yghji876tY7<>:{}\">+_(*^$#~jgHJ"};
         std::wstring targetSample {L"QAAjACQAJQA2ADcAeQBoAGcAYgBqAGsAbwApACgAKgAmAF4AJQBFAHMAZABmAGcAaABqAEcARgBSACUAXgBZAGcAaABqAG"
                                    L"kAOAA3ADYAdABZADcAPAA+ADoAewB9ACIAPgArAF8AKAAqAF4AJAAjAH4AagBnAEgASgA="}; // UTF-16 decode
@@ -113,8 +115,10 @@ namespace siddiqsoft
 
     TEST(Base64Utils, test1b_w)
     {
+        // This test works only for Windows; the native functions support UTF-16 encoding/decoding
+        // whereas the OpenSSL version only supports utf-8
         std::wstring sample {L"hello.world"};
-        std::wstring targetSample {L"aABlAGwAbABvAC4AdwBvAHIAbABkAA=="};
+        std::wstring targetSample {L"aABlAGwAbABvAC4AdwBvAHIAbABkAA=="}; // utf-16; will not work for unix
 
         try {
             auto result = Base64Utils::encode(sample);
@@ -132,6 +136,7 @@ namespace siddiqsoft
             EXPECT_FALSE("No match.");
         }
     }
+#endif
 
     TEST(Base64Utils, test1c_w)
     {

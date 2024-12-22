@@ -35,6 +35,8 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
+#include <type_traits>
 #ifndef BASE64_UTILS_UNIX_HPP
 #define BASE64_UTILS_UNIX_HPP
 
@@ -110,9 +112,29 @@ namespace siddiqsoft
         /// with the necessary options. The implementation here is focussed on meeting the requirements for Azure services.
         template <typename T = char>
             requires std::same_as<T, char> || std::same_as<T, wchar_t>
-        static std::basic_string<T> encode(const std::basic_string<T>& argBin)
+        static std::basic_string<T> encode(const std::basic_string<T>& source)
         {
-            uint32_t destSize = 0;
+            if constexpr (std::is_same_v<T, char>) {
+                // The OpenSSL interface only supports char/utf-8
+                uint32_t destSize = 0;
+                // Overallocate the destination buffer this is especially true for utf-8 contents
+                std::basic_string<T> dest(4 * source.length(), 0);
+
+                if (destSize = EVP_EncodeBlock(reinterpret_cast<unsigned char*>(dest.data()),
+                                               reinterpret_cast<const unsigned char*>(source.data()),
+                                               source.length());
+                    destSize > 0)
+                {
+                    dest.resize(destSize);
+                    return dest;
+                }
+            }
+            else {
+                // Convert the source to char from wchar_t
+                // encode as char
+                // Then encode the result back to the wchar_t
+                return ConversionUtils::convert_to<char, wchar_t>(encode<char>(ConversionUtils::convert_to<wchar_t, char>(source)));
+            }
 
             // Fall-through is failure; return empty string
             return std::basic_string<T> {};
@@ -126,12 +148,39 @@ namespace siddiqsoft
         /// with the necessary options. The implementation here is focussed on meeting the requirements for Azure services.
         template <typename T = char>
             requires std::same_as<T, char> || std::same_as<T, wchar_t>
-        static std::basic_string<T> decode(const std::basic_string<T>& textuallyEncoded)
+        static std::basic_string<T> decode(const std::basic_string<T>& source)
         {
-            uint32_t destSize = 0;
+            if constexpr (std::is_same_v<T, char>) {
+                // The OpenSSL interface only supports char/utf-8
+                uint32_t destSize = 0;
+                // Going from encoded to normal utf results in a "smaller" destination so we
+                // will leave the reservation to same length as the source and resize
+                std::basic_string<T> dest(source.length(), 0);
 
-            if (textuallyEncoded.empty()) return {};
+                if (destSize = EVP_DecodeBlock(reinterpret_cast<unsigned char*>(dest.data()),
+                                               reinterpret_cast<const unsigned char*>(source.data()),
+                                               source.length());
+                    destSize > 0)
+                {
+                    // Remove/trim the padded \0 at the end
+                    // Start from the end and if we see a \0 then decrease the destSize
+                    while ((destSize > 0) && dest.at(destSize) == '\0') {
+                        if (destSize > 0 && dest.at(destSize - 1) != '\0')
+                            break;
+                        else
+                            destSize--;
+                    };
 
+                    dest.resize(destSize);
+                    return dest;
+                }
+            }
+            else {
+                // Convert the source to char from wchar_t
+                // encode as char
+                // Then encode the result back to the wchar_t
+                return ConversionUtils::convert_to<char, wchar_t>(decode<char>(ConversionUtils::convert_to<wchar_t, char>(source)));
+            }
 
             // Fall-through is failure; return empty string
             return {};
