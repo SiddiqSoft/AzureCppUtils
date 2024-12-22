@@ -74,10 +74,6 @@ namespace siddiqsoft
      */
     struct EncryptionUtils
     {
-        EncryptionUtils() { OpenSSL_add_all_digests(); }
-
-        ~EncryptionUtils() { EVP_cleanup(); }
-
         /**
          * @brief Calculate digest MD4, MD5
          *
