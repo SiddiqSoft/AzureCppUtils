@@ -218,21 +218,3 @@ stages:
       inputs:
         summaryFileLocation: '$(System.DefaultWorkingDirectory)/build/$(cmake.preset)/tests/results/coverage.*'
       condition: and(succeeded(), startsWith(variables['Agent.OS'], 'Linux'), startsWith(variables['Agent.OSArchitecture'], 'X64'), eq(variables['BuildType'], 'Debug'))
-    - task: GitHubRelease@1
-      displayName: 'Release to GitHub'
-      inputs:
-        gitHubConnection: 'github-packages-sqs'
-        repositoryName: '$(Build.Repository.Name)'
-        action: 'create'
-        target: '$(Build.SourceVersion)'
-        tagSource: 'userSpecifiedTag'
-        tag: '$(GitVersion.MajorMinorPatch)'
-        title: 'v$(GitVersion.MajorMinorPatch)'
-        releaseNotesSource: 'inline'
-        releaseNotesInline: 'Documentation https://github.com/$(Build.Repository.Name)'
-        isPreRelease: true
-        changeLogCompareToRelease: 'lastFullRelease'
-        changeLogType: 'commitBased'
-        addChangeLog: false
-        assetUploadMode: 'replace'
-      condition: and(succeeded(), eq(variables['BuildType'], 'Release'), or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Build.SourceBranch'], 'refs/heads/master')), startsWith(variables['Agent.OS'], 'Linux'))
