@@ -88,13 +88,14 @@ namespace siddiqsoft
         /*
             Now: 1629607976 --> 1629608276
             SASToken: SharedAccessSignature
-           sr=myNamespace.servicebus.windows.net%2fmyEventHub&sig=%2bl9P4WDuWjGTXrA8PeFKGl0g9Nj5OnynM55TK3huc1M%3d&se=1629608276&skn=RootManageSharedAccessKey
+            sr=myNamespace.servicebus.windows.net%2fmyEventHub&sig=%2bl9P4WDuWjGTXrA8PeFKGl0g9Nj5OnynM55TK3huc1M%3d&se=1629608276&skn=RootManageSharedAccessKey
         */
         std::string keyname {"RootManageSharedAccessKey"};
-        std::string secret {"myPrimaryKey"};
-
-        auto url = "myNamespace.servicebus.windows.net/myEventHub";
-        auto sas = EncryptionUtils::SASToken<char>(secret, url, keyname, "1629608276");
+        std::string key {"myPrimaryKey"};
+        std::string url = "myNamespace.servicebus.windows.net/myEventHub";
+        // In this test, we're providing the epoch as the expiry string.
+        // corresponds to Sunday, August 22, 2021 4:57:56 AM UTC
+        auto sas = EncryptionUtils::SASToken<char>(key, url, keyname, "1629608276");
 
         // clang-format off
         EXPECT_EQ("SharedAccessSignature sr=myNamespace.servicebus.windows.net%2fmyEventHub&sig=%2bl9P4WDuWjGTXrA8PeFKGl0g9Nj5OnynM55TK3huc1M%3d&se=1629608276&skn=RootManageSharedAccessKey",

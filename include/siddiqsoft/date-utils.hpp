@@ -3,7 +3,7 @@
 
     BSD 3-Clause License
 
-    Copyright (c) 2021, Siddiq Software LLC
+    Copyright (c) 2021, Siddiq Software
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -34,11 +34,11 @@
 
 #pragma once
 
-#include <cstdint>
-#include <stdexcept>
 #ifndef DATE_UTILS_HPP
 #define DATE_UTILS_HPP
 
+#include <cstdint>
+#include <stdexcept>
 #include <ctime>
 #include <iostream>
 #include <chrono>
@@ -46,6 +46,7 @@
 #include <concepts>
 #include <format>
 #include <array>
+
 #include "siddiqsoft/conversion-utils.hpp"
 
 
@@ -72,6 +73,21 @@ namespace siddiqsoft
     /// @brief Date Time utilities for REST API
     struct DateUtils
     {
+        /**
+         * @brief Helper function to get the epoch duration in seconds from a given time or the current time.
+         *
+         * @param incrementValue Timeout/duration in seconds
+         * @param rawtp The target date; defaults to the current time
+         * @return std::chrono::seconds const The value of rawtp + incrementValue
+         */
+        static auto epochPlus(std::chrono::seconds                         incrementValue,
+                              const std::chrono::system_clock::time_point& rawtp = std::chrono::system_clock::now())
+                -> std::chrono::seconds const
+        {
+            return std::chrono::duration_cast<std::chrono::seconds>((rawtp + incrementValue).time_since_epoch());
+        }
+
+
         /// @brief Converts the argument to ISO8601 format
         /// @tparam T Must be string or wstring
         /// @param rawtp time_point representing the time. Defaults to "now"
@@ -185,7 +201,8 @@ namespace siddiqsoft
         /// @param arg A string or wstring
         /// @return time_point
         template <class T = std::string>
-            requires std::same_as<T, std::string> || std::same_as<T, std::wstring> || std::same_as<T, uint64_t>
+            requires std::same_as<T, std::string> || std::same_as<T, std::wstring> || std::same_as<T, uint64_t> ||
+                     std::same_as<T, uint32_t> || std::same_as<T, int>
         static std::chrono::system_clock::time_point parseEpoch(const T& arg)
         {
             tm                                    epoch1tm {};
@@ -195,7 +212,7 @@ namespace siddiqsoft
 
             // Convert the argument to unsigned long; this will drop the decimal portion if persent
             // and yields the number of seconds since epoch.
-            if constexpr (std::is_same_v<T, uint64_t>)
+            if constexpr (std::is_same_v<T, uint64_t> || std::is_same_v<T, uint32_t> || std::is_same_v<T, int>)
                 epoch1ntp = arg;
             else if constexpr (std::is_same_v<T, std::string>) {
                 epoch1ntp = std::stoull(arg.data());
@@ -403,7 +420,7 @@ namespace siddiqsoft
                 //        &secondPart,
                 //        &millisecondPart);
                 // Our work-around is to use the utf8 version and return.
-                return parseISO8601<char>(siddiqsoft::ConversionUtils::convert_to<wchar_t,char>(arg));
+                return parseISO8601<char>(siddiqsoft::ConversionUtils::convert_to<wchar_t, char>(arg));
 #endif
             }
             else {

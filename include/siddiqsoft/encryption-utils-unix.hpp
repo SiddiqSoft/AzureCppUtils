@@ -3,7 +3,7 @@
 
     BSD 3-Clause License
 
-    Copyright (c) 2021, Siddiq Software LLC
+    Copyright (c) 2021, Siddiq Software
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -34,13 +34,13 @@
 
 #pragma once
 
-#include <iterator>
-#include <stdexcept>
-#include <type_traits>
 #ifndef ENCRYPTION_UTILS_UNIX_HPP
 #define ENCRYPTION_UTILS_UNIX_HPP
 
 #if defined(__linux__) || defined(__APPLE__)
+#include <iterator>
+#include <stdexcept>
+#include <type_traits>
 #include <algorithm>
 #include <iostream>
 #include <chrono>
@@ -130,12 +130,6 @@ namespace siddiqsoft
             return EncryptionUtils::calcDigest("MD5", ConversionUtils::convert_to<T, char>(source));
         }
 
-
-        /// @brief Returns binary HMAC using SHA-256.
-        /// https://www.liavaag.org/English/SHA-Generator/HMAC/
-        /// @param message Source text
-        /// @param key Source key; MUST NOT be base64 encoded
-        /// @return Binary enclosed in string (narrow); you must base64encode to get useful result.
 
         /**
          * @brief Returns binary HMAC using SHA-256.

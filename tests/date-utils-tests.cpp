@@ -42,6 +42,15 @@
 
 namespace siddiqsoft
 {
+    TEST(DateUtils, epochPlus_1)
+    {
+        auto currTime = DateUtils::parseEpoch<>(1629608266);
+        // Allows for 10 duration from the currTime listed above
+        auto timeoutEpochTicks = DateUtils::epochPlus(std::chrono::seconds(10), currTime);
+
+        EXPECT_EQ(std::chrono::seconds(1629608276), timeoutEpochTicks);
+    }
+
     TEST(DateUtils, ISO8601_1)
     {
         auto now_ts      = std::chrono::system_clock::now();
