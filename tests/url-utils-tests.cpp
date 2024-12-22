@@ -83,10 +83,20 @@ namespace siddiqsoft
 
     TEST(UrlUtils, urlescape_3)
     {
-        std::string src = "\"صديق\"";
-        std::string expected_result = "%22%D8%B5%D8%AF%D9%8A%D9%82%22";
+        std::string src = R"(صديق)";
+        std::string expected_result = "%D8%B5%D8%AF%D9%8A%D9%82";
 
         auto result = UrlUtils::encode<char>(src);
+        EXPECT_EQ(expected_result, result);
+    }
+
+    TEST(UrlUtils, urlescape_3w)
+    {
+        // The library always encodes in UTF-8 despite the container
+        std::wstring src = LR"(صديق)";
+        std::wstring expected_result = L"%D8%B5%D8%AF%D9%8A%D9%82";
+
+        auto result = UrlUtils::encode<wchar_t>(src);
         EXPECT_EQ(expected_result, result);
     }
 } // namespace siddiqsoft

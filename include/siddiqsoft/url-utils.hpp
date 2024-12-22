@@ -34,6 +34,7 @@
 
 #pragma once
 
+#include <type_traits>
 #ifndef URL_UTILS_HPP
 #define URL_UTILS_HPP
 
@@ -67,38 +68,39 @@ namespace siddiqsoft
     /// @brief Url encode function
     struct UrlUtils
     {
-        /// @brief Helper to encode the given string in context of the HTTP url
-        /// @param source Source string
-        /// @param lowerCase Default false --> all conversions to uppercase
-        /// @return Encoded string with uppercase replacement
+        /**
+         * @brief Helper to encode the given string in context of the HTTP url.
+         *        This function always encodes in UTF-8 despite the container
+         * 
+         * @tparam T char or wchar_t
+         * @param source Source string to encode into URL-safe string
+         * @param lowerCase use lowercase (defaults to UPPERCASE)
+         * @return Url-safe string
+         */
         template <typename T = char>
             requires std::same_as<T, char> || std::same_as<T, wchar_t>
         static std::basic_string<T> encode(const std::basic_string<T>& source, bool lowerCase = false)
         {
             std::basic_string<T> retOutput {};
 
-
-            std::ranges::for_each(source, [&retOutput, &lowerCase](T ch) {
-                if ((((ch >= 48) && (ch <= 57)) || ((ch >= 65) && (ch <= 90)) || ((ch >= 97) && (ch <= 122))) ||
-                    ((ch == '.') || (ch == '-') || (ch == '~') || (ch == '_')))
-                {
-                    // Takes care of 0-9, A-Z and a-z as well as some
-                    // Other special cases
-                    if constexpr (std::is_same_v<T, char>)
+            if constexpr (std::is_same_v<T, char>) {
+                std::ranges::for_each(source, [&retOutput, &lowerCase](T ch) {
+                    if ((((ch >= 48) && (ch <= 57)) || ((ch >= 65) && (ch <= 90)) || ((ch >= 97) && (ch <= 122))) ||
+                        ((ch == '.') || (ch == '-') || (ch == '~') || (ch == '_')))
+                    {
+                        // Takes care of 0-9, A-Z and a-z as well as some
+                        // Other special cases
                         std::format_to(std::back_inserter(retOutput), "{}", ch);
-                    else if constexpr (std::is_same_v<T, wchar_t>)
-                        std::format_to(std::back_inserter(retOutput), L"{}", ch);
-                }
-                else {
-                    if constexpr (std::is_same_v<T, char>)
+                    }
+                    else {
                         lowerCase ? std::format_to(std::back_inserter(retOutput), "%{:02x}", ch)
                                   : std::format_to(std::back_inserter(retOutput), "%{:02X}", ch);
-                    else if constexpr (std::is_same_v<T, wchar_t>)
-                        lowerCase ? std::format_to(std::back_inserter(retOutput), L"%{:02x}", ch)
-                                  : std::format_to(std::back_inserter(retOutput), L"%{:02X}", ch);
-                };
-            });
-
+                    };
+                });
+            }
+            else {
+                return ConversionUtils::convert_to<char, T>(encode(ConversionUtils::convert_to<T, char>(source), lowerCase));
+            }
 
             return retOutput;
         }
