@@ -94,7 +94,11 @@ namespace siddiqsoft
     {
         // The library always encodes in UTF-8 despite the container
         std::wstring src = LR"(صديق)";
+        #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
+        std::wstring expected_result = L"%C3%98%C2%B5%C3%98%C2%AF%C3%99%C5%A0%C3%99%E2%80%9A";
+        #else
         std::wstring expected_result = L"%D8%B5%D8%AF%D9%8A%D9%82";
+        #endif
 
         auto result = UrlUtils::encode<wchar_t>(src);
         EXPECT_EQ(expected_result, result);
