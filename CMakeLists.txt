@@ -6,7 +6,7 @@
 #   BUILD_TESTS ON
 #   CI_BUILDID must be set to the gitversion
 # 
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.29)
 
 # _________________
 # Version detection; must preceed the declaration of the actual project()
@@ -20,9 +20,12 @@ project(AzureCppUtils
         VERSION         "${CURRENT_PROJECT_VERSION}"
         LANGUAGES       CXX
         HOMEPAGE_URL    "%%myurl%%"
-        DESCRIPTION     "Azure REST API Helpers for Modern C++. Featuring helper functions for date-time, encryption tokens for Azure REST API as a single header-only package and native Win32 libraries.")
+        DESCRIPTION     "Azure REST API Helpers for Modern C++. Featuring helper functions for date-time, encryption tokens for Azure REST API as a single header-only package. Using OpenSSL on UNIX and native Win32 on Windows.")
 
-
+set( CMAKE_CXX_STANDARD 20)
+set( CMAKE_CXX_STANDARD_REQUIRED On)
+set( CMAKE_CXX_EXTENSIONS Off)
+    
 # ____________________________________
 # Options; define and declare defaults
 option(${PROJECT_NAME}_BUILD_TESTS "${PROJECT_NAME} - Build tests. Uncheck for install only runs" OFF)
@@ -41,6 +44,10 @@ target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_20)
 
 # ____________________________________
 # Dependencies
+find_package(OpenSSL 3.0 REQUIRED)
+include_directories(${OPENSSL_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} INTERFACE OpenSSL::SSL OpenSSL::Crypto)
+
 cpmaddpackage("gh:siddiqsoft/RunOnEnd#1.3.2")
 target_link_libraries(${PROJECT_NAME} INTERFACE RunOnEnd::RunOnEnd)
 cpmaddpackage("gh:siddiqsoft/StringHelpers#1.0.1")

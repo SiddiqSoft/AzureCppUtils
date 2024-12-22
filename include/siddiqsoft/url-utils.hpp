@@ -34,6 +34,7 @@
 
 #pragma once
 
+#include <type_traits>
 #ifndef URL_UTILS_HPP
 #define URL_UTILS_HPP
 
@@ -41,6 +42,8 @@
 #include <string>
 #include <concepts>
 #include <format>
+#include <ranges>
+#include <algorithm>
 
 /// @brief SiddiqSoft
 namespace siddiqsoft
@@ -65,50 +68,39 @@ namespace siddiqsoft
     /// @brief Url encode function
     struct UrlUtils
     {
-        /// @brief Helper to encode the given string in context of the HTTP url
-        /// @param source Source string
-        /// @param lowerCase Default false --> all conversions to uppercase
-        /// @return Encoded string with uppercase replacement
+        /**
+         * @brief Helper to encode the given string in context of the HTTP url.
+         *        This function always encodes in UTF-8 despite the container
+         * 
+         * @tparam T char or wchar_t
+         * @param source Source string to encode into URL-safe string
+         * @param lowerCase use lowercase (defaults to UPPERCASE)
+         * @return Url-safe string
+         */
         template <typename T = char>
             requires std::same_as<T, char> || std::same_as<T, wchar_t>
         static std::basic_string<T> encode(const std::basic_string<T>& source, bool lowerCase = false)
         {
             std::basic_string<T> retOutput {};
 
-
-            std::ranges::for_each(source, [&retOutput, &lowerCase](auto ch) {
-                switch (ch) {
-                    case 0x20:
-                    case 0x22:
-                    case 0x23:
-                    case 0x24:
-                    case 0x25:
-                    case 0x26:
-                    case 0x27:
-                    case 0x3c:
-                    case 0x3e:
-                    case 0x7b:
-                    case 0x7d:
-                    case 0x2f:
-                    case 0x5c:
-                    case 0x40:
-                    case 0x7e:
-                    case 0x7c:
-                    case 0x2c:
-                    case 0x2b:
-                    case 0x3a:
-                    case 0x5b:
-                    case 0x5d:
-                    case 0x3f:
-                    case 0x3d:
-                    case 0x60:
+            if constexpr (std::is_same_v<T, char>) {
+                std::ranges::for_each(source, [&retOutput, &lowerCase](T ch) {
+                    if ((((ch >= 48) && (ch <= 57)) || ((ch >= 65) && (ch <= 90)) || ((ch >= 97) && (ch <= 122))) ||
+                        ((ch == '.') || (ch == '-') || (ch == '~') || (ch == '_')))
+                    {
+                        // Takes care of 0-9, A-Z and a-z as well as some
+                        // Other special cases
+                        std::format_to(std::back_inserter(retOutput), "{}", ch);
+                    }
+                    else {
                         lowerCase ? std::format_to(std::back_inserter(retOutput), "%{:02x}", ch)
                                   : std::format_to(std::back_inserter(retOutput), "%{:02X}", ch);
-                        break;
-                    default: std::format_to(std::back_inserter(retOutput), _NORW(T, "{}"), ch);
-                };
-            });
-
+                    };
+                });
+            }
+            else {
+                return ConversionUtils::convert_to<char, T>(encode(ConversionUtils::convert_to<T, char>(source), lowerCase));
+            }
 
             return retOutput;
         }
