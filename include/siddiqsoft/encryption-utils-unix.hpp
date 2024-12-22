@@ -34,6 +34,9 @@
 
 #pragma once
 
+#include <iterator>
+#include <stdexcept>
+#include <type_traits>
 #ifndef ENCRYPTION_UTILS_UNIX_HPP
 #define ENCRYPTION_UTILS_UNIX_HPP
 
@@ -53,28 +56,82 @@
 #include "url-utils.hpp"
 #include "siddiqsoft/RunOnEnd.hpp"
 
+#include "openssl/evp.h"
+#include "openssl/md5.h"
+#include "openssl/hmac.h"
+#include "openssl/params.h"
+#include "openssl/err.h"
+
 
 /// @brief SiddiqSoft
 namespace siddiqsoft
 {
-    /// @brief Encryption utility functions for ServiceBus, Cosmos, EventGrid, EventHub
-    /// Implementation Note!
-    /// The support for wstring is for completeness and typically the use-case is where we
-    /// fiddle with utf8 data and not utf16 over the internet and especially json documents!
+    /**
+     * @brief Encryption utility functions for ServiceBus, Cosmos, EventGrid, EventHub
+     *        Implementation Note!
+     *        The support for wstring is for completeness and typically the use-case is where we
+     *        fiddle with utf8 data and not utf16 over the internet and especially json documents!
+     */
     struct EncryptionUtils
     {
-        /// @brief Create a MD5 hash for the given source as a string
-        /// @param source Maybe std::string or std::wstring
-        /// @return MD5 of the source argument empty if there is a failure
+        EncryptionUtils() { OpenSSL_add_all_digests(); }
+
+        ~EncryptionUtils() { EVP_cleanup(); }
+
+        /**
+         * @brief Calculate digest MD4, MD5
+         *
+         * @param digestType "MD5" or "MD4"
+         * @param source The source string to calculate the digest
+         * @return std::string returns a string containing the digest as a sequence of hex characters.
+         */
+        static std::string calcDigest(const std::string& digestType, const std::string& source)
+        {
+            std::string result;
+
+            if (!source.empty() && ((digestType.find("MD5") == 0) || (digestType.find("MD4") == 0))) {
+                if (const auto digestAlgorithm = EVP_get_digestbyname(digestType.c_str()); digestAlgorithm != NULL) {
+                    std::unique_ptr<EVP_MD_CTX, decltype(&EVP_MD_CTX_free)> ctx(EVP_MD_CTX_new(), &EVP_MD_CTX_free);
+
+                    if (EVP_DigestInit_ex2(ctx.get(), digestAlgorithm, NULL)) {
+                        if (EVP_DigestUpdate(ctx.get(), source.c_str(), source.length())) {
+                            unsigned char digestValue[EVP_MAX_MD_SIZE];
+                            unsigned int  digestValueLength = 0;
+
+                            if (EVP_DigestFinal_ex(ctx.get(), digestValue, &digestValueLength)) {
+                                // encode and return..
+                                for (int i = 0; i < digestValueLength; i++) {
+                                    std::format_to(std::back_inserter(result), "{:02x}", digestValue[i]);
+                                }
+
+                                return result;
+                            }
+                        }
+                    }
+                }
+                else {
+                    throw std::runtime_error(std::format("Unknown or unsupported `{}` digest type.", digestType).c_str());
+                }
+            }
+
+            return result;
+        }
+
+
+        /**
+         * @brief Create a MD5 hash for the given source as a string
+         *
+         * @tparam T char or wchar_t
+         * @param source Maybe std::string or std::wstring
+         * @return  MD5 of the source argument empty if there is a failure
+         */
         template <typename T = char>
             requires std::same_as<T, char> || std::same_as<T, wchar_t>
         static std::string MD5(const std::basic_string<T>& source)
         {
-            constexpr char rgbDigits[] {"0123456789abcdef"};
-
-
-            // Fall-through failure
-            return {};
+            // Convert from wchar_t or we return as-is for the conversion. The MD5 works on the
+            // utf8 character set.
+            return EncryptionUtils::calcDigest("MD5", ConversionUtils::convert_to<T, char>(source));
         }
 
 
@@ -83,12 +140,52 @@ namespace siddiqsoft
         /// @param message Source text
         /// @param key Source key; MUST NOT be base64 encoded
         /// @return Binary enclosed in string (narrow); you must base64encode to get useful result.
+
+        /**
+         * @brief Returns binary HMAC using SHA-256.
+         *        https://www.liavaag.org/English/SHA-Generator/HMAC/
+         * @tparam T Can be char or wchar_t
+         * @param message The message to generate the HMAC
+         * @param key The key for the given digest generation
+         * @return Binary enclosed in string; you must base64 encode.
+         */
         template <typename T = char>
             requires std::same_as<T, char> || std::same_as<T, wchar_t>
         static std::string HMAC(const std::basic_string<T>& message, const std::string& key)
         {
-            // Fall-through is failure
-            return {};
+            std::string result;
+
+            if constexpr (std::is_same_v<T, char>) {
+                if (!message.empty() && !key.empty()) {
+                    if (const auto digestAlgorithm = EVP_get_digestbyname("SHA256"); digestAlgorithm != NULL) {
+                        std::unique_ptr<EVP_MD_CTX, decltype(&EVP_MD_CTX_free)> ctx(EVP_MD_CTX_new(), &EVP_MD_CTX_free);
+
+
+                        unsigned char digestValue[EVP_MAX_MD_SIZE];
+                        unsigned int  digestValueLength = 0;
+
+                        if (auto rc = ::HMAC(digestAlgorithm,
+                                             key.c_str(),
+                                             key.length(),
+                                             reinterpret_cast<const unsigned char*>(message.c_str()),
+                                             message.length(),
+                                             digestValue,
+                                             &digestValueLength);
+                            rc != NULL)
+                        {
+                            return std::string(reinterpret_cast<char*>(digestValue), digestValueLength);
+                        }
+                    }
+                    else {
+                        throw std::runtime_error(std::format("Unknown or unsupported  digest type.").c_str());
+                    }
+                }
+            }
+            else {
+                return HMAC(ConversionUtils::convert_to<T, char>(message), key);
+            }
+
+            return result;
         }
 
 

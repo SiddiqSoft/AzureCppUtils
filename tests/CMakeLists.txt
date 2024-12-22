@@ -15,24 +15,12 @@ if(${${PROJECT_NAME}_BUILD_TESTS})
                             PRIVATE
                             $<$<CXX_COMPILER_ID:Clang>:-fexperimental-library> )
 
-    # Temporary whilst development of the feature/unix-support branch
-    if((CMAKE_CXX_COMPILER_ID MATCHES [Cc][Ll][Aa][Nn][Gg])
-        OR (CMAKE_CXX_COMPILER_ID MATCHES [Gg][Nn][Uu]))
-    # We add one at a time as we complete the re-implementation
-    target_sources( ${TESTPROJ}
-                    PRIVATE
-                    ${PROJECT_SOURCE_DIR}/tests/base64-utils-tests.cpp
-                    ${PROJECT_SOURCE_DIR}/tests/url-utils-tests.cpp
-                    ${PROJECT_SOURCE_DIR}/tests/date-utils-tests.cpp)
-    else()
-    # Windows should have all tests!
     target_sources( ${TESTPROJ}
                     PRIVATE
                     ${PROJECT_SOURCE_DIR}/tests/encryption-utils-tests.cpp
                     ${PROJECT_SOURCE_DIR}/tests/base64-utils-tests.cpp
                     ${PROJECT_SOURCE_DIR}/tests/url-utils-tests.cpp
                     ${PROJECT_SOURCE_DIR}/tests/date-utils-tests.cpp)
-    endif()
 
     # ASAN and Coverage only for Debug builds on Linux
     if(((CMAKE_CXX_COMPILER_ID MATCHES [Cc][Ll][Aa][Nn][Gg]) 

@@ -47,6 +47,19 @@
 namespace siddiqsoft
 {
     /* Encryption Tests */
+#if defined(__linux__) || defined(__APPLE__)
+    TEST(EncryptionUtils, MD5HashTest_0)
+    {
+        std::string myMessage = "My ^&()=+-_[]{};:\'\"<>?`~ N@me is $0.50! A whole 50 off! #discount./|\\";
+        auto        varKey    = EncryptionUtils::calcDigest("MD5", myMessage);
+        EXPECT_EQ(varKey, "a2cf7440dab41a41487ec62f40d68cee");
+
+        std::string myMessage1 = "happy";
+        auto        varKey1    = EncryptionUtils::calcDigest("MD5", myMessage1);
+        EXPECT_EQ(varKey1, "56ab24c15b72a457069c5ea42fcfc640");
+    }
+#endif
+
     TEST(EncryptionUtils, MD5HashTest)
     {
         std::string myMessage = "My ^&()=+-_[]{};:\'\"<>?`~ N@me is $0.50! A whole 50 off! #discount./|\\";
@@ -164,6 +177,22 @@ namespace siddiqsoft
         // clang-format on
     }
 
+    TEST(EncryptionUtils, HMAC_0)
+    {
+        std::string myData {"hello world"};
+        std::string myKey {"01234567890123456789012345678901"};
+
+        try {
+            auto r1  = EncryptionUtils::HMAC(myData, myKey);
+            auto r1e = Base64Utils::encode(r1);
+            // Using online tool: https://www.liavaag.org/English/SHA-Generator/HMAC/
+            EXPECT_STREQ("B8dXpkmWppplo/hAbiHLuXgIEPFErnypOewwhH1+tPQ=", r1e.c_str());
+        }
+        catch (const std::exception& e) {
+            EXPECT_TRUE(false) << e.what() << std::endl;
+        }
+    }
+
     TEST(EncryptionUtils, HMAC_1)
     {
         std::string myData {"hello \xF0\x9F\x8C\x8E"};
@@ -182,14 +211,14 @@ namespace siddiqsoft
 
     TEST(EncryptionUtils, HMAC_1_w)
     {
-        std::wstring myData {L"hello \xD83C\xDF0E"};
+        std::wstring myData {L"hello صديق"};
         std::string  myKey {"01234567890123456789012345678901"};
 
         try {
-            auto r1 = EncryptionUtils::HMAC<wchar_t>(myData, myKey);
-
+            auto r1  = EncryptionUtils::HMAC<wchar_t>(myData, myKey);
+            auto r1e = Base64Utils::encode(r1);
             // Using online tool: https://www.liavaag.org/English/SHA-Generator/HMAC/
-            EXPECT_STREQ("6zcwPNrzCM1GM/yjRQAvuNOfq35X5b0j0H+BbyfPNx8=", Base64Utils::encode(r1).c_str());
+            EXPECT_STREQ("Sr4F0Mxb/dmb/Rmx3T7sEgV9CptGkX+xdayR9YHgLJA=", r1e.c_str());
         }
         catch (const std::exception& e) {
             EXPECT_TRUE(false) << e.what() << std::endl;
