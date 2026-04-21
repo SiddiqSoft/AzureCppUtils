@@ -164,11 +164,8 @@ namespace siddiqsoft
                 {
                     // Remove/trim the padded \0 at the end
                     // Start from the end and if we see a \0 then decrease the destSize
-                    while ((destSize > 0) && dest.at(destSize) == '\0') {
-                        if (destSize > 0 && dest.at(destSize - 1) != '\0')
-                            break;
-                        else
-                            destSize--;
+                    while ((destSize > 0) && dest.at(destSize - 1) == '\0') {
+                        destSize--;
                     };
 
                     dest.resize(destSize);

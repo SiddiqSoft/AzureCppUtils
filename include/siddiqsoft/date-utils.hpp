@@ -387,7 +387,7 @@ namespace siddiqsoft
                          &millisecondPart);
 #elif defined(__linux__) || defined(__APPLE__)
                 sscanf(arg.data(),
-                       "%d-%d-%dT%d:%d:%d.%udZ",
+                       "%d-%d-%dT%d:%d:%d.%dZ",
                        &yearPart,
                        &monthPart,
                        &dayPart,

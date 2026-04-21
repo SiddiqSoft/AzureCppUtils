@@ -103,4 +103,113 @@ namespace siddiqsoft
         auto result = UrlUtils::encode<wchar_t>(src);
         EXPECT_EQ(expected_result, result);
     }
+
+
+    // ---- Additional Tests ----
+
+    TEST(UrlUtils, encode_empty_string)
+    {
+        std::string empty {};
+        auto        result = UrlUtils::encode<char>(empty);
+        EXPECT_TRUE(result.empty());
+    }
+
+    TEST(UrlUtils, encode_empty_string_w)
+    {
+        std::wstring empty {};
+        auto         result = UrlUtils::encode<wchar_t>(empty);
+        EXPECT_TRUE(result.empty());
+    }
+
+    TEST(UrlUtils, encode_already_safe)
+    {
+        // Alphanumeric and unreserved characters should pass through unchanged
+        std::string src {"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-~_"};
+        auto        result = UrlUtils::encode<char>(src);
+        EXPECT_EQ(src, result);
+    }
+
+    TEST(UrlUtils, encode_space)
+    {
+        // Space should be encoded as %20
+        std::string src {"hello world"};
+        auto        result = UrlUtils::encode<char>(src);
+        EXPECT_EQ("hello%20world", result);
+    }
+
+    TEST(UrlUtils, encode_lowercase_mode)
+    {
+        // In lowercase mode, hex digits should be lowercase
+        std::string src {"hello world"};
+        auto        result = UrlUtils::encode<char>(src, true);
+        EXPECT_EQ("hello%20world", result);
+
+        // Test with a character that has different hex in upper vs lower
+        std::string src2 {"@"};
+        auto        upper = UrlUtils::encode<char>(src2, false);
+        auto        lower = UrlUtils::encode<char>(src2, true);
+        EXPECT_EQ("%40", upper);
+        EXPECT_EQ("%40", lower);
+
+        // Test with a character where case matters: e.g. '[' = 0x5B
+        std::string src3 {"["};
+        auto        upperResult = UrlUtils::encode<char>(src3, false);
+        auto        lowerResult = UrlUtils::encode<char>(src3, true);
+        EXPECT_EQ("%5B", upperResult);
+        EXPECT_EQ("%5b", lowerResult);
+    }
+
+    TEST(UrlUtils, encode_slash)
+    {
+        // '/' should be encoded
+        std::string src {"a/b"};
+        auto        result = UrlUtils::encode<char>(src);
+        EXPECT_EQ("a%2Fb", result);
+    }
+
+    TEST(UrlUtils, encode_question_mark_and_ampersand)
+    {
+        std::string src {"key=value&foo=bar"};
+        auto        result = UrlUtils::encode<char>(src);
+        EXPECT_EQ("key%3Dvalue%26foo%3Dbar", result);
+    }
+
+    TEST(UrlUtils, encode_hash)
+    {
+        std::string src {"page#section"};
+        auto        result = UrlUtils::encode<char>(src);
+        EXPECT_EQ("page%23section", result);
+    }
+
+    TEST(UrlUtils, encode_percent)
+    {
+        // '%' itself should be encoded as %25
+        std::string src {"100%"};
+        auto        result = UrlUtils::encode<char>(src);
+        EXPECT_EQ("100%25", result);
+    }
+
+    TEST(UrlUtils, encode_wchar_space)
+    {
+        std::wstring src {L"hello world"};
+        auto         result = UrlUtils::encode<wchar_t>(src);
+        EXPECT_EQ(L"hello%20world", result);
+    }
+
+    TEST(UrlUtils, encode_wchar_lowercase)
+    {
+        std::wstring src {L"["};
+        auto         upper = UrlUtils::encode<wchar_t>(src, false);
+        auto         lower = UrlUtils::encode<wchar_t>(src, true);
+        EXPECT_EQ(L"%5B", upper);
+        EXPECT_EQ(L"%5b", lower);
+    }
+
+    TEST(UrlUtils, encode_full_url_path)
+    {
+        // A realistic URL path encoding scenario
+        std::string src {"https://example.com/path?q=hello world&lang=en"};
+        auto        result = UrlUtils::encode<char>(src);
+        EXPECT_EQ("https%3A%2F%2Fexample.com%2Fpath%3Fq%3Dhello%20world%26lang%3Den", result);
+    }
 } // namespace siddiqsoft

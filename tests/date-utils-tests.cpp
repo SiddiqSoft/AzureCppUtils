@@ -297,4 +297,195 @@ namespace siddiqsoft
 
         EXPECT_EQ(x_iso8601, x_iso8601_rt);
     }
+
+
+    // ---- Additional Tests ----
+
+    TEST(DateUtils, parseISO8601_known_value)
+    {
+        // Parse a known ISO8601 string and verify the resulting time_point
+        std::string iso {"2024-12-21T06:47:07.344Z"};
+        auto        tp = DateUtils::parseISO8601(iso);
+        // Convert back and compare
+        auto roundTrip = DateUtils::ISO8601(tp);
+        EXPECT_EQ(iso, roundTrip);
+    }
+
+    TEST(DateUtils, parseISO8601_known_value_w)
+    {
+        std::wstring iso {L"2024-12-21T06:47:07.344Z"};
+        auto         tp = DateUtils::parseISO8601<wchar_t>(iso);
+        auto         roundTrip = DateUtils::ISO8601<wchar_t>(tp);
+        EXPECT_EQ(iso, roundTrip);
+    }
+
+    TEST(DateUtils, parseISO8601_zero_millis)
+    {
+        // ISO8601 with zero milliseconds
+        std::string iso {"2020-01-01T00:00:00.000Z"};
+        auto        tp = DateUtils::parseISO8601(iso);
+        auto        roundTrip = DateUtils::ISO8601(tp);
+        EXPECT_EQ(iso, roundTrip);
+    }
+
+    TEST(DateUtils, parseISO8601_invalid_returns_epoch)
+    {
+        // An invalid/empty-ish string should return the default time_point (epoch)
+        std::string bad {"not-a-date"};
+        auto        tp = DateUtils::parseISO8601(bad);
+        EXPECT_EQ(std::chrono::system_clock::time_point {}, tp);
+    }
+
+    TEST(DateUtils, parseEpoch_uint64)
+    {
+        // Parse epoch as uint64_t
+        uint64_t epoch = 1629608266;
+        auto     tp    = DateUtils::parseEpoch<uint64_t>(epoch);
+        auto     iso   = DateUtils::ISO8601(tp);
+        EXPECT_EQ("2021-08-22T04:57:46.000Z", iso);
+    }
+
+    TEST(DateUtils, parseEpoch_uint32)
+    {
+        uint32_t epoch = 1629608266;
+        auto     tp    = DateUtils::parseEpoch<uint32_t>(epoch);
+        auto     iso   = DateUtils::ISO8601(tp);
+        EXPECT_EQ("2021-08-22T04:57:46.000Z", iso);
+    }
+
+    TEST(DateUtils, parseEpoch_int)
+    {
+        int  epoch = 1629608266;
+        auto tp    = DateUtils::parseEpoch<int>(epoch);
+        auto iso   = DateUtils::ISO8601(tp);
+        EXPECT_EQ("2021-08-22T04:57:46.000Z", iso);
+    }
+
+    TEST(DateUtils, parseEpoch_zero_returns_epoch)
+    {
+        // Zero epoch should return the default time_point
+        uint64_t epoch = 0;
+        auto     tp    = DateUtils::parseEpoch<uint64_t>(epoch);
+        EXPECT_EQ(std::chrono::system_clock::time_point {}, tp);
+    }
+
+    TEST(DateUtils, parseEpoch_ntp_timestamp)
+    {
+        // NTP timestamp (> 2208988800) should be adjusted
+        // 2208988800 + 1629608266 = 3838597066
+        uint64_t ntpEpoch = 3838597066ULL;
+        auto     tp       = DateUtils::parseEpoch<uint64_t>(ntpEpoch);
+        auto     iso      = DateUtils::ISO8601(tp);
+        EXPECT_EQ("2021-08-22T04:57:46.000Z", iso);
+    }
+
+    TEST(DateUtils, epochPlus_zero_increment)
+    {
+        auto baseTime = std::chrono::system_clock::from_time_t(1629608266);
+        auto result   = DateUtils::epochPlus(std::chrono::seconds(0), baseTime);
+        EXPECT_EQ(std::chrono::seconds(1629608266), result);
+    }
+
+    TEST(DateUtils, epochPlus_large_increment)
+    {
+        auto baseTime = std::chrono::system_clock::from_time_t(1629608266);
+        // Add 1 hour = 3600 seconds
+        auto result = DateUtils::epochPlus(std::chrono::seconds(3600), baseTime);
+        EXPECT_EQ(std::chrono::seconds(1629608266 + 3600), result);
+    }
+
+    TEST(DateUtils, diff_same_time)
+    {
+        auto now           = std::chrono::system_clock::now();
+        auto [delta, dstr] = DateUtils::diff<char>(now, now);
+        EXPECT_EQ(std::chrono::milliseconds(0), delta);
+        EXPECT_EQ("00:00:00.000", dstr);
+    }
+
+    TEST(DateUtils, diff_same_time_w)
+    {
+        auto now           = std::chrono::system_clock::now();
+        auto [delta, dstr] = DateUtils::diff<wchar_t>(now, now);
+        EXPECT_EQ(std::chrono::milliseconds(0), delta);
+        EXPECT_EQ(L"00:00:00.000", dstr);
+    }
+
+    TEST(DateUtils, diff_known_delta)
+    {
+        auto start         = std::chrono::system_clock::from_time_t(1000000);
+        auto end           = start + std::chrono::seconds(3661) + std::chrono::milliseconds(500);
+        auto [delta, dstr] = DateUtils::diff<char>(end, start);
+        EXPECT_EQ(std::chrono::milliseconds(3661500), delta);
+        EXPECT_EQ("01:01:01.500", dstr);
+    }
+
+    TEST(DateUtils, toTimespan_zero)
+    {
+        EXPECT_EQ("0.00:00:00", DateUtils::toTimespan<>(std::chrono::seconds(0)));
+    }
+
+    TEST(DateUtils, toTimespan_one_day)
+    {
+        // 86400 seconds = 1 day
+        EXPECT_EQ("1.00:00:00", DateUtils::toTimespan<>(std::chrono::seconds(86400)));
+    }
+
+    TEST(DateUtils, toTimespan_complex)
+    {
+        // 90061 seconds = 1 day, 1 hour, 1 minute, 1 second
+        EXPECT_EQ("1.01:01:01", DateUtils::toTimespan<>(std::chrono::seconds(90061)));
+    }
+
+    TEST(DateUtils, toTimespan_wchar)
+    {
+        EXPECT_EQ(L"1.01:01:01", DateUtils::toTimespan<wchar_t>(std::chrono::seconds(90061)));
+    }
+
+    TEST(DateUtils, RFC7231_known_epoch)
+    {
+        // Unix epoch: Thu, 01 Jan 1970 00:00:00 GMT
+        auto ts = std::chrono::system_clock::from_time_t(0);
+        auto r  = DateUtils::RFC7231(ts);
+        EXPECT_EQ("Thu, 01 Jan 1970 00:00:00 GMT", r);
+    }
+
+    TEST(DateUtils, RFC7231_known_epoch_w)
+    {
+        auto ts = std::chrono::system_clock::from_time_t(0);
+        auto r  = DateUtils::RFC7231<wchar_t>(ts);
+        EXPECT_EQ(L"Thu, 01 Jan 1970 00:00:00 GMT", r);
+    }
+
+    TEST(DateUtils, ISO8601_epoch)
+    {
+        auto ts  = std::chrono::system_clock::from_time_t(0);
+        auto iso = DateUtils::ISO8601(ts);
+        EXPECT_EQ("1970-01-01T00:00:00.000Z", iso);
+    }
+
+    TEST(DateUtils, durationString_zero)
+    {
+        auto ds = DateUtils::durationString<char>(std::chrono::seconds(0));
+        EXPECT_EQ("0min 0s", ds);
+    }
+
+    TEST(DateUtils, durationString_just_seconds)
+    {
+        auto ds = DateUtils::durationString<char>(std::chrono::seconds(5));
+        EXPECT_EQ("0min 5s", ds);
+    }
+
+    TEST(DateUtils, durationString_exactly_one_hour)
+    {
+        using namespace std::chrono;
+        auto ds = DateUtils::durationString<char>(1h);
+        EXPECT_EQ("1h 0min 0s", ds);
+    }
+
+    TEST(DateUtils, durationString_exactly_one_day)
+    {
+        using namespace std::chrono;
+        auto ds = DateUtils::durationString<char>(std::chrono::days(1));
+        EXPECT_EQ("1d 0h 0min 0s", ds);
+    }
 } // namespace siddiqsoft

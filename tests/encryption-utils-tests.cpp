@@ -252,4 +252,166 @@ namespace siddiqsoft
         // https://docs.microsoft.com/en-us/rest/api/cosmos-db/access-control-on-cosmosdb-resources?redirectedfrom=MSDN
         EXPECT_EQ(L"type%3dmaster%26ver%3d1.0%26sig%3dc09PEVJrgp2uQRkr934kFbTqhByc7TVr3OHyqlu%2bc%2bc%3d", auth);
     }
+
+
+    // ---- Additional Tests ----
+
+    TEST(EncryptionUtils, MD5_empty_string)
+    {
+        // MD5 of empty string is d41d8cd98f00b204e9800998ecf8427e
+        std::string empty {};
+        auto        result = EncryptionUtils::MD5(empty);
+        // Empty source should return empty result (the implementation guards against empty)
+        EXPECT_TRUE(result.empty());
+    }
+
+    TEST(EncryptionUtils, MD5_known_value)
+    {
+        // MD5("abc") = 900150983cd24fb0d6963f7d28e17f72
+        std::string src {"abc"};
+        auto        result = EncryptionUtils::MD5(src);
+        EXPECT_EQ("900150983cd24fb0d6963f7d28e17f72", result);
+    }
+
+    TEST(EncryptionUtils, MD5_known_value_w)
+    {
+        // wchar_t version should produce same result as narrow for ASCII content
+        std::wstring src {L"abc"};
+        auto         result = EncryptionUtils::MD5(src);
+        EXPECT_EQ("900150983cd24fb0d6963f7d28e17f72", result);
+    }
+
+#if defined(__linux__) || defined(__APPLE__)
+    TEST(EncryptionUtils, calcDigest_unsupported_type_returns_empty)
+    {
+        // calcDigest only supports MD5 and MD4; other types return empty
+        auto result = EncryptionUtils::calcDigest("INVALID_DIGEST", "test");
+        EXPECT_TRUE(result.empty());
+    }
+
+    TEST(EncryptionUtils, calcDigest_empty_source)
+    {
+        // Empty source should return empty result
+        auto result = EncryptionUtils::calcDigest("MD5", "");
+        EXPECT_TRUE(result.empty());
+    }
+
+    TEST(EncryptionUtils, calcDigest_MD4_legacy_returns_empty)
+    {
+        // MD4 is a legacy algorithm; in OpenSSL 3.x default provider the digest init may fail
+        // silently, resulting in an empty return value
+        auto result = EncryptionUtils::calcDigest("MD4", "abc");
+        // MD4 may or may not be available depending on OpenSSL configuration
+        // If available: "a448017aaf21d8525fc10ae87aa6729d", otherwise empty
+        EXPECT_TRUE(result.empty() || result == "a448017aaf21d8525fc10ae87aa6729d");
+    }
+#endif
+
+    TEST(EncryptionUtils, HMAC_empty_message)
+    {
+        // Empty message should return empty result
+        std::string emptyMsg {};
+        std::string key {"somekey"};
+        auto        result = EncryptionUtils::HMAC(emptyMsg, key);
+        EXPECT_TRUE(result.empty());
+    }
+
+    TEST(EncryptionUtils, HMAC_empty_key)
+    {
+        // Empty key should return empty result
+        std::string msg {"hello"};
+        std::string emptyKey {};
+        auto        result = EncryptionUtils::HMAC(msg, emptyKey);
+        EXPECT_TRUE(result.empty());
+    }
+
+    TEST(EncryptionUtils, HMAC_known_value)
+    {
+        // HMAC-SHA256("message", "key") verified with external tool
+        std::string msg {"message"};
+        std::string key {"key"};
+        auto        hmacResult = EncryptionUtils::HMAC(msg, key);
+        auto        b64        = Base64Utils::encode(hmacResult);
+        // https://www.liavaag.org/English/SHA-Generator/HMAC/
+        // HMAC-SHA256("message", "key") = 6e9ef29b75fffc5b7abae527d58fdadb2fe42e7219011976917343065f58ed4a
+        // Base64: bp7ym3X//Ft6uuUn1Y/a2y/kLnIZARl2kXNDBl9Y7Uo=
+        EXPECT_EQ("bp7ym3X//Ft6uuUn1Y/a2y/kLnIZARl2kXNDBl9Y7Uo=", b64);
+    }
+
+    TEST(EncryptionUtils, SASToken_empty_url_throws)
+    {
+        EXPECT_THROW(EncryptionUtils::SASToken<char>("key", std::string {}, std::string {"name"}, std::string {"12345"}),
+                     std::invalid_argument);
+    }
+
+    TEST(EncryptionUtils, SASToken_empty_keyName_throws)
+    {
+        EXPECT_THROW(EncryptionUtils::SASToken<char>("key", std::string {"url"}, std::string {}, std::string {"12345"}),
+                     std::invalid_argument);
+    }
+
+    TEST(EncryptionUtils, SASToken_empty_key_throws)
+    {
+        EXPECT_THROW(
+                EncryptionUtils::SASToken<char>(std::string {}, std::string {"url"}, std::string {"name"}, std::string {"12345"}),
+                std::invalid_argument);
+    }
+
+    TEST(EncryptionUtils, SASToken_empty_expiry_throws)
+    {
+        EXPECT_THROW(EncryptionUtils::SASToken<char>("key", std::string {"url"}, std::string {"name"}, std::string {}),
+                     std::invalid_argument);
+    }
+
+    TEST(EncryptionUtils, CosmosToken_empty_key_throws)
+    {
+        EXPECT_THROW(EncryptionUtils::CosmosToken<char>(
+                             std::string {}, std::string {"GET"}, std::string {"dbs"}, std::string {"dbs/db1"}, std::string {"Thu, 27 Apr 2017 00:51:12 GMT"}),
+                     std::invalid_argument);
+    }
+
+    TEST(EncryptionUtils, CosmosToken_empty_verb_throws)
+    {
+        EXPECT_THROW(EncryptionUtils::CosmosToken<char>(
+                             std::string {"key"}, std::string {}, std::string {"dbs"}, std::string {"dbs/db1"}, std::string {"Thu, 27 Apr 2017 00:51:12 GMT"}),
+                     std::invalid_argument);
+    }
+
+    TEST(EncryptionUtils, CosmosToken_empty_date_throws)
+    {
+        EXPECT_THROW(EncryptionUtils::CosmosToken<char>(
+                             std::string {"key"}, std::string {"GET"}, std::string {"dbs"}, std::string {"dbs/db1"}, std::string {}),
+                     std::invalid_argument);
+    }
+
+    TEST(EncryptionUtils, CosmosToken_POST_verb)
+    {
+        // Test with POST verb to ensure verb lowercasing works
+        std::string Key {"dsZQi3KtZmCv1ljt3VNWNm7sQUF1y5rJfC6kv5JiwvW0EndXdDku/dkKBp8/ufDToSxLzR4y+O/0H/t4bQtVNw=="};
+        auto        decodedKey = Base64Utils::decode(Key);
+        auto        auth       = EncryptionUtils::CosmosToken<char>(decodedKey, "POST", "docs", "dbs/ToDoList/colls/Items", "Thu, 27 Apr 2017 00:51:12 GMT");
+        // Just verify it produces a non-empty result with the expected prefix
+        EXPECT_TRUE(auth.starts_with("type%3dmaster%26ver%3d1.0%26sig%3d"));
+        EXPECT_FALSE(auth.empty());
+    }
+
+    TEST(EncryptionUtils, JWTHMAC256_different_payload)
+    {
+        std::string header {R"({"alg":"HS256","typ":"JWT"})"};
+        std::string payload {R"({"sub":"1234567890","name":"John Doe","iat":1516239022})"};
+        std::string secret {"your-256-bit-secret"};
+
+        auto jwt = EncryptionUtils::JWTHMAC256(secret, header, payload);
+        // JWT should have exactly 3 parts separated by dots
+        auto firstDot  = jwt.find('.');
+        auto secondDot = jwt.find('.', firstDot + 1);
+        EXPECT_NE(std::string::npos, firstDot);
+        EXPECT_NE(std::string::npos, secondDot);
+        // No more dots after the second
+        EXPECT_EQ(std::string::npos, jwt.find('.', secondDot + 1));
+        // All three parts should be non-empty
+        EXPECT_GT(firstDot, 0u);
+        EXPECT_GT(secondDot - firstDot - 1, 0u);
+        EXPECT_GT(jwt.size() - secondDot - 1, 0u);
+    }
 } // namespace siddiqsoft

@@ -180,4 +180,127 @@ namespace siddiqsoft
             EXPECT_FALSE("No match.");
         }
     }
+
+
+    // ---- Additional Tests ----
+
+    TEST(Base64Utils, encode_empty_string)
+    {
+        // Encoding an empty string should return an empty string
+        std::string empty {};
+        auto        result = Base64Utils::encode(empty);
+        EXPECT_TRUE(result.empty()) << "Encoding empty string should yield empty result";
+    }
+
+    TEST(Base64Utils, decode_empty_string)
+    {
+        // Decoding an empty string should return an empty string
+        std::string empty {};
+        auto        result = Base64Utils::decode(empty);
+        EXPECT_TRUE(result.empty()) << "Decoding empty string should yield empty result";
+    }
+
+    TEST(Base64Utils, encode_single_char)
+    {
+        // Single character: 'A' -> base64 "QQ=="
+        std::string sample {"A"};
+        auto        encoded = Base64Utils::encode(sample);
+        EXPECT_EQ("QQ==", encoded);
+        auto decoded = Base64Utils::decode(encoded);
+        EXPECT_EQ(sample, decoded);
+    }
+
+    TEST(Base64Utils, encode_two_chars)
+    {
+        // Two characters: 'AB' -> base64 "QUI="
+        std::string sample {"AB"};
+        auto        encoded = Base64Utils::encode(sample);
+        EXPECT_EQ("QUI=", encoded);
+        auto decoded = Base64Utils::decode(encoded);
+        EXPECT_EQ(sample, decoded);
+    }
+
+    TEST(Base64Utils, encode_three_chars_no_padding)
+    {
+        // Three characters: 'ABC' -> base64 "QUJD" (no padding)
+        std::string sample {"ABC"};
+        auto        encoded = Base64Utils::encode(sample);
+        EXPECT_EQ("QUJD", encoded);
+        auto decoded = Base64Utils::decode(encoded);
+        EXPECT_EQ(sample, decoded);
+    }
+
+    TEST(Base64Utils, roundtrip_binary_like_data)
+    {
+        // Test with data containing null-adjacent bytes and special characters
+        std::string sample {"\x01\x02\x03\xFF\xFE\xFD"};
+        auto        roundTrip = Base64Utils::decode(Base64Utils::encode(sample));
+        EXPECT_EQ(sample, roundTrip);
+    }
+
+    TEST(Base64Utils, urlEscape_replaces_plus_slash_equals)
+    {
+        // '+' -> '-', '/' -> '_', '=' removed
+        std::string src {"abc+def/ghi=="};
+        auto        result = Base64Utils::urlEscape(src);
+        EXPECT_EQ("abc-def_ghi", result);
+    }
+
+    TEST(Base64Utils, urlEscape_empty_string)
+    {
+        std::string empty {};
+        auto        result = Base64Utils::urlEscape(empty);
+        EXPECT_TRUE(result.empty());
+    }
+
+    TEST(Base64Utils, urlEscape_no_special_chars)
+    {
+        // String without +, /, = should remain unchanged
+        std::string src {"abcdefghij0123456789"};
+        auto        result = Base64Utils::urlEscape(src);
+        EXPECT_EQ(src, result);
+    }
+
+    TEST(Base64Utils, urlEscape_wchar)
+    {
+        std::wstring src {L"abc+def/ghi=="};
+        auto         result = Base64Utils::urlEscape(src);
+        EXPECT_EQ(L"abc-def_ghi", result);
+    }
+
+    TEST(Base64Utils, roundtrip_long_string)
+    {
+        // Test with a longer string to exercise multi-block encoding
+        std::string sample(256, 'X');
+        auto        roundTrip = Base64Utils::decode(Base64Utils::encode(sample));
+        EXPECT_EQ(sample, roundTrip);
+    }
+
+    TEST(Base64Utils, roundtrip_all_byte_values)
+    {
+        // Build a string with all byte values 1-255 (skip 0 since std::string treats it as content but
+        // the null-trimming in decode could interfere)
+        std::string sample;
+        for (int i = 1; i < 256; i++) {
+            sample.push_back(static_cast<char>(i));
+        }
+        auto roundTrip = Base64Utils::decode(Base64Utils::encode(sample));
+        EXPECT_EQ(sample, roundTrip);
+    }
+
+    TEST(Base64Utils, decode_known_value)
+    {
+        // "SGVsbG8gV29ybGQ=" decodes to "Hello World"
+        std::string encoded {"SGVsbG8gV29ybGQ="};
+        auto        decoded = Base64Utils::decode(encoded);
+        EXPECT_EQ("Hello World", decoded);
+    }
+
+    TEST(Base64Utils, encode_known_value)
+    {
+        // "Hello World" encodes to "SGVsbG8gV29ybGQ="
+        std::string source {"Hello World"};
+        auto        encoded = Base64Utils::encode(source);
+        EXPECT_EQ("SGVsbG8gV29ybGQ=", encoded);
+    }
 } // namespace siddiqsoft
