@@ -488,4 +488,209 @@ namespace siddiqsoft
         auto ds = DateUtils::durationString<char>(std::chrono::days(1));
         EXPECT_EQ("1d 0h 0min 0s", ds);
     }
+
+    // ---- Additional coverage for durationString wchar_t variants ----
+
+    TEST(DateUtils, durationString_wchar_zero)
+    {
+        auto ds = DateUtils::durationString<wchar_t>(std::chrono::seconds(0));
+        EXPECT_EQ(L"0min 0s", ds);
+    }
+
+    TEST(DateUtils, durationString_wchar_just_seconds)
+    {
+        auto ds = DateUtils::durationString<wchar_t>(std::chrono::seconds(5));
+        EXPECT_EQ(L"0min 5s", ds);
+    }
+
+    TEST(DateUtils, durationString_wchar_exactly_one_hour)
+    {
+        using namespace std::chrono;
+        auto ds = DateUtils::durationString<wchar_t>(1h);
+        EXPECT_EQ(L"1h 0min 0s", ds);
+    }
+
+    TEST(DateUtils, durationString_wchar_exactly_one_day)
+    {
+        using namespace std::chrono;
+        auto ds = DateUtils::durationString<wchar_t>(std::chrono::days(1));
+        EXPECT_EQ(L"1d 0h 0min 0s", ds);
+    }
+
+    // ---- parseEpoch with string without decimal (no microseconds) ----
+
+    TEST(DateUtils, parseEpoch_string_no_decimal)
+    {
+        // Epoch string without decimal portion
+        std::string epoch {"1629608266"};
+        auto        tp  = DateUtils::parseEpoch<std::string>(epoch);
+        auto        iso = DateUtils::ISO8601(tp);
+        EXPECT_EQ("2021-08-22T04:57:46.000Z", iso);
+    }
+
+    TEST(DateUtils, parseEpoch_wstring_no_decimal)
+    {
+        // wstring epoch without decimal portion
+        std::wstring epoch {L"1629608266"};
+        auto         tp  = DateUtils::parseEpoch<std::wstring>(epoch);
+        auto         iso = DateUtils::ISO8601(tp);
+        EXPECT_EQ("2021-08-22T04:57:46.000Z", iso);
+    }
+
+    TEST(DateUtils, parseEpoch_string_zero)
+    {
+        // Zero as string should return epoch
+        std::string epoch {"0"};
+        auto        tp = DateUtils::parseEpoch<std::string>(epoch);
+        EXPECT_EQ(std::chrono::system_clock::time_point {}, tp);
+    }
+
+    TEST(DateUtils, parseEpoch_wstring_zero)
+    {
+        std::wstring epoch {L"0"};
+        auto         tp = DateUtils::parseEpoch<std::wstring>(epoch);
+        EXPECT_EQ(std::chrono::system_clock::time_point {}, tp);
+    }
+
+    TEST(DateUtils, parseEpoch_ntp_string)
+    {
+        // NTP timestamp as string (> 2208988800)
+        std::string ntpEpoch {"3838597066"};
+        auto        tp  = DateUtils::parseEpoch<std::string>(ntpEpoch);
+        auto        iso = DateUtils::ISO8601(tp);
+        EXPECT_EQ("2021-08-22T04:57:46.000Z", iso);
+    }
+
+    TEST(DateUtils, parseEpoch_wstring_with_decimal)
+    {
+        // wstring with decimal microseconds
+        std::wstring epoch {L"1629608266.500000"};
+        auto         tp  = DateUtils::parseEpoch<std::wstring>(epoch);
+        // Should have microseconds added
+        auto iso = DateUtils::ISO8601(tp);
+        EXPECT_TRUE(iso.starts_with("2021-08-22T04:57:46"));
+    }
+
+    // ---- diff with larger time differences ----
+
+    TEST(DateUtils, diff_multi_hour)
+    {
+        auto start         = std::chrono::system_clock::from_time_t(1000000);
+        auto end           = start + std::chrono::hours(25) + std::chrono::minutes(30) + std::chrono::seconds(15);
+        auto [delta, dstr] = DateUtils::diff<char>(end, start);
+        // 25h 30m 15s = 91815000ms
+        EXPECT_EQ(std::chrono::milliseconds(91815000), delta);
+        EXPECT_EQ("25:30:15.000", dstr);
+    }
+
+    TEST(DateUtils, diff_wchar_known_delta)
+    {
+        auto start         = std::chrono::system_clock::from_time_t(1000000);
+        auto end           = start + std::chrono::seconds(3661) + std::chrono::milliseconds(500);
+        auto [delta, dstr] = DateUtils::diff<wchar_t>(end, start);
+        EXPECT_EQ(std::chrono::milliseconds(3661500), delta);
+        EXPECT_EQ(L"01:01:01.500", dstr);
+    }
+
+    // ---- ISO8601 epoch wchar_t ----
+
+    TEST(DateUtils, ISO8601_epoch_w)
+    {
+        auto ts  = std::chrono::system_clock::from_time_t(0);
+        auto iso = DateUtils::ISO8601<wchar_t>(ts);
+        EXPECT_EQ(L"1970-01-01T00:00:00.000Z", iso);
+    }
+
+    // ---- parseISO8601 with empty string ----
+
+    TEST(DateUtils, parseISO8601_empty_returns_epoch)
+    {
+        std::string empty {};
+        auto        tp = DateUtils::parseISO8601(empty);
+        EXPECT_EQ(std::chrono::system_clock::time_point {}, tp);
+    }
+
+    TEST(DateUtils, parseISO8601_wchar_empty_returns_epoch)
+    {
+        std::wstring empty {};
+        auto         tp = DateUtils::parseISO8601<wchar_t>(empty);
+        EXPECT_EQ(std::chrono::system_clock::time_point {}, tp);
+    }
+
+    // ---- epochPlus with default time (uses now()) ----
+
+    TEST(DateUtils, epochPlus_default_time)
+    {
+        // When no time_point is provided, epochPlus uses now()
+        auto before = std::chrono::duration_cast<std::chrono::seconds>(
+                (std::chrono::system_clock::now() + std::chrono::seconds(60)).time_since_epoch());
+        auto result = DateUtils::epochPlus(std::chrono::seconds(60));
+        auto after  = std::chrono::duration_cast<std::chrono::seconds>(
+                (std::chrono::system_clock::now() + std::chrono::seconds(60)).time_since_epoch());
+        // Result should be between before and after
+        EXPECT_GE(result, before);
+        EXPECT_LE(result, after);
+    }
+
+    // ---- durationString with milliseconds rounding ----
+
+    TEST(DateUtils, durationString_millis_rounding_up)
+    {
+        using namespace std::chrono;
+        // 1 day + 501ms should round up the seconds
+        auto ds = DateUtils::durationString<char>(std::chrono::days(1) + 501ms);
+        EXPECT_EQ("1d 0h 0min 1s", ds);
+    }
+
+    TEST(DateUtils, durationString_millis_no_rounding)
+    {
+        using namespace std::chrono;
+        // 1 day + 499ms should NOT round up (millis <= 500)
+        auto ds = DateUtils::durationString<char>(std::chrono::days(1) + 499ms);
+        EXPECT_EQ("1d 0h 0min 0s", ds);
+    }
+
+    TEST(DateUtils, durationString_hours_with_millis_rounding)
+    {
+        using namespace std::chrono;
+        // 2h + 30min + 501ms should round up seconds
+        auto ds = DateUtils::durationString<char>(2h + 30min + 501ms);
+        EXPECT_EQ("2h 30min 1s", ds);
+    }
+
+    TEST(DateUtils, durationString_weeks_with_millis_rounding)
+    {
+        using namespace std::chrono;
+        // 2 weeks + 501ms should round up seconds
+        auto ds = DateUtils::durationString<char>(std::chrono::weeks(2) + 501ms);
+        EXPECT_EQ("2weeks 0d 0h 0min 1s", ds);
+    }
+
+    TEST(DateUtils, durationString_months_with_millis_rounding)
+    {
+        using namespace std::chrono;
+        // ~2 months + 501ms
+        auto ds = DateUtils::durationString<char>(std::chrono::weeks(9) + 501ms);
+        EXPECT_EQ("2months / 9weeks 0d 0h 0min 1s", ds);
+    }
+
+    TEST(DateUtils, durationString_years_with_millis_rounding)
+    {
+        using namespace std::chrono;
+        // ~2 years + 501ms
+        auto ds = DateUtils::durationString<char>(std::chrono::days(800) + 501ms);
+        EXPECT_EQ("2years / 26months / 114weeks 2d 0h 0min 1s", ds);
+    }
+
+    // ---- toTimespan wchar_t additional ----
+
+    TEST(DateUtils, toTimespan_wchar_zero)
+    {
+        EXPECT_EQ(L"0.00:00:00", DateUtils::toTimespan<wchar_t>(std::chrono::seconds(0)));
+    }
+
+    TEST(DateUtils, toTimespan_wchar_one_day)
+    {
+        EXPECT_EQ(L"1.00:00:00", DateUtils::toTimespan<wchar_t>(std::chrono::seconds(86400)));
+    }
 } // namespace siddiqsoft

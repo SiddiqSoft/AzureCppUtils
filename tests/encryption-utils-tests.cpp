@@ -414,4 +414,177 @@ namespace siddiqsoft
         EXPECT_GT(secondDot - firstDot - 1, 0u);
         EXPECT_GT(jwt.size() - secondDot - 1, 0u);
     }
+
+    // ---- SASToken with chrono::seconds timeout (exercises the time()-based overload) ----
+
+    TEST(EncryptionUtils, SASToken_with_chrono_seconds)
+    {
+        std::string keyname {"myKeyName"};
+        std::string key {"mySecretKey"};
+        std::string url {"https://myservice.servicebus.windows.net/myhub"};
+
+        // This exercises the SASToken overload that takes chrono::seconds and calls time()
+        auto sas = EncryptionUtils::SASToken<char>(key, url, keyname, std::chrono::seconds(300));
+        EXPECT_TRUE(sas.starts_with("SharedAccessSignature sr="));
+        EXPECT_NE(std::string::npos, sas.find("&sig="));
+        EXPECT_NE(std::string::npos, sas.find("&se="));
+        EXPECT_NE(std::string::npos, sas.find("&skn=myKeyName"));
+    }
+
+    TEST(EncryptionUtils, SASToken_with_chrono_seconds_wchar)
+    {
+        std::wstring keyname {L"myKeyName"};
+        std::string  key {"mySecretKey"};
+        std::wstring url {L"https://myservice.servicebus.windows.net/myhub"};
+
+        // wchar_t version of the chrono::seconds overload
+        auto sas = EncryptionUtils::SASToken<wchar_t>(key, url, keyname, std::chrono::seconds(300));
+        EXPECT_TRUE(sas.starts_with(L"SharedAccessSignature sr="));
+        EXPECT_NE(std::wstring::npos, sas.find(L"&sig="));
+        EXPECT_NE(std::wstring::npos, sas.find(L"&se="));
+        EXPECT_NE(std::wstring::npos, sas.find(L"&skn=myKeyName"));
+    }
+
+    // ---- SASToken wchar_t with string expiry (exercises the wchar_t delegation path) ----
+
+    TEST(EncryptionUtils, SASToken_wchar_empty_url_throws)
+    {
+        EXPECT_THROW(EncryptionUtils::SASToken<wchar_t>("key", std::wstring {}, std::wstring {L"name"}, std::wstring {L"12345"}),
+                     std::invalid_argument);
+    }
+
+    TEST(EncryptionUtils, SASToken_wchar_empty_keyName_throws)
+    {
+        EXPECT_THROW(EncryptionUtils::SASToken<wchar_t>("key", std::wstring {L"url"}, std::wstring {}, std::wstring {L"12345"}),
+                     std::invalid_argument);
+    }
+
+    TEST(EncryptionUtils, SASToken_wchar_empty_key_throws)
+    {
+        EXPECT_THROW(EncryptionUtils::SASToken<wchar_t>(
+                             std::string {}, std::wstring {L"url"}, std::wstring {L"name"}, std::wstring {L"12345"}),
+                     std::invalid_argument);
+    }
+
+    TEST(EncryptionUtils, SASToken_wchar_empty_expiry_throws)
+    {
+        EXPECT_THROW(EncryptionUtils::SASToken<wchar_t>("key", std::wstring {L"url"}, std::wstring {L"name"}, std::wstring {}),
+                     std::invalid_argument);
+    }
+
+    // ---- CosmosToken wchar_t throws ----
+
+    TEST(EncryptionUtils, CosmosToken_wchar_empty_key_throws)
+    {
+        EXPECT_THROW(EncryptionUtils::CosmosToken<wchar_t>(
+                             std::string {}, std::wstring {L"GET"}, std::wstring {L"dbs"}, std::wstring {L"dbs/db1"}, std::wstring {L"Thu, 27 Apr 2017 00:51:12 GMT"}),
+                     std::invalid_argument);
+    }
+
+    TEST(EncryptionUtils, CosmosToken_wchar_empty_verb_throws)
+    {
+        EXPECT_THROW(EncryptionUtils::CosmosToken<wchar_t>(
+                             std::string {"key"}, std::wstring {}, std::wstring {L"dbs"}, std::wstring {L"dbs/db1"}, std::wstring {L"Thu, 27 Apr 2017 00:51:12 GMT"}),
+                     std::invalid_argument);
+    }
+
+    TEST(EncryptionUtils, CosmosToken_wchar_empty_date_throws)
+    {
+        EXPECT_THROW(EncryptionUtils::CosmosToken<wchar_t>(
+                             std::string {"key"}, std::wstring {L"GET"}, std::wstring {L"dbs"}, std::wstring {L"dbs/db1"}, std::wstring {}),
+                     std::invalid_argument);
+    }
+
+    // ---- CosmosToken with empty type (allowed — no validation on type) ----
+
+    TEST(EncryptionUtils, CosmosToken_empty_type)
+    {
+        std::string Key {"dsZQi3KtZmCv1ljt3VNWNm7sQUF1y5rJfC6kv5JiwvW0EndXdDku/dkKBp8/ufDToSxLzR4y+O/0H/t4bQtVNw=="};
+        auto        decodedKey = Base64Utils::decode(Key);
+        // Empty type is allowed (e.g., for root-level operations)
+        auto auth = EncryptionUtils::CosmosToken<char>(decodedKey, "GET", "", "", "Thu, 27 Apr 2017 00:51:12 GMT");
+        EXPECT_TRUE(auth.starts_with("type%3dmaster%26ver%3d1.0%26sig%3d"));
+        EXPECT_FALSE(auth.empty());
+    }
+
+    TEST(EncryptionUtils, CosmosToken_DELETE_verb)
+    {
+        std::string Key {"dsZQi3KtZmCv1ljt3VNWNm7sQUF1y5rJfC6kv5JiwvW0EndXdDku/dkKBp8/ufDToSxLzR4y+O/0H/t4bQtVNw=="};
+        auto        decodedKey = Base64Utils::decode(Key);
+        auto        auth       = EncryptionUtils::CosmosToken<char>(decodedKey, "DELETE", "docs", "dbs/ToDoList/colls/Items/docs/doc1", "Thu, 27 Apr 2017 00:51:12 GMT");
+        EXPECT_TRUE(auth.starts_with("type%3dmaster%26ver%3d1.0%26sig%3d"));
+    }
+
+    TEST(EncryptionUtils, CosmosToken_PUT_verb)
+    {
+        std::string Key {"dsZQi3KtZmCv1ljt3VNWNm7sQUF1y5rJfC6kv5JiwvW0EndXdDku/dkKBp8/ufDToSxLzR4y+O/0H/t4bQtVNw=="};
+        auto        decodedKey = Base64Utils::decode(Key);
+        auto        auth       = EncryptionUtils::CosmosToken<char>(decodedKey, "PUT", "docs", "dbs/ToDoList/colls/Items/docs/doc1", "Thu, 27 Apr 2017 00:51:12 GMT");
+        EXPECT_TRUE(auth.starts_with("type%3dmaster%26ver%3d1.0%26sig%3d"));
+    }
+
+#if defined(__linux__) || defined(__APPLE__)
+    TEST(EncryptionUtils, calcDigest_MD5_known_abc)
+    {
+        // Directly test calcDigest with MD5 for "abc"
+        auto result = EncryptionUtils::calcDigest("MD5", "abc");
+        EXPECT_EQ("900150983cd24fb0d6963f7d28e17f72", result);
+    }
+
+    TEST(EncryptionUtils, calcDigest_MD5_long_string)
+    {
+        // Test calcDigest with a longer string
+        auto result = EncryptionUtils::calcDigest("MD5", "The quick brown fox jumps over the lazy dog");
+        EXPECT_EQ("9e107d9d372bb6826bd81d3542a419d6", result);
+    }
+
+    TEST(EncryptionUtils, calcDigest_empty_digestType)
+    {
+        // Empty digest type should return empty (doesn't match MD5 or MD4)
+        auto result = EncryptionUtils::calcDigest("", "test");
+        EXPECT_TRUE(result.empty());
+    }
+
+    TEST(EncryptionUtils, calcDigest_SHA256_not_supported)
+    {
+        // SHA256 is not in the MD5/MD4 check, so it should return empty
+        auto result = EncryptionUtils::calcDigest("SHA256", "test");
+        EXPECT_TRUE(result.empty());
+    }
+#endif
+
+    // ---- HMAC wchar_t with empty inputs ----
+
+    TEST(EncryptionUtils, HMAC_wchar_empty_message)
+    {
+        std::wstring emptyMsg {};
+        std::string  key {"somekey"};
+        auto         result = EncryptionUtils::HMAC<wchar_t>(emptyMsg, key);
+        EXPECT_TRUE(result.empty());
+    }
+
+    TEST(EncryptionUtils, HMAC_wchar_empty_key)
+    {
+        std::wstring msg {L"hello"};
+        std::string  emptyKey {};
+        auto         result = EncryptionUtils::HMAC<wchar_t>(msg, emptyKey);
+        EXPECT_TRUE(result.empty());
+    }
+
+    // ---- JWTHMAC256 wchar_t with different payload ----
+
+    TEST(EncryptionUtils, JWTHMAC256_wchar_different_payload)
+    {
+        std::wstring header {LR"({"alg":"HS256","typ":"JWT"})"};
+        std::wstring payload {LR"({"sub":"1234567890","name":"John Doe","iat":1516239022})"};
+        std::string  secret {"your-256-bit-secret"};
+
+        auto jwt = EncryptionUtils::JWTHMAC256(secret, header, payload);
+        // JWT should have exactly 3 parts separated by dots
+        auto firstDot  = jwt.find(L'.');
+        auto secondDot = jwt.find(L'.', firstDot + 1);
+        EXPECT_NE(std::wstring::npos, firstDot);
+        EXPECT_NE(std::wstring::npos, secondDot);
+        EXPECT_EQ(std::wstring::npos, jwt.find(L'.', secondDot + 1));
+    }
 } // namespace siddiqsoft

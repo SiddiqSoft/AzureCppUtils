@@ -303,4 +303,107 @@ namespace siddiqsoft
         auto        encoded = Base64Utils::encode(source);
         EXPECT_EQ("SGVsbG8gV29ybGQ=", encoded);
     }
+
+    // ---- wchar_t encode/decode coverage (exercises ConversionUtils delegation path) ----
+
+    TEST(Base64Utils, encode_wchar_known_value)
+    {
+        // wchar_t encode delegates to char encode via ConversionUtils
+        std::wstring source {L"Hello World"};
+        auto         encoded = Base64Utils::encode<wchar_t>(source);
+        EXPECT_FALSE(encoded.empty());
+        // Round-trip should recover the original
+        auto roundTrip = Base64Utils::decode<wchar_t>(encoded);
+        EXPECT_EQ(source, roundTrip);
+    }
+
+    TEST(Base64Utils, decode_wchar_known_value)
+    {
+        // Encode as char, then decode as wchar_t via the wchar_t path
+        std::string  source {"TestDecode"};
+        auto         encoded_narrow = Base64Utils::encode<char>(source);
+        std::wstring encoded_wide(encoded_narrow.begin(), encoded_narrow.end());
+        auto         decoded = Base64Utils::decode<wchar_t>(encoded_wide);
+        std::wstring expected(source.begin(), source.end());
+        EXPECT_EQ(expected, decoded);
+    }
+
+    TEST(Base64Utils, encode_wchar_empty)
+    {
+        std::wstring empty {};
+        auto         result = Base64Utils::encode<wchar_t>(empty);
+        // Empty input should produce empty output (the char path returns empty for empty)
+        EXPECT_TRUE(result.empty());
+    }
+
+    TEST(Base64Utils, decode_wchar_empty)
+    {
+        std::wstring empty {};
+        auto         result = Base64Utils::decode<wchar_t>(empty);
+        EXPECT_TRUE(result.empty());
+    }
+
+    TEST(Base64Utils, roundtrip_wchar_special_chars)
+    {
+        // Test wchar_t round-trip with various ASCII special characters
+        std::wstring sample {L"!@#$%^&*()_+-=[]{}|;':\",./<>?"};
+        auto         roundTrip = Base64Utils::decode<wchar_t>(Base64Utils::encode<wchar_t>(sample));
+        EXPECT_EQ(sample, roundTrip);
+    }
+
+    TEST(Base64Utils, roundtrip_wchar_long_string)
+    {
+        // Longer wchar_t string to exercise multi-block encoding via delegation
+        std::wstring sample(200, L'W');
+        auto         roundTrip = Base64Utils::decode<wchar_t>(Base64Utils::encode<wchar_t>(sample));
+        EXPECT_EQ(sample, roundTrip);
+    }
+
+    // ---- urlEscape wchar_t with \r, \n, and = characters ----
+
+    TEST(Base64Utils, urlEscape_wchar_with_cr_lf_equals)
+    {
+        // Test that \r, \n, and = are stripped from wchar_t strings
+        std::wstring src {L"abc+\r\ndef/ghi=="};
+        auto         result = Base64Utils::urlEscape<wchar_t>(src);
+        EXPECT_EQ(L"abc-def_ghi", result);
+    }
+
+    TEST(Base64Utils, urlEscape_char_with_cr_lf)
+    {
+        // Test that \r and \n are stripped from char strings
+        std::wstring src {L"abc\r\ndef"};
+        auto         result = Base64Utils::urlEscape<wchar_t>(src);
+        EXPECT_EQ(L"abcdef", result);
+    }
+
+    TEST(Base64Utils, urlEscape_wchar_empty)
+    {
+        std::wstring empty {};
+        auto         result = Base64Utils::urlEscape<wchar_t>(empty);
+        EXPECT_TRUE(result.empty());
+    }
+
+    TEST(Base64Utils, urlEscape_char_with_cr_lf_equals)
+    {
+        // Narrow string with \r, \n, and = that should be stripped
+        std::string src {"abc+\r\ndef/ghi=="};
+        auto        result = Base64Utils::urlEscape<char>(src);
+        EXPECT_EQ("abc-def_ghi", result);
+    }
+
+    TEST(Base64Utils, urlEscape_only_special_chars)
+    {
+        // String consisting entirely of characters that get replaced/removed
+        std::string src {"+/=\r\n"};
+        auto        result = Base64Utils::urlEscape<char>(src);
+        EXPECT_EQ("-_", result);
+    }
+
+    TEST(Base64Utils, urlEscape_wchar_only_special_chars)
+    {
+        std::wstring src {L"+/=\r\n"};
+        auto         result = Base64Utils::urlEscape<wchar_t>(src);
+        EXPECT_EQ(L"-_", result);
+    }
 } // namespace siddiqsoft

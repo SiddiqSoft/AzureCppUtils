@@ -212,4 +212,62 @@ namespace siddiqsoft
         auto        result = UrlUtils::encode<char>(src);
         EXPECT_EQ("https%3A%2F%2Fexample.com%2Fpath%3Fq%3Dhello%20world%26lang%3Den", result);
     }
+
+    TEST(UrlUtils, encode_wchar_already_safe)
+    {
+        // Alphanumeric and unreserved characters should pass through unchanged (wchar_t)
+        std::wstring src {L"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-~_"};
+        auto         result = UrlUtils::encode<wchar_t>(src);
+        EXPECT_EQ(src, result);
+    }
+
+    TEST(UrlUtils, encode_wchar_full_url_path)
+    {
+        std::wstring src {L"https://example.com/path?q=hello world&lang=en"};
+        auto         result = UrlUtils::encode<wchar_t>(src);
+        EXPECT_EQ(L"https%3A%2F%2Fexample.com%2Fpath%3Fq%3Dhello%20world%26lang%3Den", result);
+    }
+
+    TEST(UrlUtils, encode_wchar_slash)
+    {
+        std::wstring src {L"a/b"};
+        auto         result = UrlUtils::encode<wchar_t>(src);
+        EXPECT_EQ(L"a%2Fb", result);
+    }
+
+    TEST(UrlUtils, encode_wchar_percent)
+    {
+        std::wstring src {L"100%"};
+        auto         result = UrlUtils::encode<wchar_t>(src);
+        EXPECT_EQ(L"100%25", result);
+    }
+
+    TEST(UrlUtils, encode_single_char_special)
+    {
+        // Test individual special characters
+        EXPECT_EQ("%20", UrlUtils::encode<char>(std::string {" "}));
+        EXPECT_EQ("%2F", UrlUtils::encode<char>(std::string {"/"}));
+        EXPECT_EQ("%3A", UrlUtils::encode<char>(std::string {":"}));
+        EXPECT_EQ("%3F", UrlUtils::encode<char>(std::string {"?"}));
+        EXPECT_EQ("%23", UrlUtils::encode<char>(std::string {"#"}));
+        EXPECT_EQ("%26", UrlUtils::encode<char>(std::string {"&"}));
+        EXPECT_EQ("%3D", UrlUtils::encode<char>(std::string {"="}));
+    }
+
+    TEST(UrlUtils, encode_single_char_unreserved)
+    {
+        // Unreserved characters should not be encoded
+        EXPECT_EQ("-", UrlUtils::encode<char>(std::string {"-"}));
+        EXPECT_EQ(".", UrlUtils::encode<char>(std::string {"."}));
+        EXPECT_EQ("_", UrlUtils::encode<char>(std::string {"_"}));
+        EXPECT_EQ("~", UrlUtils::encode<char>(std::string {"~"}));
+    }
+
+    TEST(UrlUtils, encode_wchar_lowercase_full_url)
+    {
+        // Full URL with lowercase hex encoding
+        std::wstring src {L"https://example.com/path?q=test"};
+        auto         result = UrlUtils::encode<wchar_t>(src, true);
+        EXPECT_EQ(L"https%3a%2f%2fexample.com%2fpath%3fq%3dtest", result);
+    }
 } // namespace siddiqsoft

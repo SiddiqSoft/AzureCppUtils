@@ -48,7 +48,7 @@ find_package(OpenSSL 3.6 REQUIRED)
 include_directories(${OPENSSL_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} INTERFACE OpenSSL::SSL OpenSSL::Crypto)
 
-cpmaddpackage("gh:siddiqsoft/RunOnEnd#1.3.2")
+cpmaddpackage("gh:siddiqsoft/RunOnEnd#1.4.0")
 target_link_libraries(${PROJECT_NAME} INTERFACE RunOnEnd::RunOnEnd)
 cpmaddpackage("gh:siddiqsoft/StringHelpers#1.0.1")
 target_link_libraries(${PROJECT_NAME} INTERFACE StringHelpers::StringHelpers)
