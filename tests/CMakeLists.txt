@@ -39,7 +39,7 @@ if(${${PROJECT_NAME}_BUILD_TESTS})
     endif()
 
     # Dependencies
-    find_package(OpenSSL 3.6 REQUIRED)
+    find_package(OpenSSL 3.5 REQUIRED)
     target_include_directories(${TESTPROJ} PRIVATE ${OPENSSL_INCLUDE_DIRS})
     target_link_libraries(${TESTPROJ} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
 
