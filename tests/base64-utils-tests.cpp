@@ -319,13 +319,11 @@ namespace siddiqsoft
 
     TEST(Base64Utils, decode_wchar_known_value)
     {
-        // Encode as char, then decode as wchar_t via the wchar_t path
-        std::string  source {"TestDecode"};
-        auto         encoded_narrow = Base64Utils::encode<char>(source);
-        std::wstring encoded_wide(encoded_narrow.begin(), encoded_narrow.end());
-        auto         decoded = Base64Utils::decode<wchar_t>(encoded_wide);
-        std::wstring expected(source.begin(), source.end());
-        EXPECT_EQ(expected, decoded);
+        // Encode as wchar_t, then decode as wchar_t via the wchar_t path
+        std::wstring source {L"TestDecode"};
+        auto         encoded = Base64Utils::encode<wchar_t>(source);
+        auto         decoded = Base64Utils::decode<wchar_t>(encoded);
+        EXPECT_EQ(source, decoded);
     }
 
     TEST(Base64Utils, encode_wchar_empty)

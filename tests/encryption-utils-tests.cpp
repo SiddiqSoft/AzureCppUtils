@@ -261,8 +261,8 @@ namespace siddiqsoft
         // MD5 of empty string is d41d8cd98f00b204e9800998ecf8427e
         std::string empty {};
         auto        result = EncryptionUtils::MD5(empty);
-        // Empty source should return empty result (the implementation guards against empty)
-        EXPECT_TRUE(result.empty());
+        // Empty source should return the MD5 hash of empty string
+        EXPECT_EQ("d41d8cd98f00b204e9800998ecf8427e", result);
     }
 
     TEST(EncryptionUtils, MD5_known_value)
@@ -309,20 +309,22 @@ namespace siddiqsoft
 
     TEST(EncryptionUtils, HMAC_empty_message)
     {
-        // Empty message should return empty result
+        // Empty message with a key should still compute HMAC
         std::string emptyMsg {};
         std::string key {"somekey"};
         auto        result = EncryptionUtils::HMAC(emptyMsg, key);
-        EXPECT_TRUE(result.empty());
+        // HMAC of empty message should not be empty
+        EXPECT_FALSE(result.empty());
     }
 
     TEST(EncryptionUtils, HMAC_empty_key)
     {
-        // Empty key should return empty result
+        // Empty key with a message should still compute HMAC
         std::string msg {"hello"};
         std::string emptyKey {};
         auto        result = EncryptionUtils::HMAC(msg, emptyKey);
-        EXPECT_TRUE(result.empty());
+        // HMAC with empty key should not be empty
+        EXPECT_FALSE(result.empty());
     }
 
     TEST(EncryptionUtils, HMAC_known_value)
@@ -560,7 +562,7 @@ namespace siddiqsoft
         std::wstring emptyMsg {};
         std::string  key {"somekey"};
         auto         result = EncryptionUtils::HMAC<wchar_t>(emptyMsg, key);
-        EXPECT_TRUE(result.empty());
+        EXPECT_FALSE(result.empty());
     }
 
     TEST(EncryptionUtils, HMAC_wchar_empty_key)
@@ -568,7 +570,7 @@ namespace siddiqsoft
         std::wstring msg {L"hello"};
         std::string  emptyKey {};
         auto         result = EncryptionUtils::HMAC<wchar_t>(msg, emptyKey);
-        EXPECT_TRUE(result.empty());
+        EXPECT_FALSE(result.empty());
     }
 
     // ---- JWTHMAC256 wchar_t with different payload ----

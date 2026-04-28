@@ -41,16 +41,15 @@ target_include_directories(${PROJECT_NAME}
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_20)
 
-
 # ____________________________________
 # Dependencies
 find_package(OpenSSL 3.5 REQUIRED)
 include_directories(${OPENSSL_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} INTERFACE OpenSSL::SSL OpenSSL::Crypto)
 
-cpmaddpackage("gh:siddiqsoft/RunOnEnd#1.5.0")
+CPMAddPackage("gh:siddiqsoft/RunOnEnd#1.4.2")
 target_link_libraries(${PROJECT_NAME} INTERFACE RunOnEnd::RunOnEnd)
-cpmaddpackage("gh:siddiqsoft/StringHelpers#1.1.0")
+CPMAddPackage("gh:siddiqsoft/StringHelpers#1.1.0")
 target_link_libraries(${PROJECT_NAME} INTERFACE StringHelpers::StringHelpers)
 
 # ____________________________________
