@@ -41,16 +41,6 @@ target_include_directories(${PROJECT_NAME}
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_20)
 
-if(((CMAKE_CXX_COMPILER_ID MATCHES [Cc][Ll][Aa][Nn][Gg]) 
-        OR (CMAKE_CXX_COMPILER_ID MATCHES [Gg][Nn][Uu])))
-    # Linux/Unix specific
-elseif((CMAKE_CXX_COMPILER_ID MATCHES [Mm][Ss][Vv][Cc]))
-    # Windows specific work
-    set(OPENSSL_ROOT_DIR "C:/Program Files/OpenSSL-Win64-ARM")
-    set(OPENSSL_CRYPTO_LIBRARY "C:/Program Files/OpenSSL-Win64-ARM/VC/arm64/MT/libcrypto.lib" )
-    set(OPENSSL_SSL_LIBRARY "C:/Program Files/OpenSSL-Win64-ARM/VC/arm64/MT/libssl.lib" )
-endif()
-
 # ____________________________________
 # Dependencies
 find_package(OpenSSL 3.5 REQUIRED)
