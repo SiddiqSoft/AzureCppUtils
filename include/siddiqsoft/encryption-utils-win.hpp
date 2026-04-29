@@ -71,7 +71,8 @@ namespace siddiqsoft
     /// fiddle with utf8 data and not utf16 over the internet and especially json documents!
     struct EncryptionUtils
     {
-        /// @brief Create a MD5 hash for the given source as a string
+        /// @brief Create a MD5 hash for the given source as a string.
+        /// Returns an empty string if the source is empty.
         /// @param source Maybe std::string or std::wstring
         /// @return MD5 of the source argument empty if there is a failure
         template <typename T = char>
@@ -80,6 +81,9 @@ namespace siddiqsoft
         {
             constexpr char rgbDigits[] {"0123456789abcdef"};
 
+            // Bailout and return empty string if the source is empty--as designed.
+            if (source.empty() || source.length() == 0) return {};
+            
             if constexpr (std::is_same_v<T, char>) {
                 HCRYPTPROV hProv {};
                 HCRYPTHASH hHash {};

@@ -281,6 +281,8 @@ namespace siddiqsoft
         EXPECT_EQ("900150983cd24fb0d6963f7d28e17f72", result);
     }
 
+    // The calcDigest is only available as an internal helper for openssl based implementation
+    // for Linux and Apple/Darwin. We cannot run these for Windows platforms.
 #if defined(__linux__) || defined(__APPLE__)
     TEST(EncryptionUtils, calcDigest_unsupported_type_returns_empty)
     {
