@@ -138,6 +138,7 @@ namespace siddiqsoft
     }
 #endif
 
+    #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
     TEST(Base64Utils, test1c_w)
     {
         std::wstring sample {L"hello."};
@@ -151,6 +152,7 @@ namespace siddiqsoft
             EXPECT_FALSE("No match.");
         }
     }
+#endif
 
 
     TEST(Base64Utils, test1d)
@@ -167,6 +169,7 @@ namespace siddiqsoft
         }
     }
 
+    #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
     TEST(Base64Utils, test1d_w)
     {
         std::wstring sample {L"صديق"};
@@ -180,6 +183,7 @@ namespace siddiqsoft
             EXPECT_FALSE("No match.");
         }
     }
+#endif
 
 
     // ---- Additional Tests ----

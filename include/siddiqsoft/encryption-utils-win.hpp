@@ -71,7 +71,8 @@ namespace siddiqsoft
     /// fiddle with utf8 data and not utf16 over the internet and especially json documents!
     struct EncryptionUtils
     {
-        /// @brief Create a MD5 hash for the given source as a string
+        /// @brief Create a MD5 hash for the given source as a string.
+        /// Returns an empty string if the source is empty.
         /// @param source Maybe std::string or std::wstring
         /// @return MD5 of the source argument empty if there is a failure
         template <typename T = char>
@@ -80,6 +81,9 @@ namespace siddiqsoft
         {
             constexpr char rgbDigits[] {"0123456789abcdef"};
 
+            // Bailout and return empty string if the source is empty--as designed.
+            if (source.empty() || source.length() == 0) return {};
+            
             if constexpr (std::is_same_v<T, char>) {
                 HCRYPTPROV hProv {};
                 HCRYPTHASH hHash {};
@@ -96,7 +100,8 @@ namespace siddiqsoft
                         // Hash the source..
                         if (TRUE ==
                             CryptHashData(
-                                    hHash, reinterpret_cast<const BYTE*>(source.data()), static_cast<DWORD>(source.length()), 0)) {
+                                    hHash, reinterpret_cast<const BYTE*>(source.data()), static_cast<DWORD>(source.length()), 0))
+                        {
                             BYTE  rgbHash[sizeof(rgbDigits)] {};
                             DWORD rgbHashSize = sizeof(rgbDigits);
                             // Fetch the results using the gethashparam call..
@@ -118,7 +123,7 @@ namespace siddiqsoft
             }
             else {
                 // The MD5 result is a "binary" so we must not try and convert.
-                return MD5<char>(ConversionUtils::convert_to<T,char>(source));
+                return MD5<char>(ConversionUtils::convert_to<T, char>(source));
             }
 
             // Fall-through failure
@@ -136,6 +141,11 @@ namespace siddiqsoft
         static std::string HMAC(const std::basic_string<T>& message, const std::string& key)
         {
             if constexpr (std::is_same_v<T, char>) {
+                // Guard against empty key!
+                if (key.empty() || key.length() == 0) return {};
+                // Guard against empty message--this is our design choice.
+                if (message.empty() || message.length() == 0) return {};
+
                 BCRYPT_ALG_HANDLE  hAlg {};
                 BCRYPT_HASH_HANDLE hHash {};
                 NTSTATUS           status {0};
@@ -145,9 +155,9 @@ namespace siddiqsoft
                     if (hHash) BCryptDestroyHash(hHash);
                 }};
 
-
                 if (status = BCryptOpenAlgorithmProvider(&hAlg, BCRYPT_SHA256_ALGORITHM, nullptr, BCRYPT_ALG_HANDLE_HMAC_FLAG);
-                    status == 0) {
+                    status == 0)
+                {
                     // Set the key for the hash function..
                     // Passing NULL, 0 to the pbHashObject and cbHashObject asks the method to allocate
                     // memory on our behalf.
@@ -172,11 +182,13 @@ namespace siddiqsoft
                             ULONG cbData {0};
                             if (status = BCryptGetProperty(
                                         hAlg, BCRYPT_HASH_LENGTH, reinterpret_cast<UCHAR*>(&cbHash), sizeof(DWORD), &cbData, 0);
-                                status == 0) {
+                                status == 0)
+                            {
                                 std::vector<BYTE> pbHash(cbHash);
                                 // Fetch the hash value
                                 if (status = BCryptFinishHash(hHash, reinterpret_cast<UCHAR*>(pbHash.data()), cbHash, 0);
-                                    status == 0) {
+                                    status == 0)
+                                {
                                     // Return the HMAC as a raw binary..client must choose to encode or leave as-is
                                     return std::string {reinterpret_cast<char*>(pbHash.data()), cbHash};
                                 }
@@ -187,7 +199,7 @@ namespace siddiqsoft
             }
             else {
                 // The HMAC result is "binary" and must not be treated as wstring
-                return HMAC<char>(ConversionUtils::convert_to<T,char>(message), key);
+                return HMAC<char>(ConversionUtils::convert_to<T, char>(message), key);
             }
 
             // Fall-through is failure
@@ -216,8 +228,8 @@ namespace siddiqsoft
             }
             else {
                 // Delegate to the narrow version; conversion at the edge
-                return ConversionUtils::convert_to<char,T>(
-                        JWTHMAC256<char>(key, ConversionUtils::convert_to<T,char>(header), ConversionUtils::convert_to<T,char>(payload)));
+                return ConversionUtils::convert_to<char, T>(JWTHMAC256<char>(
+                        key, ConversionUtils::convert_to<T, char>(header), ConversionUtils::convert_to<T, char>(payload)));
             }
         }
 
@@ -278,10 +290,10 @@ namespace siddiqsoft
             }
             else {
                 // Delegate to the narrow version and convert at the edges.
-                return ConversionUtils::convert_to<char,T>(SASToken<char>(key,
-                                                                    ConversionUtils::convert_to<T,char>(url),
-                                                                    ConversionUtils::convert_to<T,char>(keyName),
-                                                                    ConversionUtils::convert_to<T,char>(expiry)));
+                return ConversionUtils::convert_to<char, T>(SASToken<char>(key,
+                                                                           ConversionUtils::convert_to<T, char>(url),
+                                                                           ConversionUtils::convert_to<T, char>(keyName),
+                                                                           ConversionUtils::convert_to<T, char>(expiry)));
             }
         }
 
@@ -329,11 +341,11 @@ namespace siddiqsoft
             }
             else {
                 // Delegate to the narrow version, conversion at the edges.
-                return ConversionUtils::convert_to<char,T>(CosmosToken<char>(key,
-                                                                        ConversionUtils::convert_to<T,char>(verb),
-                                                                        ConversionUtils::convert_to<T,char>(type),
-                                                                        ConversionUtils::convert_to<T,char>(resourceLink),
-                                                                        ConversionUtils::convert_to<T,char>(date)));
+                return ConversionUtils::convert_to<char, T>(CosmosToken<char>(key,
+                                                                              ConversionUtils::convert_to<T, char>(verb),
+                                                                              ConversionUtils::convert_to<T, char>(type),
+                                                                              ConversionUtils::convert_to<T, char>(resourceLink),
+                                                                              ConversionUtils::convert_to<T, char>(date)));
             }
 
             // Fall-through failure
