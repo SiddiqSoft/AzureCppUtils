@@ -20,7 +20,7 @@
 
 ## Requirements
 - The build and tests are for Visual Studio 2019 v16.11 under x64.
-- C++20 is required
+- C++23 is required
 
 
 # API 

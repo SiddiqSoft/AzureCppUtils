@@ -11,7 +11,7 @@ Azure C++ Utils : Azure REST API Helpers for Modern C++
 # Objective
 
 - Collect useful helpers for Azure REST API in a single location.
-- Requires C++20
+- Requires C++23
   - Clang 18+ or GCC 14+ or MSVC 2019+
 - Header-only
   - Use the nuget package or CMakeLists to import into your project.

@@ -22,7 +22,7 @@ project(AzureCppUtils
         HOMEPAGE_URL    "%%myurl%%"
         DESCRIPTION     "Azure REST API Helpers for Modern C++. Featuring helper functions for date-time, encryption tokens for Azure REST API as a single header-only package. Using OpenSSL on UNIX and native Win32 on Windows.")
 
-set( CMAKE_CXX_STANDARD 20)
+set( CMAKE_CXX_STANDARD 23)
 set( CMAKE_CXX_STANDARD_REQUIRED On)
 set( CMAKE_CXX_EXTENSIONS Off)
     
@@ -39,7 +39,7 @@ target_include_directories(${PROJECT_NAME}
                             INTERFACE
                             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
-target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_20)
+target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_23)
 
 # ____________________________________
 # Dependencies
@@ -47,9 +47,9 @@ find_package(OpenSSL 3.5 REQUIRED)
 include_directories(${OPENSSL_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} INTERFACE OpenSSL::SSL OpenSSL::Crypto)
 
-CPMAddPackage("gh:siddiqsoft/RunOnEnd#1.4.2")
+CPMAddPackage("gh:siddiqsoft/RunOnEnd#1.4.5")
 target_link_libraries(${PROJECT_NAME} INTERFACE RunOnEnd::RunOnEnd)
-CPMAddPackage("gh:siddiqsoft/StringHelpers#1.1.0")
+CPMAddPackage("gh:siddiqsoft/StringHelpers#1.2.2")
 target_link_libraries(${PROJECT_NAME} INTERFACE StringHelpers::StringHelpers)
 
 # ____________________________________
