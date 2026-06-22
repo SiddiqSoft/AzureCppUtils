@@ -50,7 +50,7 @@ include_directories(${OPENSSL_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} INTERFACE OpenSSL::SSL OpenSSL::Crypto)
 
 # Install natvis file for Visual Studio debugger visualization
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/SiddiqSoft.AzureCppUtils.natvis
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/pack/SiddiqSoft.AzureCppUtils.natvis
         DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}
         COMPONENT natvis
         OPTIONAL)
