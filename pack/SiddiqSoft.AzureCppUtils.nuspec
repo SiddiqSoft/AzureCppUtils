@@ -41,5 +41,6 @@
     
 		<!-- MSBuild .targets files -->
 		<file src="SiddiqSoft.AzureCppUtils.targets" target="build\native" />
+		<file src="..\SiddiqSoft.AzureCppUtils.natvis" target="build\native" />
 	</files>
 </package>
