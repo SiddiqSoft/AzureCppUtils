@@ -1,0 +1,344 @@
+bmhb ';;nhlltgf[ld[ 'fg;t]';tb ';b'vbg;b'';';'<!--
+    AzureCppUtils NATVIS Debugger Visualizations
+    
+    This file provides custom visualizations for AzureCppUtils types in Visual Studio debugger.
+    Place this file in:
+    - %VSINSTALLDIR%\Common7\Packages\Debugger\Visualizers\
+    - Or in your project directory and reference it in your debug configuration
+    
+    BSD 3-Clause License
+    Copyright (c) 2021, Siddiq Software LLC
+-->
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+  <!-- ============================================================================
+       DateUtils Visualizations
+       ============================================================================ -->
+  
+  <!-- std::chrono::system_clock::time_point visualization -->
+  <Type Name="std::chrono::time_point&lt;std::chrono::system_clock,std::chrono::duration&lt;__int64,std::ratio&lt;1,10000000&gt;&gt;&gt;">
+    <DisplayString>
+      {
+        __int64 ticks = __rep;
+        time_t seconds = ticks / 10000000;
+        int milliseconds = (ticks % 10000000) / 10000;
+        (time_t)seconds, ms: {milliseconds}
+      }
+    </DisplayString>
+    <Expand>
+      <Item Name="Epoch Seconds">__rep / 10000000</Item>
+      <Item Name="Milliseconds">(__rep % 10000000) / 10000</Item>
+      <Item Name="Raw Ticks">__rep</Item>
+    </Expand>
+  </Type>
+
+  <!-- std::chrono::seconds visualization -->
+  <Type Name="std::chrono::duration&lt;__int64,std::ratio&lt;1,1&gt;&gt;">
+    <DisplayString>{__rep} seconds</DisplayString>
+    <Expand>
+      <Item Name="Value">__rep</Item>
+      <Item Name="Minutes">__rep / 60</Item>
+      <Item Name="Hours">__rep / 3600</Item>
+      <Item Name="Days">__rep / 86400</Item>
+    </Expand>
+  </Type>
+
+  <!-- std::chrono::milliseconds visualization -->
+  <Type Name="std::chrono::duration&lt;__int64,std::ratio&lt;1,1000&gt;&gt;">
+    <DisplayString>{__rep} ms</DisplayString>
+    <Expand>
+      <Item Name="Milliseconds">__rep</Item>
+      <Item Name="Seconds">__rep / 1000</Item>
+      <Item Name="Minutes">__rep / 60000</Item>
+    </Expand>
+  </Type>
+
+  <!-- std::chrono::microseconds visualization -->
+  <Type Name="std::chrono::duration&lt;__int64,std::ratio&lt;1,1000000&gt;&gt;">
+    <DisplayString>{__rep} µs</DisplayString>
+    <Expand>
+      <Item Name="Microseconds">__rep</Item>
+      <Item Name="Milliseconds">__rep / 1000</Item>
+      <Item Name="Seconds">__rep / 1000000</Item>
+    </Expand>
+  </Type>
+
+  <!-- std::chrono::nanoseconds visualization -->
+  <Type Name="std::chrono::duration&lt;__int64,std::ratio&lt;1,1000000000&gt;&gt;">
+    <DisplayString>{__rep} ns</DisplayString>
+    <Expand>
+      <Item Name="Nanoseconds">__rep</Item>
+      <Item Name="Microseconds">__rep / 1000</Item>
+      <Item Name="Milliseconds">__rep / 1000000</Item>
+    </Expand>
+  </Type>
+
+  <!-- std::chrono::minutes visualization -->
+  <Type Name="std::chrono::duration&lt;__int64,std::ratio&lt;60,1&gt;&gt;">
+    <DisplayString>{__rep} minutes</DisplayString>
+    <Expand>
+      <Item Name="Minutes">__rep</Item>
+      <Item Name="Seconds">__rep * 60</Item>
+      <Item Name="Hours">__rep / 60</Item>
+    </Expand>
+  </Type>
+
+  <!-- std::chrono::hours visualization -->
+  <Type Name="std::chrono::duration&lt;__int64,std::ratio&lt;3600,1&gt;&gt;">
+    <DisplayString>{__rep} hours</DisplayString>
+    <Expand>
+      <Item Name="Hours">__rep</Item>
+      <Item Name="Minutes">__rep * 60</Item>
+      <Item Name="Seconds">__rep * 3600</Item>
+      <Item Name="Days">__rep / 24</Item>
+    </Expand>
+  </Type>
+
+  <!-- std::chrono::days visualization -->
+  <Type Name="std::chrono::duration&lt;__int64,std::ratio&lt;86400,1&gt;&gt;">
+    <DisplayString>{__rep} days</DisplayString>
+    <Expand>
+      <Item Name="Days">__rep</Item>
+      <Item Name="Hours">__rep * 24</Item>
+      <Item Name="Minutes">__rep * 1440</Item>
+      <Item Name="Seconds">__rep * 86400</Item>
+    </Expand>
+  </Type>
+
+  <!-- std::chrono::weeks visualization -->
+  <Type Name="std::chrono::duration&lt;__int64,std::ratio&lt;604800,1&gt;&gt;">
+    <DisplayString>{__rep} weeks</DisplayString>
+    <Expand>
+      <Item Name="Weeks">__rep</Item>
+      <Item Name="Days">__rep * 7</Item>
+      <Item Name="Hours">__rep * 168</Item>
+      <Item Name="Seconds">__rep * 604800</Item>
+    </Expand>
+  </Type>
+
+  <!-- std::chrono::months visualization -->
+  <Type Name="std::chrono::duration&lt;__int64,std::ratio&lt;2629743,1&gt;&gt;">
+    <DisplayString>{__rep} months</DisplayString>
+    <Expand>
+      <Item Name="Months">__rep</Item>
+      <Item Name="Days">__rep * 30</Item>
+      <Item Name="Seconds">__rep * 2629743</Item>
+    </Expand>
+  </Type>
+
+  <!-- std::chrono::years visualization -->
+  <Type Name="std::chrono::duration&lt;__int64,std::ratio&lt;31556926,1&gt;&gt;">
+    <DisplayString>{__rep} years</DisplayString>
+    <Expand>
+      <Item Name="Years">__rep</Item>
+      <Item Name="Days">__rep * 365</Item>
+      <Item Name="Seconds">__rep * 31556926</Item>
+    </Expand>
+  </Type>
+
+  <!-- ============================================================================
+       String Visualizations
+       ============================================================================ -->
+
+  <!-- std::string visualization -->
+  <Type Name="std::basic_string&lt;char,*&gt;">
+    <DisplayString>{_Mypair._Myval2._Myres > 0 ? _Mypair._Myval2._Myptr() : _Mypair._Myval2._Mybuf()}</DisplayString>
+    <StringView>_Mypair._Myval2._Myres > 0 ? _Mypair._Myval2._Myptr() : _Mypair._Myval2._Mybuf()</StringView>
+    <Expand>
+      <Item Name="Size">_Mypair._Myval2._Mysize</Item>
+      <Item Name="Capacity">_Mypair._Myval2._Myres</Item>
+      <Item Name="[Raw View]">_Mypair._Myval2</Item>
+    </Expand>
+  </Type>
+
+  <!-- std::wstring visualization -->
+  <Type Name="std::basic_string&lt;wchar_t,*&gt;">
+    <DisplayString>{_Mypair._Myval2._Myres > 0 ? _Mypair._Myval2._Myptr() : _Mypair._Myval2._Mybuf()}</DisplayString>
+    <StringView>_Mypair._Myval2._Myres > 0 ? _Mypair._Myval2._Myptr() : _Mypair._Myval2._Mybuf()</StringView>
+    <Expand>
+      <Item Name="Size">_Mypair._Myval2._Mysize</Item>
+      <Item Name="Capacity">_Mypair._Myval2._Myres</Item>
+      <Item Name="[Raw View]">_Mypair._Myval2</Item>
+    </Expand>
+  </Type>
+
+  <!-- ============================================================================
+       Tuple Visualizations (for DateUtils::diff return type)
+       ============================================================================ -->
+
+  <!-- std::tuple visualization -->
+  <Type Name="std::tuple&lt;*&gt;">
+    <DisplayString>tuple</DisplayString>
+    <Expand>
+      <ExpandedItem>_Mypair._Myval2</ExpandedItem>
+    </Expand>
+  </Type>
+
+  <!-- ============================================================================
+       Array Visualizations (for DateUtils buffer arrays)
+       ============================================================================ -->
+
+  <!-- std::array visualization -->
+  <Type Name="std::array&lt;*&gt;">
+    <DisplayString>[{_Elems[0]}, ...]</DisplayString>
+    <Expand>
+      <ArrayItems>
+        <Size>_EEN_SIZE</Size>
+        <ValuePointer>_Elems</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+
+  <!-- ============================================================================
+       Common Type Aliases and Helpers
+       ============================================================================ -->
+
+  <!-- time_t visualization -->
+  <Type Name="time_t">
+    <DisplayString>time_t: {(unsigned __int64)this}</DisplayString>
+  </Type>
+
+  <!-- tm structure visualization -->
+  <Type Name="tm">
+    <DisplayString>
+      {tm_year + 1900,d}-{tm_mon + 1,d}-{tm_mday,d} {tm_hour,d}:{tm_min,d}:{tm_sec,d}
+    </DisplayString>
+    <Expand>
+      <Item Name="Year">tm_year + 1900</Item>
+      <Item Name="Month">tm_mon + 1</Item>
+      <Item Name="Day">tm_mday</Item>
+      <Item Name="Hour">tm_hour</Item>
+      <Item Name="Minute">tm_min</Item>
+      <Item Name="Second">tm_sec</Item>
+      <Item Name="Day of Week">tm_wday</Item>
+      <Item Name="Day of Year">tm_yday</Item>
+      <Item Name="DST">tm_isdst</Item>
+    </Expand>
+  </Type>
+
+  <!-- ============================================================================
+       Utility Type Visualizations
+       ============================================================================ -->
+
+  <!-- uint64_t visualization with common interpretations -->
+  <Type Name="unsigned __int64">
+    <DisplayString>{this}</DisplayString>
+    <Expand>
+      <Item Name="Decimal">this</Item>
+      <Item Name="Hex">this,x</Item>
+      <Item Name="As Seconds (if epoch)">this</Item>
+      <Item Name="As Milliseconds">this / 1000</Item>
+    </Expand>
+  </Type>
+
+  <!-- uint32_t visualization -->
+  <Type Name="unsigned int">
+    <DisplayString>{this}</DisplayString>
+    <Expand>
+      <Item Name="Decimal">this</Item>
+      <Item Name="Hex">this,x</Item>
+    </Expand>
+  </Type>
+
+  <!-- ============================================================================
+       Siddiqsoft Namespace Visualizations
+       ============================================================================ -->
+
+  <!-- DateUtils struct visualization -->
+  <Type Name="siddiqsoft::DateUtils">
+    <DisplayString>DateUtils (static utility class)</DisplayString>
+    <Expand>
+      <Item Name="Note">Static methods: ISO8601, RFC7231, toTimespan, parseEpoch, diff, durationString, parseISO8601</Item>
+    </Expand>
+  </Type>
+
+  <!-- UrlUtils struct visualization -->
+  <Type Name="siddiqsoft::UrlUtils">
+    <DisplayString>UrlUtils (static utility class)</DisplayString>
+    <Expand>
+      <Item Name="Note">Static methods: encode</Item>
+    </Expand>
+  </Type>
+
+  <!-- ============================================================================
+       Common STL Container Visualizations
+       ============================================================================ -->
+
+  <!-- std::vector visualization -->
+  <Type Name="std::vector&lt;*&gt;">
+    <DisplayString>vector[{_Mypair._Myval2._Mysize}]</DisplayString>
+    <Expand>
+      <Item Name="Size">_Mypair._Myval2._Mysize</Item>
+      <Item Name="Capacity">_Mypair._Myval2._Mycap</Item>
+      <ArrayItems>
+        <Size>_Mypair._Myval2._Mysize</Size>
+        <ValuePointer>_Mypair._Myval2._Myfirst</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+
+  <!-- std::map visualization -->
+  <Type Name="std::map&lt;*&gt;">
+    <DisplayString>map[{_Mypair._Myval2._Mysize}]</DisplayString>
+    <Expand>
+      <Item Name="Size">_Mypair._Myval2._Mysize</Item>
+      <TreeItems>
+        <Size>_Mypair._Myval2._Mysize</Size>
+        <HeadPointer>_Mypair._Myval2._Myhead</HeadPointer>
+        <LeftPointer>_Left</LeftPointer>
+        <RightPointer>_Right</RightPointer>
+        <ValueNode>_Myval</ValueNode>
+      </TreeItems>
+    </Expand>
+  </Type>
+
+  <!-- std::unordered_map visualization -->
+  <Type Name="std::unordered_map&lt;*&gt;">
+    <DisplayString>unordered_map[{_Mypair._Myval2._Mysize}]</DisplayString>
+    <Expand>
+      <Item Name="Size">_Mypair._Myval2._Mysize</Item>
+      <Item Name="Bucket Count">_Mypair._Myval2._Mybuckets._Mypair._Myval2._Mysize</Item>
+    </Expand>
+  </Type>
+
+  <!-- ============================================================================
+       Optional and Variant Visualizations
+       ============================================================================ -->
+
+  <!-- std::optional visualization -->
+  <Type Name="std::optional&lt;*&gt;">
+    <DisplayString Condition="_Engaged">optional({_Value})</DisplayString>
+    <DisplayString>optional(empty)</DisplayString>
+    <Expand>
+      <Item Name="Has Value" Condition="_Engaged">true</Item>
+      <Item Name="Has Value" Condition="!_Engaged">false</Item>
+      <Item Name="Value" Condition="_Engaged">_Value</Item>
+    </Expand>
+  </Type>
+
+  <!-- ============================================================================
+       Smart Pointer Visualizations
+       ============================================================================ -->
+
+  <!-- std::unique_ptr visualization -->
+  <Type Name="std::unique_ptr&lt;*&gt;">
+    <DisplayString Condition="_Mypair._Myval2 != 0">unique_ptr({*_Mypair._Myval2})</DisplayString>
+    <DisplayString>unique_ptr(null)</DisplayString>
+    <Expand>
+      <Item Name="Pointer">_Mypair._Myval2</Item>
+      <Item Name="Value" Condition="_Mypair._Myval2 != 0">*_Mypair._Myval2</Item>
+    </Expand>
+  </Type>
+
+  <!-- std::shared_ptr visualization -->
+  <Type Name="std::shared_ptr&lt;*&gt;">
+    <DisplayString Condition="_Mypair._Myval2 != 0">shared_ptr({*_Mypair._Myval2})</DisplayString>
+    <DisplayString>shared_ptr(null)</DisplayString>
+    <Expand>
+      <Item Name="Pointer">_Mypair._Myval2</Item>
+      <Item Name="Reference Count">_Mypair._Myval2 != 0 ? _Mypair._Myval2[-1]._Uses : 0</Item>
+      <Item Name="Value" Condition="_Mypair._Myval2 != 0">*_Mypair._Myval2</Item>
+    </Expand>
+  </Type>
+
+</AutoVisualizer>

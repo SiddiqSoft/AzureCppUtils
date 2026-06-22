@@ -22,13 +22,15 @@ project(AzureCppUtils
         HOMEPAGE_URL    "%%myurl%%"
         DESCRIPTION     "Azure REST API Helpers for Modern C++. Featuring helper functions for date-time, encryption tokens for Azure REST API as a single header-only package. Using OpenSSL on UNIX and native Win32 on Windows.")
 
-set( CMAKE_CXX_STANDARD 23)
-set( CMAKE_CXX_STANDARD_REQUIRED On)
-set( CMAKE_CXX_EXTENSIONS Off)
-    
-# ____________________________________
-# Options; define and declare defaults
-option(${PROJECT_NAME}_BUILD_TESTS "${PROJECT_NAME} - Build tests. Uncheck for install only runs" OFF)
+# Set C++ standard globally
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# Build options
+option(${PROJECT_NAME}_BUILD_TESTS "Build tests for ${PROJECT_NAME}" OFF)
+option(CI_BUILDID "Build ID for CI builds" "0.0.0")
 
 # ____________________________________
 #  Library Definition
@@ -46,6 +48,12 @@ target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_23)
 find_package(OpenSSL 3.5 REQUIRED)
 include_directories(${OPENSSL_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} INTERFACE OpenSSL::SSL OpenSSL::Crypto)
+
+# Install natvis file for Visual Studio debugger visualization
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/pack/SiddiqSoft.AzureCppUtils.natvis
+        DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}
+        COMPONENT natvis
+        OPTIONAL)
 
 CPMAddPackage("gh:siddiqsoft/RunOnEnd#1.4.5")
 target_link_libraries(${PROJECT_NAME} INTERFACE RunOnEnd::RunOnEnd)
