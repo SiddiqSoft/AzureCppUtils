@@ -25,6 +25,8 @@ lib/
 **/tests/results/**
 **/*.profraw
 **/.DS_Store
+site/
+.venv/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

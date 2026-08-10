@@ -11,10 +11,10 @@ if(${${PROJECT_NAME}_BUILD_TESTS})
 
     add_executable(${TESTPROJ})
 
-    target_compile_features(${TESTPROJ} PRIVATE cxx_std_23)
+    target_compile_features(${TESTPROJ} PRIVATE cxx_std_${CMAKE_CXX_STANDARD})
     target_compile_options( ${TESTPROJ}
                             PRIVATE
-                            $<$<CXX_COMPILER_ID:MSVC>:/std:c++23> )
+                            $<$<CXX_COMPILER_ID:MSVC>:/std:c++${CMAKE_CXX_STANDARD}> )
 
     # Check if mold is available on the system
     find_program(MOLD_LINKER mold)

@@ -1,0 +1,84 @@
+site_name: Azure C++ Utils
+site_description: Azure REST API Helpers for Modern C++
+site_author: Siddiq Software LLC
+site_url: https://siddiqsoft.github.io/AzureCppUtils/
+repo_url: https://github.com/SiddiqSoft/AzureCppUtils
+repo_name: SiddiqSoft/AzureCppUtils
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Roboto
+    code: JetBrains Mono
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.top
+    - navigation.footer
+    - navigation.tracking
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+
+extra_css:
+  - css/custom.css
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Features:
+      - Overview: features/index.md
+      - Date Utilities: features/date-utils.md
+      - Base64 Utilities: features/base64-utils.md
+      - Encryption & Tokens: features/encryption-utils.md
+      - URL Utilities: features/url-utils.md
+  - Integration:
+      - Overview: integration/index.md
+      - CMake & CPM: integration/cmake.md
+      - Package Managers: integration/package-managers.md
+  - API Reference:
+      - Overview: api/index.md
+      - DateUtils: api/date-utils.md
+      - Base64Utils: api/base64-utils.md
+      - EncryptionUtils: api/encryption-utils.md
+      - UrlUtils: api/url-utils.md
+      - ConversionUtils: api/conversion-utils.md
+  - License: license.md
