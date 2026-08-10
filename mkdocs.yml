@@ -1,14 +1,25 @@
 site_name: Azure C++ Utils
-site_description: Azure REST API Helpers for Modern C++
+site_description: Azure Utilities for Modern C++
 site_author: Siddiq Software LLC
 site_url: https://siddiqsoft.github.io/AzureCppUtils/
 repo_url: https://github.com/SiddiqSoft/AzureCppUtils
 repo_name: SiddiqSoft/AzureCppUtils
 edit_uri: edit/main/docs/
 
+hooks:
+  - docs/hooks.py
+
+extra:
+  version: "0.0.0-dev"
+
+
 theme:
   name: material
+  language: en
+  logo: assets/Siddiq-Software-Avatar.png
+  favicon: assets/Siddiq-Software-Avatar.png
   palette:
+    # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
       scheme: default
       primary: indigo
@@ -16,6 +27,7 @@ theme:
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
+    # Palette toggle for dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
       primary: indigo
@@ -23,9 +35,6 @@ theme:
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
-  font:
-    text: Roboto
-    code: JetBrains Mono
   features:
     - navigation.tabs
     - navigation.tabs.sticky
@@ -40,9 +49,6 @@ theme:
     - search.share
     - content.code.copy
     - content.code.annotate
-
-extra_css:
-  - css/custom.css
 
 markdown_extensions:
   - admonition
@@ -61,6 +67,9 @@ markdown_extensions:
   - tables
   - toc:
       permalink: true
+
+extra_css:
+  - css/custom.css
 
 nav:
   - Home: index.md
