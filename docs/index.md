@@ -3,7 +3,6 @@
 **Azure REST API Helpers for Modern C++**
 
 <div class="badge-container">
-  <a href="https://github.com/SiddiqSoft/AzureCppUtils/actions/workflows/codeql-analysis.yml"><img src="https://github.com/SiddiqSoft/AzureCppUtils/actions/workflows/codeql-analysis.yml/badge.svg" alt="CodeQL" /></a>
   <a href="https://dev.azure.com/siddiqsoft/siddiqsoft/_build/latest?definitionId=16&branchName=main"><img src="https://dev.azure.com/siddiqsoft/siddiqsoft/_apis/build/status/SiddiqSoft.AzureCppUtils?branchName=main" alt="Build Status" /></a>
   <a href="https://www.nuget.org/packages/SiddiqSoft.AzureCppUtils/"><img src="https://img.shields.io/nuget/v/SiddiqSoft.AzureCppUtils" alt="NuGet" /></a>
   <a href="https://github.com/SiddiqSoft/AzureCppUtils/tags"><img src="https://img.shields.io/github/v/tag/SiddiqSoft/AzureCppUtils" alt="GitHub Tag" /></a>
