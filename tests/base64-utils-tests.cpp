@@ -1,4 +1,4 @@
-﻿/*
+/*
     AzureCppUtils : Azure Utilities for Modern C++
 
     BSD 3-Clause License
@@ -172,7 +172,7 @@ namespace siddiqsoft
     #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
     TEST(Base64Utils, test1d_w)
     {
-        std::wstring sample {L"صديق"};
+        std::wstring sample {L"\u0635\u062F\u064A\u0642"};
 
         try {
             auto roundTrip = Base64Utils::decode(Base64Utils::encode(sample));

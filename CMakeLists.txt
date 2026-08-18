@@ -54,6 +54,7 @@ target_include_directories(${PROJECT_NAME}
                             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
                             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_${CMAKE_CXX_STANDARD})
+target_compile_options(${PROJECT_NAME} INTERFACE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
 
 # ____________________________________
 # Dependencies

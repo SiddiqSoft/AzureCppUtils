@@ -212,7 +212,7 @@ namespace siddiqsoft
 
     TEST(EncryptionUtils, HMAC_1_w)
     {
-        std::wstring myData {L"hello صديق"};
+        std::wstring myData {L"hello \u0635\u062F\u064A\u0642"};
         std::string  myKey {"01234567890123456789012345678901"};
 
         try {
