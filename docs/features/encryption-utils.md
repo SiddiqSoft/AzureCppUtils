@@ -80,7 +80,26 @@ Generates HMAC-SHA256 signatures tailored for JSON Web Tokens (JWT).
 std::string key = "JWTSecretKey";
 std::string jwtHeaderAndPayload = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0";
 
-std::string jwtSignature = siddiqsoft::EncryptionUtils::JWTSHA256<char>(key, jwtHeaderAndPayload);
+std::string jwtSignature = siddiqsoft::EncryptionUtils::JWTHMAC256<char>(key, jwtHeaderAndPayload);
+```
+
+---
+
+## Constant-Time Comparison (Security)
+
+When verifying authorization tokens or signatures received from HTTP requests or webhooks, comparing strings using standard equality operators (`==`) can leak timing information that attackers can exploit via side-channel analysis.
+
+Use `EncryptionUtils::constantTimeCompare` to safely verify tokens in constant time:
+
+```cpp
+#include "siddiqsoft/encryption-utils.hpp"
+
+std::string expectedToken = getExpectedSasToken();
+std::string receivedToken = getHeaderToken();
+
+if (siddiqsoft::EncryptionUtils::constantTimeCompare(expectedToken, receivedToken)) {
+    // Authorized
+}
 ```
 
 !!! warning "Binary Key Storage"

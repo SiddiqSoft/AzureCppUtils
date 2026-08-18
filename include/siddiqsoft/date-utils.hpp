@@ -1,4 +1,4 @@
-﻿/*
+/*
     AzureCppUtils : Azure REST API Utilities for Modern C++
 
     BSD 3-Clause License
@@ -53,21 +53,24 @@
 /// @brief SiddiqSoft
 namespace siddiqsoft
 {
-#if !defined(_NORW)
+#if !defined(NORW)
     /// @brief In support of the macro NORW which allows us to declare/use narrow/wide strings as needed. Plucked from the MS stl
     /// implementation
-    template <typename _NorWT>
-        requires std::same_as<_NorWT, char> || std::same_as<_NorWT, wchar_t>
-    [[nodiscard]] constexpr const _NorWT* NorW_1(const char* const _Str, const wchar_t* const _WStr) noexcept
+    template <typename NorWT>
+        requires std::same_as<NorWT, char> || std::same_as<NorWT, wchar_t>
+    [[nodiscard]] constexpr const NorWT* NorW_1(const char* const Str, const wchar_t* const WStr) noexcept
     {
-        if constexpr (std::is_same_v<_NorWT, char>) {
-            return _Str;
+        if constexpr (std::is_same_v<NorWT, char>) {
+            return Str;
         }
         else {
-            return _WStr;
+            return WStr;
         }
     }
-#define _NORW(_NorWT, _Literal) NorW_1<_NorWT>(_Literal, L##_Literal)
+#define NORW(NorWT, Literal) NorW_1<NorWT>(Literal, L##Literal)
+#if !defined(_NORW)
+#define _NORW(NorWT, Literal) NORW(NorWT, Literal)
+#endif
 #endif
 
     /// @brief Date Time utilities for REST API
@@ -149,14 +152,14 @@ namespace siddiqsoft
             // Note that since we are getting the UTC time we should not use the %z or %Z in the strftime format
             // as it returns the local timezone and not GMT.
             if constexpr (std::is_same_v<T, char>) {
-                std::array<char, 32> buff;
+                std::array<char, 32> buff {};
                 strftime(buff.data(), buff.size(), "%a, %d %h %Y %T GMT", &timeInfo);
 
                 return buff.data();
             }
 
             if constexpr (std::is_same_v<T, wchar_t>) {
-                std::array<wchar_t, 32> buff;
+                std::array<wchar_t, 32> buff {};
                 wcsftime(buff.data(), buff.size(), L"%a, %d %h %Y %T GMT", &timeInfo);
 
                 return buff.data();
@@ -215,17 +218,29 @@ namespace siddiqsoft
             if constexpr (std::is_same_v<T, uint64_t> || std::is_same_v<T, uint32_t> || std::is_same_v<T, int>)
                 epoch1ntp = arg;
             else if constexpr (std::is_same_v<T, std::string>) {
-                epoch1ntp = std::stoull(arg.data());
-                // Check if we have high-resolution part.
-                if (auto locMilli = arg.find("."); locMilli != std::string::npos) {
-                    epoch1micro = std::stoull(arg.substr(locMilli + 1).data());
+                if (!arg.empty()) {
+                    try {
+                        epoch1ntp = std::stoull(arg);
+                        if (auto locMilli = arg.find("."); locMilli != std::string::npos && locMilli + 1 < arg.length()) {
+                            epoch1micro = std::stoull(arg.substr(locMilli + 1));
+                        }
+                    }
+                    catch (...) {
+                        return ret_tp;
+                    }
                 }
             }
             else if constexpr (std::is_same_v<T, std::wstring>) {
-                epoch1ntp = std::stoull(arg.data());
-                // Check if we have high-resolution part.
-                if (auto locMilli = arg.find(L"."); locMilli != std::string::npos) {
-                    epoch1micro = std::stoull(arg.substr(locMilli + 1).data());
+                if (!arg.empty()) {
+                    try {
+                        epoch1ntp = std::stoull(arg);
+                        if (auto locMilli = arg.find(L"."); locMilli != std::wstring::npos && locMilli + 1 < arg.length()) {
+                            epoch1micro = std::stoull(arg.substr(locMilli + 1));
+                        }
+                    }
+                    catch (...) {
+                        return ret_tp;
+                    }
                 }
             }
 
@@ -374,40 +389,41 @@ namespace siddiqsoft
         {
             int yearPart = 0, monthPart = 0, dayPart = 0, hourPart = 0, minutePart = 0, secondPart = 0, millisecondPart = 0;
 
+            int parsedCount = 0;
             if constexpr (std::is_same_v<T, char>) {
 #if defined(WIN32) || defined(_WIN32) || defined(_WIN64) || defined(WIN64)
-                sscanf_s(arg.data(),
-                         "%d-%d-%dT%d:%d:%d.%ldZ",
-                         &yearPart,
-                         &monthPart,
-                         &dayPart,
-                         &hourPart,
-                         &minutePart,
-                         &secondPart,
-                         &millisecondPart);
+                parsedCount = sscanf_s(arg.data(),
+                                       "%d-%d-%dT%d:%d:%d.%dZ",
+                                       &yearPart,
+                                       &monthPart,
+                                       &dayPart,
+                                       &hourPart,
+                                       &minutePart,
+                                       &secondPart,
+                                       &millisecondPart);
 #elif defined(__linux__) || defined(__APPLE__)
-                sscanf(arg.data(),
-                       "%d-%d-%dT%d:%d:%d.%dZ",
-                       &yearPart,
-                       &monthPart,
-                       &dayPart,
-                       &hourPart,
-                       &minutePart,
-                       &secondPart,
-                       &millisecondPart);
+                parsedCount = sscanf(arg.data(),
+                                     "%d-%d-%dT%d:%d:%d.%dZ",
+                                     &yearPart,
+                                     &monthPart,
+                                     &dayPart,
+                                     &hourPart,
+                                     &minutePart,
+                                     &secondPart,
+                                     &millisecondPart);
 #endif
             }
             else if constexpr (std::is_same_v<T, wchar_t>) {
 #if defined(WIN32) || defined(_WIN32) || defined(_WIN64) || defined(WIN64)
-                swscanf_s(arg.data(),
-                          L"%d-%d-%dT%d:%d:%d.%ldZ",
-                          &yearPart,
-                          &monthPart,
-                          &dayPart,
-                          &hourPart,
-                          &minutePart,
-                          &secondPart,
-                          &millisecondPart);
+                parsedCount = swscanf_s(arg.data(),
+                                        L"%d-%d-%dT%d:%d:%d.%dZ",
+                                        &yearPart,
+                                        &monthPart,
+                                        &dayPart,
+                                        &hourPart,
+                                        &minutePart,
+                                        &secondPart,
+                                        &millisecondPart);
 #elif defined(__linux__) || defined(__APPLE__)
                 // There is a bug in this implementation for GCC and Clang!!
                 // swscanf(arg.data(),
@@ -427,7 +443,7 @@ namespace siddiqsoft
                 throw std::invalid_argument("Type is not supported; must be std::string[_view] or std::wstring[_view]");
             }
 
-            if (yearPart > 0 && monthPart > 0 && dayPart > 0) {
+            if (parsedCount >= 3 && yearPart > 0 && monthPart > 0 && dayPart > 0) {
                 tm retTime;
                 retTime.tm_year = yearPart - 1900; // Year since 1900
                 retTime.tm_mon  = monthPart - 1;   // 0-11

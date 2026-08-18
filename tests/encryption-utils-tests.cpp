@@ -1,4 +1,4 @@
-﻿/*
+/*
     AzureCppUtils : Azure Utilities for Modern C++
 
     BSD 3-Clause License
@@ -592,5 +592,13 @@ namespace siddiqsoft
         EXPECT_NE(std::wstring::npos, firstDot);
         EXPECT_NE(std::wstring::npos, secondDot);
         EXPECT_EQ(std::wstring::npos, jwt.find(L'.', secondDot + 1));
+    }
+
+    TEST(EncryptionUtils, ConstantTimeCompare)
+    {
+        EXPECT_TRUE(EncryptionUtils::constantTimeCompare("hello", "hello"));
+        EXPECT_FALSE(EncryptionUtils::constantTimeCompare("hello", "world"));
+        EXPECT_FALSE(EncryptionUtils::constantTimeCompare("hello", "hello1"));
+        EXPECT_TRUE(EncryptionUtils::constantTimeCompare("", ""));
     }
 } // namespace siddiqsoft
