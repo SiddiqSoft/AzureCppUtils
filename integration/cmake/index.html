@@ -24,7 +24,7 @@
         
       
       
-      <link rel="icon" href="../../assets/Siddiq-Software-Avatar.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
@@ -50,8 +50,8 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"JetBrains Mono"}</style>
       
     
     
@@ -104,7 +104,8 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="../.." title="Azure C++ Utils" class="md-header__button md-logo" aria-label="Azure C++ Utils" data-md-component="logo">
       
-  <img src="../../assets/Siddiq-Software-Avatar.png" alt="logo">
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -357,7 +358,8 @@
   <label class="md-nav__title" for="__drawer">
     <a href="../.." title="Azure C++ Utils" class="md-nav__button md-logo" aria-label="Azure C++ Utils" data-md-component="logo">
       
-  <img src="../../assets/Siddiq-Software-Avatar.png" alt="logo">
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
     Azure C++ Utils
@@ -806,6 +808,28 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#dependencies-system-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies &amp; System Requirements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cpm-dependency-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPM Dependency Cache
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -830,6 +854,34 @@
     
   
     Package Managers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dependencies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependencies
   
 
     
@@ -1182,6 +1234,28 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#dependencies-system-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies &amp; System Requirements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cpm-dependency-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPM Dependency Cache
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1303,9 +1377,60 @@
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">MyAzureApp</span><span class="w"> </span><span class="s">PRIVATE</span><span class="w"> </span><span class="s">AzureCppUtils::AzureCppUtils</span><span class="p">)</span>
 </span></code></pre></div>
+<hr />
+<h2 id="dependencies-system-requirements">Dependencies &amp; System Requirements<a class="headerlink" href="#dependencies-system-requirements" title="Permanent link">&para;</a></h2>
+<p><code>AzureCppUtils</code> automatically resolves its lightweight header-only dependencies via CPM / CMake:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Dependency</th>
+<th style="text-align: left;">Provider / Version</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Platforms</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong><code>RunOnEnd</code></strong></td>
+<td style="text-align: left;"><code>gh:SiddiqSoft/RunOnEnd#1.4.5</code></td>
+<td style="text-align: left;">Scope guard utility for exception-safe cleanup.</td>
+<td style="text-align: left;">All</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>StringHelpers</code></strong></td>
+<td style="text-align: left;"><code>gh:SiddiqSoft/StringHelpers#1.2.2</code></td>
+<td style="text-align: left;">String conversion utilities (<code>ConversionUtils</code>).</td>
+<td style="text-align: left;">All</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Win32 CryptoAPI / BCrypt</strong></td>
+<td style="text-align: left;">System (<code>Crypt32.lib</code>, <code>Bcrypt.lib</code>)</td>
+<td style="text-align: left;">Native Windows cryptography algorithms.</td>
+<td style="text-align: left;">Windows</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>OpenSSL 3.x</strong></td>
+<td style="text-align: left;"><code>find_package(OpenSSL 3.5 REQUIRED)</code></td>
+<td style="text-align: left;">High-performance cryptography (<code>libcrypto</code>, <code>libssl</code>).</td>
+<td style="text-align: left;">Linux / macOS</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="cpm-dependency-cache">CPM Dependency Cache<a class="headerlink" href="#cpm-dependency-cache" title="Permanent link">&para;</a></h2>
+<p><code>AzureCppUtils</code> configures <code>CPM_SOURCE_CACHE</code> by default to avoid re-downloading dependencies during clean builds:</p>
+<ul>
+<li><strong>Windows</strong>: <code>%LOCALAPPDATA%\CPM\.cpmcache</code> or <code>%USERPROFILE%\AppData\Local\CPM\.cpmcache</code></li>
+<li><strong>Linux / macOS</strong>: <code>$HOME/.cache/.cpmcache</code></li>
+<li><strong>Fallback</strong>: <code>${CMAKE_BINARY_DIR}/.cpmcache</code></li>
+</ul>
+<p>You can override <code>CPM_SOURCE_CACHE</code> by defining it before building or in CMake command arguments:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>cmake<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span>-DCPM_SOURCE_CACHE<span class="o">=</span>/custom/cache/path
+</span></code></pre></div>
+<hr />
 <div class="admonition tip">
 <p class="admonition-title">Target Alias</p>
-<p>The CMake target defined by this library is <code>AzureCppUtils::AzureCppUtils</code>. Linking against this target automatically configures include directories and system libraries (<code>Crypt32</code> &amp; <code>BCrypt</code> on Windows; <code>OpenSSL::Crypto</code> on Linux/macOS).</p>
+<p>The CMake target defined by this library is <code>AzureCppUtils::AzureCppUtils</code>. Linking against this target automatically configures include directories, CPM dependencies, and system libraries (<code>Crypt32</code> &amp; <code>BCrypt</code> on Windows; <code>OpenSSL::Crypto</code> on Linux/macOS).</p>
 </div>
 
 
@@ -1402,7 +1527,7 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.top", "navigation.footer", "navigation.tracking", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": "3.3.0-alpha.2-2-g737359e"}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.top", "navigation.footer", "navigation.tracking", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": "3.4.0"}</script>
     
     
       <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>

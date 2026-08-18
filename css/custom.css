@@ -1,105 +1,115 @@
-/* Google Fonts Import */
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;1,400&family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap');
+/* Custom styles for AzureCppUtils documentation */
 
 :root {
-  --md-font-font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-  --md-code-font-family: 'JetBrains Mono', SFMono-Regular, Consolas, Menlo, monospace;
+  --md-font-main: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --md-font-code: "JetBrains Mono", SFMono-Regular, Consolas, Menlo, monospace;
 }
 
-/* Custom Table Styles - Inspired by json.nlohmann.me */
-.md-typeset table:not([class]) {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  border-radius: 8px;
-  overflow: hidden;
-  border-collapse: separate;
-  border-spacing: 0;
-  margin: 1.5em 0;
-  width: 100%;
+/* Base typography */
+body, input {
+  font-family: var(--md-font-main);
 }
 
-.md-typeset table:not([class]) th {
-  background-color: var(--md-primary-fg-color);
-  color: var(--md-primary-bg-color);
-  font-weight: 600;
-  text-align: left;
-  padding: 12px 16px;
-  border: none;
-}
-
-[data-md-color-scheme="slate"] .md-typeset table:not([class]) th {
-  background-color: rgba(63, 81, 181, 0.3);
-  color: var(--md-default-fg-color);
-}
-
-.md-typeset table:not([class]) td {
-  padding: 10px 16px;
-  border-top: 1px solid var(--md-default-fg-color--lightest);
-}
-
-.md-typeset table:not([class]) tr:hover {
-  background-color: var(--md-accent-fg-color--transparent);
+code, kbd, pre {
+  font-family: var(--md-font-code);
 }
 
 /* Badge Container Styling */
 .badge-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin: 1em 0 1.5em 0;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
   align-items: center;
 }
 
 .badge-container img {
-  height: 24px;
-  border-radius: 4px;
+  margin: 0;
 }
 
-/* Code Blocks Styling */
-.md-typeset pre > code {
-  font-family: var(--md-code-font-family);
-  font-size: 0.85em;
+/* Table styling with shadows and subtle borders */
+.md-typeset table:not([class]) {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   border-radius: 6px;
+  overflow: hidden;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: 1em;
+  margin-bottom: 1.5em;
+  width: 100%;
+}
+
+.md-typeset table:not([class]) th {
+  background-color: var(--md-primary-bg-color, #3f51b5);
+  color: var(--md-primary-fg-color, #ffffff);
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  text-align: left;
+}
+
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) th {
+  background-color: rgba(63, 81, 181, 0.25);
+  color: var(--md-default-fg-color);
+}
+
+.md-typeset table:not([class]) td {
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--md-default-fg-color--lightest, #e0e0e0);
+}
+
+.md-typeset table:not([class]) tr:hover td {
+  background-color: var(--md-accent-fg-color--transparent, rgba(63, 81, 181, 0.05));
+}
+
+/* Enhanced Code Blocks */
+.md-typeset pre > code {
+  border-radius: 6px;
+  font-size: 0.875em;
   line-height: 1.5;
 }
 
-.md-typeset code {
-  font-family: var(--md-code-font-family);
-  border-radius: 4px;
-  padding: 0.15em 0.35em;
-}
-
-/* Admonition Styling */
-.md-typeset .admonition,
-.md-typeset details {
-  border-radius: 8px;
+.md-typeset .highlight {
+  border-radius: 6px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  border-left-width: 4px;
 }
 
-/* Feature Grid Cards */
-.grid-cards {
+/* Hero & Card Grid enhancements */
+.grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-  margin: 1.5rem 0;
+  gap: 1.25rem;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .card {
   padding: 1.25rem;
   border-radius: 8px;
   border: 1px solid var(--md-default-fg-color--lightest);
-  background: var(--md-default-bg-color);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  background-color: var(--md-default-bg-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-  border-color: var(--md-primary-fg-color);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
 }
 
 .card h3 {
   margin-top: 0;
+  margin-bottom: 0.5rem;
   color: var(--md-primary-fg-color);
+}
+
+/* Admonition Refinements */
+.md-typeset .admonition,
+.md-typeset details {
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Permalinks */
+.md-typeset .headerlink {
+  transition: opacity 0.2s ease;
 }

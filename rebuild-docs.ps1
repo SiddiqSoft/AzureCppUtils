@@ -1,4 +1,3 @@
-$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-if ($ScriptDir) { Set-Location $ScriptDir }
-Write-Host "Rebuilding documentation with MkDocs..."
+$ErrorActionPreference = "Stop"
+Set-Location -Path $PSScriptRoot
 mkdocs build --config-file ../mkdocs.yml
