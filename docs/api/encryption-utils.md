@@ -111,3 +111,21 @@ Generates an authorization signature token for Azure Cosmos DB REST requests.
   - `resourceId`: Resource ID or link path.
   - `date`: RFC 7231 / HTTP-date string.
 - **Returns**: URL-encoded authorization header value `type%3Dmaster%26ver%3D1.0%26sig%3D...`.
+
+---
+
+### `constantTimeCompare`
+
+```cpp
+static bool constantTimeCompare(
+    std::string_view a,
+    std::string_view b
+) noexcept;
+```
+
+Compares two string slices in constant time to prevent timing side-channel attacks during token or signature verification.
+
+- **Parameters**:
+  - `a`: First string view.
+  - `b`: Second string view.
+- **Returns**: `true` if identical in length and bytes; `false` otherwise.

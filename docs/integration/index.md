@@ -12,6 +12,7 @@
 | **FetchContent** | Standard CMake 3.14+ projects without external scripts | [FetchContent Guide](cmake.md#fetchcontent) |
 | **NuGet** | Visual Studio & MSBuild C++ projects on Windows | [Package Managers Guide](package-managers.md#nuget) |
 | **Direct Copy / Submodule** | Embedded builds or vendored dependencies | [Header Inclusion](package-managers.md#direct-headers) |
+| **Dependency Diagram** | Mermaid graph and breakdown of CPM / system dependencies | [Dependencies Page](dependencies.md) |
 
 ---
 
@@ -28,3 +29,13 @@ FetchContent_MakeAvailable(AzureCppUtils)
 
 target_link_libraries(your_target PRIVATE AzureCppUtils::AzureCppUtils)
 ```
+
+---
+
+## Dependencies Summary
+
+| Dependency | Details |
+| :--- | :--- |
+| **`RunOnEnd`** | [`gh:SiddiqSoft/RunOnEnd#1.4.5`](https://github.com/SiddiqSoft/RunOnEnd) (Scope guard cleanup) |
+| **`StringHelpers`** | [`gh:SiddiqSoft/StringHelpers#1.2.2`](https://github.com/SiddiqSoft/StringHelpers) (Wide/narrow string conversions) |
+| **Native Cryptography** | `Win32 Crypt32 / BCrypt` on Windows; `OpenSSL 3.x` (`libcrypto`) on Linux & macOS |

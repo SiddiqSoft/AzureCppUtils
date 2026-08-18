@@ -86,6 +86,7 @@ nav:
       - Overview: integration/index.md
       - CMake & CPM: integration/cmake.md
       - Package Managers: integration/package-managers.md
+      - Dependencies: integration/dependencies.md
   - API Reference:
       - Overview: api/index.md
       - DateUtils: api/date-utils.md
