@@ -1,4 +1,4 @@
-﻿/*
+/*
     AzureCppUtils : Azure REST API Utilities for Modern C++
 
     BSD 3-Clause License
@@ -44,6 +44,7 @@
 #include <iostream>
 #include <chrono>
 #include <string>
+#include <string_view>
 #include <functional>
 #include <memory>
 #include <ranges>
@@ -71,6 +72,21 @@ namespace siddiqsoft
     /// fiddle with utf8 data and not utf16 over the internet and especially json documents!
     struct EncryptionUtils
     {
+        /**
+         * @brief Constant-time string comparison helper to prevent timing side-channel attacks when verifying tokens/signatures.
+         * @param a First string slice
+         * @param b Second string slice
+         * @return true if equal, false otherwise
+         */
+        static bool constantTimeCompare(std::string_view a, std::string_view b) noexcept
+        {
+            if (a.length() != b.length()) return false;
+            unsigned char result = 0;
+            for (size_t i = 0; i < a.length(); ++i) {
+                result |= static_cast<unsigned char>(a[i] ^ b[i]);
+            }
+            return result == 0;
+        }
         /// @brief Create a MD5 hash for the given source as a string.
         /// Returns an empty string if the source is empty.
         /// @param source Maybe std::string or std::wstring

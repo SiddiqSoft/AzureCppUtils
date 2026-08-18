@@ -1,4 +1,4 @@
-﻿/*
+/*
     AzureCppUtils : Azure REST API Utilities for Modern C++
 
     BSD 3-Clause License
@@ -143,7 +143,8 @@ namespace siddiqsoft
                                                                               LPSTR(dest.data()),
                                                                               &destSize))
                 {
-                    return std::basic_string<T> {reinterpret_cast<T*>(dest.data()), destSize};
+                    size_t actualLen = (destSize > 0 && dest[destSize - 1] == T(0)) ? (destSize - 1) : destSize;
+                    return std::basic_string<T> {reinterpret_cast<T*>(dest.data()), actualLen};
                 }
             }
 

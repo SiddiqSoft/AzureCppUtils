@@ -1,4 +1,4 @@
-﻿/*
+/*
     AzureCppUtils : Azure REST API Utilities for Modern C++
 
     BSD 3-Clause License
@@ -48,21 +48,24 @@
 /// @brief SiddiqSoft
 namespace siddiqsoft
 {
-#if !defined(_NORW)
+#if !defined(NORW)
     /// @brief In support of the macro NORW which allows us to declare/use narrow/wide strings as needed. Plucked from the MS stl
     /// implementation
-    template <typename _NorWT>
-        requires std::same_as<_NorWT, char> || std::same_as<_NorWT, wchar_t>
-    [[nodiscard]] constexpr const _NorWT* NorW_1(const char* const _Str, const wchar_t* const _WStr) noexcept
+    template <typename NorWT>
+        requires std::same_as<NorWT, char> || std::same_as<NorWT, wchar_t>
+    [[nodiscard]] constexpr const NorWT* NorW_1(const char* const Str, const wchar_t* const WStr) noexcept
     {
-        if constexpr (std::is_same_v<_NorWT, char>) {
-            return _Str;
+        if constexpr (std::is_same_v<NorWT, char>) {
+            return Str;
         }
         else {
-            return _WStr;
+            return WStr;
         }
     }
-#define _NORW(_NorWT, _Literal) NorW_1<_NorWT>(_Literal, L##_Literal)
+#define NORW(NorWT, Literal) NorW_1<NorWT>(Literal, L##Literal)
+#if !defined(_NORW)
+#define _NORW(NorWT, Literal) NORW(NorWT, Literal)
+#endif
 #endif
 
     /// @brief Url encode function
@@ -85,16 +88,17 @@ namespace siddiqsoft
 
             if constexpr (std::is_same_v<T, char>) {
                 std::ranges::for_each(source, [&retOutput, &lowerCase](T ch) {
-                    if ((((ch >= 48) && (ch <= 57)) || ((ch >= 65) && (ch <= 90)) || ((ch >= 97) && (ch <= 122))) ||
-                        ((ch == '.') || (ch == '-') || (ch == '~') || (ch == '_')))
+                    const auto uch = static_cast<unsigned char>(ch);
+                    if ((((uch >= 48) && (uch <= 57)) || ((uch >= 65) && (uch <= 90)) || ((uch >= 97) && (uch <= 122))) ||
+                        ((uch == '.') || (uch == '-') || (uch == '~') || (uch == '_')))
                     {
                         // Takes care of 0-9, A-Z and a-z as well as some
                         // Other special cases
                         std::format_to(std::back_inserter(retOutput), "{}", ch);
                     }
                     else {
-                        lowerCase ? std::format_to(std::back_inserter(retOutput), "%{:02x}", ch)
-                                  : std::format_to(std::back_inserter(retOutput), "%{:02X}", ch);
+                        lowerCase ? std::format_to(std::back_inserter(retOutput), "%{:02x}", uch)
+                                  : std::format_to(std::back_inserter(retOutput), "%{:02X}", uch);
                     };
                 });
             }

@@ -1,4 +1,4 @@
-﻿/*
+/*
     AzureCppUtils : Azure REST API Utilities for Modern C++
 
     BSD 3-Clause License
@@ -125,6 +125,10 @@ namespace siddiqsoft
                                                source.length());
                     destSize > 0)
                 {
+                    // EVP_EncodeBlock returns length including the trailing NUL character.
+                    if (destSize > 0 && dest[destSize - 1] == '\0') {
+                        destSize--;
+                    }
                     dest.resize(destSize);
                     return dest;
                 }
@@ -162,11 +166,14 @@ namespace siddiqsoft
                                                source.length());
                     destSize > 0)
                 {
-                    // Remove/trim the padded \0 at the end
-                    // Start from the end and if we see a \0 then decrease the destSize
-                    while ((destSize > 0) && dest.at(destSize - 1) == '\0') {
+                    // EVP_DecodeBlock returns decoded byte count, but includes padding bytes.
+                    // Check for base64 '=' padding characters at end of source:
+                    if (source.length() >= 2 && source[source.length() - 1] == '=') {
                         destSize--;
-                    };
+                        if (source[source.length() - 2] == '=') {
+                            destSize--;
+                        }
+                    }
 
                     dest.resize(destSize);
                     return dest;
