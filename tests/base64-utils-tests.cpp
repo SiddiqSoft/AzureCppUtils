@@ -183,6 +183,28 @@ namespace siddiqsoft
             EXPECT_FALSE("No match.");
         }
     }
+    TEST(Base64Utils, SiddiqSoftware_Arabic)
+    {
+        std::string  narrowSample {"صديق للبرمجيات"};
+        std::wstring wideSampleEscaped {L"\u0635\u062F\u064A\u0642 \u0644\u0644\u0628\u0631\u0645\u062C\u064A\u0627\u062A"};
+        std::wstring wideSampleLiteral {L"صديق للبرمجيات"};
+
+        try {
+            auto encodedNarrow = Base64Utils::encode(narrowSample);
+            auto roundTripNarrow = Base64Utils::decode(encodedNarrow);
+            EXPECT_EQ(narrowSample, roundTripNarrow);
+
+            auto encodedWideEscaped = Base64Utils::encode(wideSampleEscaped);
+            EXPECT_EQ(encodedNarrow, encodedWideEscaped);
+
+            auto encodedWideLiteral = Base64Utils::encode(wideSampleLiteral);
+            EXPECT_EQ(encodedNarrow, encodedWideLiteral);
+        }
+        catch (const std::exception& ex) {
+            std::cerr << ex.what() << std::endl;
+            EXPECT_FALSE("No match.");
+        }
+    }
 #endif
 
 

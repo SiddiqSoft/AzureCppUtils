@@ -99,6 +99,19 @@ namespace siddiqsoft
         auto result = UrlUtils::encode<wchar_t>(src);
         EXPECT_EQ(expected_result, result);
     }
+    TEST(UrlUtils, SiddiqSoftware_Arabic)
+    {
+        std::string narrowSrc {"صديق للبرمجيات"};
+        std::wstring wideSrc {L"صديق للبرمجيات"};
+        std::string expected_result = "%D8%B5%D8%AF%D9%8A%D9%82%20%D9%84%D9%84%D8%A8%D8%B1%D9%85%D8%AC%D9%8A%D8%A7%D8%AA";
+
+        auto resultNarrow = UrlUtils::encode<char>(narrowSrc);
+        auto resultWide   = UrlUtils::encode<wchar_t>(wideSrc);
+        auto resultWideConverted = ConversionUtils::convert_to<wchar_t, char>(resultWide);
+
+        EXPECT_EQ(expected_result, resultNarrow);
+        EXPECT_EQ(resultWideConverted, expected_result);
+    }
 
 
     // ---- Additional Tests ----
