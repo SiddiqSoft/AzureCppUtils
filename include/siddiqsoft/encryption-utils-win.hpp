@@ -166,47 +166,53 @@ namespace siddiqsoft
                 BCRYPT_HASH_HANDLE hHash {};
                 NTSTATUS           status {0};
                 RunOnEnd           cleanupOnEnd {[&hAlg, &hHash] {
-                    // All handles we allocate are cleaned up when this function returns to caller
-                    if (hAlg) BCryptCloseAlgorithmProvider(hAlg, 0);
+                    // All handles we allocate are cleaned up when this function returns to caller.
+                    // hHash MUST be destroyed BEFORE hAlg is closed.
                     if (hHash) BCryptDestroyHash(hHash);
+                    if (hAlg) BCryptCloseAlgorithmProvider(hAlg, 0);
                 }};
 
                 if (status = BCryptOpenAlgorithmProvider(&hAlg, BCRYPT_SHA256_ALGORITHM, nullptr, BCRYPT_ALG_HANDLE_HMAC_FLAG);
                     status == 0)
                 {
-                    // Set the key for the hash function..
-                    // Passing NULL, 0 to the pbHashObject and cbHashObject asks the method to allocate
-                    // memory on our behalf.
-                    if (status = BCryptCreateHash(hAlg,
-                                                  &hHash,
-                                                  nullptr,
-                                                  0,
-                                                  reinterpret_cast<UCHAR*>(const_cast<char*>(key.data())),
-                                                  static_cast<DWORD>(key.length()),
-                                                  0);
+                    // Query hash object length and hash length
+                    DWORD cbHashObject {0};
+                    DWORD cbHash {0};
+                    ULONG cbData {0};
+                    if (status = BCryptGetProperty(
+                                hAlg, BCRYPT_OBJECT_LENGTH, reinterpret_cast<UCHAR*>(&cbHashObject), sizeof(DWORD), &cbData, 0);
                         status == 0)
                     {
-                        // Let's hash our message!
-                        if (status = BCryptHashData(hHash,
-                                                    reinterpret_cast<UCHAR*>(const_cast<char*>(message.data())),
-                                                    static_cast<DWORD>(message.length()),
-                                                    0);
+                        if (status = BCryptGetProperty(
+                                    hAlg, BCRYPT_HASH_LENGTH, reinterpret_cast<UCHAR*>(&cbHash), sizeof(DWORD), &cbData, 0);
                             status == 0)
                         {
-                            // Get the size of the hash so we can fetch it..
-                            DWORD cbHash {0};
-                            ULONG cbData {0};
-                            if (status = BCryptGetProperty(
-                                        hAlg, BCRYPT_HASH_LENGTH, reinterpret_cast<UCHAR*>(&cbHash), sizeof(DWORD), &cbData, 0);
+                            std::vector<BYTE> pbHashObject(cbHashObject);
+                            // Set the key for the hash function..
+                            if (status = BCryptCreateHash(hAlg,
+                                                          &hHash,
+                                                          pbHashObject.data(),
+                                                          cbHashObject,
+                                                          reinterpret_cast<UCHAR*>(const_cast<char*>(key.data())),
+                                                          static_cast<DWORD>(key.length()),
+                                                          0);
                                 status == 0)
                             {
-                                std::vector<BYTE> pbHash(cbHash);
-                                // Fetch the hash value
-                                if (status = BCryptFinishHash(hHash, reinterpret_cast<UCHAR*>(pbHash.data()), cbHash, 0);
+                                // Let's hash our message!
+                                if (status = BCryptHashData(hHash,
+                                                            reinterpret_cast<UCHAR*>(const_cast<char*>(message.data())),
+                                                            static_cast<DWORD>(message.length()),
+                                                            0);
                                     status == 0)
                                 {
-                                    // Return the HMAC as a raw binary..client must choose to encode or leave as-is
-                                    return std::string {reinterpret_cast<char*>(pbHash.data()), cbHash};
+                                    std::vector<BYTE> pbHash(cbHash);
+                                    // Fetch the hash value
+                                    if (status = BCryptFinishHash(hHash, reinterpret_cast<UCHAR*>(pbHash.data()), cbHash, 0);
+                                        status == 0)
+                                    {
+                                        // Return the HMAC as a raw binary..client must choose to encode or leave as-is
+                                        return std::string {reinterpret_cast<char*>(pbHash.data()), cbHash};
+                                    }
                                 }
                             }
                         }
