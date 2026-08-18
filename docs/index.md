@@ -112,7 +112,7 @@ Azure C++ Utils is a high-performance, header-only Modern C++23 library providin
 
 ## Documentation Quick Links
 
-<div class="grid-cards">
+<div class="grid">
   <div class="card">
     <h3><a href="features/">Features & Guides</a></h3>
     <p>Explore detailed guides for Date Utilities, Base64 conversion, Encryption, SAS Tokens, and URL encoding.</p>

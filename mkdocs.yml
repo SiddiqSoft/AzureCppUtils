@@ -5,6 +5,7 @@ site_url: https://siddiqsoft.github.io/AzureCppUtils/
 repo_url: https://github.com/SiddiqSoft/AzureCppUtils
 repo_name: SiddiqSoft/AzureCppUtils
 edit_uri: edit/main/docs/
+exclude_docs: "MIGRATE_DOCS_PROMPT.md"
 
 hooks:
   - docs/hooks.py
@@ -16,8 +17,6 @@ extra:
 theme:
   name: material
   language: en
-  logo: assets/Siddiq-Software-Avatar.png
-  favicon: assets/Siddiq-Software-Avatar.png
   palette:
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
@@ -35,6 +34,10 @@ theme:
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
+
+  font:
+    text: Roboto
+    code: JetBrains Mono
   features:
     - navigation.tabs
     - navigation.tabs.sticky
