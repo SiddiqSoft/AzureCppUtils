@@ -93,15 +93,24 @@ namespace siddiqsoft
     TEST(UrlUtils, urlescape_3w)
     {
         // The library always encodes in UTF-8 despite the container
-        std::wstring src = LR"(صديق)";
-        #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
-        std::wstring expected_result = L"%C3%98%C2%B5%C3%98%C2%AF%C3%99%C5%A0%C3%99%E2%80%9A";
-        #else
+        std::wstring src = L"\u0635\u062F\u064A\u0642";
         std::wstring expected_result = L"%D8%B5%D8%AF%D9%8A%D9%82";
-        #endif
 
         auto result = UrlUtils::encode<wchar_t>(src);
         EXPECT_EQ(expected_result, result);
+    }
+    TEST(UrlUtils, SiddiqSoftware_Arabic)
+    {
+        std::string narrowSrc {"صديق للبرمجيات"};
+        std::wstring wideSrc {L"صديق للبرمجيات"};
+        std::string expected_result = "%D8%B5%D8%AF%D9%8A%D9%82%20%D9%84%D9%84%D8%A8%D8%B1%D9%85%D8%AC%D9%8A%D8%A7%D8%AA";
+
+        auto resultNarrow = UrlUtils::encode<char>(narrowSrc);
+        auto resultWide   = UrlUtils::encode<wchar_t>(wideSrc);
+        auto resultWideConverted = ConversionUtils::convert_to<wchar_t, char>(resultWide);
+
+        EXPECT_EQ(expected_result, resultNarrow);
+        EXPECT_EQ(resultWideConverted, expected_result);
     }
 
 

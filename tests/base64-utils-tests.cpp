@@ -1,4 +1,4 @@
-﻿/*
+/*
     AzureCppUtils : Azure Utilities for Modern C++
 
     BSD 3-Clause License
@@ -172,11 +172,38 @@ namespace siddiqsoft
     #if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
     TEST(Base64Utils, test1d_w)
     {
-        std::wstring sample {L"صديق"};
+        std::wstring sample {L"\u0635\u062F\u064A\u0642"};
 
         try {
             auto roundTrip = Base64Utils::decode(Base64Utils::encode(sample));
             EXPECT_EQ(sample, roundTrip);
+        }
+        catch (const std::exception& ex) {
+            std::cerr << ex.what() << std::endl;
+            EXPECT_FALSE("No match.");
+        }
+    }
+    
+    TEST(Base64Utils, SiddiqSoftware_Arabic)
+    {
+        std::string  narrowSample {"صديق للبرمجيات"};
+        std::wstring wideSampleEscaped {L"\u0635\u062F\u064A\u0642 \u0644\u0644\u0628\u0631\u0645\u062C\u064A\u0627\u062A"};
+        std::wstring wideSampleLiteral {L"صديق للبرمجيات"};
+
+        try {
+            auto encodedNarrow = Base64Utils::encode(narrowSample);
+            auto roundTripNarrow = Base64Utils::decode(encodedNarrow);
+            EXPECT_EQ(narrowSample, roundTripNarrow);
+
+            auto encodedWideEscaped = Base64Utils::encode(wideSampleEscaped);
+            auto roundTripWideEscaped = Base64Utils::decode(encodedWideEscaped);
+            EXPECT_EQ(wideSampleEscaped, roundTripWideEscaped);
+
+            auto encodedWideLiteral = Base64Utils::encode(wideSampleLiteral);
+            auto roundTripWideLiteral = Base64Utils::decode(encodedWideLiteral);
+            EXPECT_EQ(wideSampleLiteral, roundTripWideLiteral);
+
+            EXPECT_EQ(encodedWideEscaped, encodedWideLiteral);
         }
         catch (const std::exception& ex) {
             std::cerr << ex.what() << std::endl;

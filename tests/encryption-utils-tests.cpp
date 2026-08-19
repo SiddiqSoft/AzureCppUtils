@@ -212,7 +212,7 @@ namespace siddiqsoft
 
     TEST(EncryptionUtils, HMAC_1_w)
     {
-        std::wstring myData {L"hello صديق"};
+        std::wstring myData {L"hello \u0635\u062F\u064A\u0642"};
         std::string  myKey {"01234567890123456789012345678901"};
 
         try {
@@ -600,5 +600,98 @@ namespace siddiqsoft
         EXPECT_FALSE(EncryptionUtils::constantTimeCompare("hello", "world"));
         EXPECT_FALSE(EncryptionUtils::constantTimeCompare("hello", "hello1"));
         EXPECT_TRUE(EncryptionUtils::constantTimeCompare("", ""));
+    }
+
+    // ---- Arabic Text Embedded Source Code Tests ----
+
+    TEST(EncryptionUtils, HMAC_Arabic_Char_Vs_WChar)
+    {
+        std::string  key {"01234567890123456789012345678901"};
+        std::string  narrowArabic {"مرحبا بالعالم"};
+        std::wstring wideArabic {L"مرحبا بالعالم"};
+
+        auto rNarrow = EncryptionUtils::HMAC<char>(narrowArabic, key);
+        auto rWide   = EncryptionUtils::HMAC<wchar_t>(wideArabic, key);
+
+        EXPECT_FALSE(rNarrow.empty());
+        EXPECT_FALSE(rWide.empty());
+        EXPECT_EQ(rNarrow, rWide);
+        EXPECT_EQ(Base64Utils::encode(rNarrow), Base64Utils::encode(rWide));
+    }
+
+    TEST(EncryptionUtils, HMAC_Arabic_Escaped_WChar)
+    {
+        std::string  key {"01234567890123456789012345678901"};
+        std::string  narrowData {"hello صديق"};
+        std::wstring wideDataEscaped {L"hello \u0635\u062F\u064A\u0642"};
+
+        auto rNarrow = EncryptionUtils::HMAC<char>(narrowData, key);
+        auto rWide   = EncryptionUtils::HMAC<wchar_t>(wideDataEscaped, key);
+
+        EXPECT_EQ(rNarrow, rWide);
+        EXPECT_STREQ("Sr4F0Mxb/dmb/Rmx3T7sEgV9CptGkX+xdayR9YHgLJA=", Base64Utils::encode(rNarrow).c_str());
+    }
+
+    TEST(EncryptionUtils, MD5_Arabic_Char_Vs_WChar)
+    {
+        std::string  narrowArabic {"السلام عليكم"};
+        std::wstring wideArabic {L"السلام عليكم"};
+
+        auto mdNarrow = EncryptionUtils::MD5<char>(narrowArabic);
+        auto mdWide   = EncryptionUtils::MD5<wchar_t>(wideArabic);
+
+        EXPECT_FALSE(mdNarrow.empty());
+        EXPECT_FALSE(mdWide.empty());
+        EXPECT_EQ(mdNarrow, mdWide);
+    }
+
+    TEST(EncryptionUtils, HMAC_SiddiqSoftware_Arabic)
+    {
+        std::string  key {"01234567890123456789012345678901"};
+        std::string  narrowData {"صديق للبرمجيات"};
+        std::wstring wideDataEscaped {L"\u0635\u062F\u064A\u0642 \u0644\u0644\u0628\u0631\u0645\u062C\u064A\u0627\u062A"};
+        std::wstring wideDataLiteral {L"صديق للبرمجيات"};
+
+        auto rNarrow        = EncryptionUtils::HMAC<char>(narrowData, key);
+        auto rWideEscaped   = EncryptionUtils::HMAC<wchar_t>(wideDataEscaped, key);
+        auto rWideLiteral   = EncryptionUtils::HMAC<wchar_t>(wideDataLiteral, key);
+
+        EXPECT_FALSE(rNarrow.empty());
+        EXPECT_EQ(rNarrow, rWideEscaped);
+        EXPECT_EQ(rNarrow, rWideLiteral);
+        EXPECT_EQ(Base64Utils::encode(rNarrow), Base64Utils::encode(rWideEscaped));
+    }
+
+    TEST(EncryptionUtils, MD5_SiddiqSoftware_Arabic)
+    {
+        std::string  narrowData {"صديق للبرمجيات"};
+        std::wstring wideDataEscaped {L"\u0635\u062F\u064A\u0642 \u0644\u0644\u0628\u0631\u0645\u062C\u064A\u0627\u062A"};
+        std::wstring wideDataLiteral {L"صديق للبرمجيات"};
+
+        auto mdNarrow        = EncryptionUtils::MD5<char>(narrowData);
+        auto mdWideEscaped   = EncryptionUtils::MD5<wchar_t>(wideDataEscaped);
+        auto mdWideLiteral   = EncryptionUtils::MD5<wchar_t>(wideDataLiteral);
+
+        EXPECT_FALSE(mdNarrow.empty());
+        EXPECT_EQ(mdNarrow, mdWideEscaped);
+        EXPECT_EQ(mdNarrow, mdWideLiteral);
+    }
+
+    TEST(EncryptionUtils, JWTHMAC256_Arabic_Payload)
+    {
+        std::string secret {"01234567890123456789012345678901"};
+        std::string narrowHeader {R"({"alg":"HS256","typ":"JWT"})"};
+        std::string narrowPayload {R"({"issuer":"صديق للبرمجيات","message":"مرحبا بالعالم"})"};
+
+        std::wstring wideHeader {LR"({"alg":"HS256","typ":"JWT"})"};
+        std::wstring widePayload {LR"({"issuer":"صديق للبرمجيات","message":"مرحبا بالعالم"})"};
+
+        auto jwtNarrow = EncryptionUtils::JWTHMAC256<char>(secret, narrowHeader, narrowPayload);
+        auto jwtWide   = EncryptionUtils::JWTHMAC256<wchar_t>(secret, wideHeader, widePayload);
+        auto jwtWideConverted = ConversionUtils::convert_to<wchar_t, char>(jwtWide);
+
+        EXPECT_FALSE(jwtNarrow.empty());
+        EXPECT_FALSE(jwtWide.empty());
+        EXPECT_EQ(jwtNarrow, jwtWideConverted);
     }
 } // namespace siddiqsoft
