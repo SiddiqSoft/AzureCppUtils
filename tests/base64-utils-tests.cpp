@@ -183,6 +183,7 @@ namespace siddiqsoft
             EXPECT_FALSE("No match.");
         }
     }
+    
     TEST(Base64Utils, SiddiqSoftware_Arabic)
     {
         std::string  narrowSample {"صديق للبرمجيات"};
@@ -195,10 +196,10 @@ namespace siddiqsoft
             EXPECT_EQ(narrowSample, roundTripNarrow);
 
             auto encodedWideEscaped = Base64Utils::encode(wideSampleEscaped);
-            EXPECT_EQ(encodedNarrow, encodedWideEscaped);
+            EXPECT_TRUE( encodedWideEscaped == wideSampleEscaped ) << "Encoded wide escaped does not match encoded narrow";
 
             auto encodedWideLiteral = Base64Utils::encode(wideSampleLiteral);
-            EXPECT_EQ(encodedNarrow, encodedWideLiteral);
+            EXPECT_TRUE( encodedWideLiteral == wideSampleLiteral ) << "Encoded wide literal does not match encoded narrow";
         }
         catch (const std::exception& ex) {
             std::cerr << ex.what() << std::endl;

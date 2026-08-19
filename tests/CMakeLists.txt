@@ -1,7 +1,7 @@
 if(${${PROJECT_NAME}_BUILD_TESTS})
     set(TESTPROJ ${PROJECT_NAME}_tests)
 
-    set(CMAKE_CXX_STANDARD 23)
+    set(CMAKE_CXX_STANDARD ${CMAKE_CXX_STANDARD})
     set(CMAKE_CXX_STANDARD_REQUIRED On)
     set(CMAKE_CXX_EXTENSIONS Off)
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -14,7 +14,7 @@ if(${${PROJECT_NAME}_BUILD_TESTS})
     target_compile_features(${TESTPROJ} PRIVATE cxx_std_${CMAKE_CXX_STANDARD})
     target_compile_options( ${TESTPROJ}
                             PRIVATE
-                            $<$<CXX_COMPILER_ID:MSVC>:/std:c++${CMAKE_CXX_STANDARD} /utf-8> )
+                            $<$<CXX_COMPILER_ID:MSVC>:/std:c++latest /utf-8> )
 
     # Check if mold is available on the system
     find_program(MOLD_LINKER mold)
