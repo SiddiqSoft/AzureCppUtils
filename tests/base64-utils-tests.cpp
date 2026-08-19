@@ -196,10 +196,14 @@ namespace siddiqsoft
             EXPECT_EQ(narrowSample, roundTripNarrow);
 
             auto encodedWideEscaped = Base64Utils::encode(wideSampleEscaped);
-            EXPECT_TRUE( encodedWideEscaped == wideSampleEscaped ) << "Encoded wide escaped does not match encoded narrow";
+            auto roundTripWideEscaped = Base64Utils::decode(encodedWideEscaped);
+            EXPECT_EQ(wideSampleEscaped, roundTripWideEscaped);
 
             auto encodedWideLiteral = Base64Utils::encode(wideSampleLiteral);
-            EXPECT_TRUE( encodedWideLiteral == wideSampleLiteral ) << "Encoded wide literal does not match encoded narrow";
+            auto roundTripWideLiteral = Base64Utils::decode(encodedWideLiteral);
+            EXPECT_EQ(wideSampleLiteral, roundTripWideLiteral);
+
+            EXPECT_EQ(encodedWideEscaped, encodedWideLiteral);
         }
         catch (const std::exception& ex) {
             std::cerr << ex.what() << std::endl;
